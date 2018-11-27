@@ -700,3 +700,185 @@ Using Spark's default log4j profile: org/apache/spark/log4j-defaults.properties
 18/11/27 14:42:18 INFO Worker: Executor app-20181127144213-0051/0 finished with state KILLED exitStatus 143
 18/11/27 14:42:18 INFO ExternalShuffleBlockResolver: Application app-20181127144213-0051 removed, cleanupLocalDirs = true
 18/11/27 14:42:18 INFO Worker: Cleaning up local directories for application app-20181127144213-0051
+18/11/27 15:01:14 INFO Worker: Asked to launch executor app-20181127150114-0052/0 for SparkHdfsLRDP
+18/11/27 15:01:14 INFO SecurityManager: Changing view acls to: john
+18/11/27 15:01:14 INFO SecurityManager: Changing modify acls to: john
+18/11/27 15:01:14 INFO SecurityManager: Changing view acls groups to: 
+18/11/27 15:01:14 INFO SecurityManager: Changing modify acls groups to: 
+18/11/27 15:01:14 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users  with view permissions: Set(john); groups with view permissions: Set(); users  with modify permissions: Set(john); groups with modify permissions: Set()
+18/11/27 15:01:14 INFO ExecutorRunner: Launch command: "/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java" "-cp" "/home/john/spark-2.2.0/conf/:/home/john/spark-2.2.0/assembly/target/scala-2.11/jars/*" "-Xmx1024M" "-Dspark.driver.port=35255" "org.apache.spark.executor.CoarseGrainedExecutorBackend" "--driver-url" "spark://CoarseGrainedScheduler@202.45.128.172:35255" "--executor-id" "0" "--hostname" "202.45.128.172" "--cores" "8" "--app-id" "app-20181127150114-0052" "--worker-url" "spark://Worker@202.45.128.172:42023"
+18/11/27 15:01:18 INFO Worker: Asked to kill executor app-20181127150114-0052/0
+18/11/27 15:01:18 INFO ExecutorRunner: Runner thread for executor app-20181127150114-0052/0 interrupted
+18/11/27 15:01:18 INFO ExecutorRunner: Killing process!
+18/11/27 15:01:18 INFO Worker: Executor app-20181127150114-0052/0 finished with state KILLED exitStatus 143
+18/11/27 15:01:18 INFO Worker: Cleaning up local directories for application app-20181127150114-0052
+18/11/27 15:01:18 INFO ExternalShuffleBlockResolver: Application app-20181127150114-0052 removed, cleanupLocalDirs = true
+18/11/27 15:01:45 INFO Worker: Asked to launch executor app-20181127150145-0053/0 for SparkHdfsLRDP
+18/11/27 15:01:45 INFO SecurityManager: Changing view acls to: john
+18/11/27 15:01:45 INFO SecurityManager: Changing modify acls to: john
+18/11/27 15:01:45 INFO SecurityManager: Changing view acls groups to: 
+18/11/27 15:01:45 INFO SecurityManager: Changing modify acls groups to: 
+18/11/27 15:01:45 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users  with view permissions: Set(john); groups with view permissions: Set(); users  with modify permissions: Set(john); groups with modify permissions: Set()
+18/11/27 15:01:45 INFO ExecutorRunner: Launch command: "/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java" "-cp" "/home/john/spark-2.2.0/conf/:/home/john/spark-2.2.0/assembly/target/scala-2.11/jars/*" "-Xmx1024M" "-Dspark.driver.port=38699" "org.apache.spark.executor.CoarseGrainedExecutorBackend" "--driver-url" "spark://CoarseGrainedScheduler@202.45.128.172:38699" "--executor-id" "0" "--hostname" "202.45.128.172" "--cores" "8" "--app-id" "app-20181127150145-0053" "--worker-url" "spark://Worker@202.45.128.172:42023"
+18/11/27 15:01:49 INFO Worker: Asked to kill executor app-20181127150145-0053/0
+18/11/27 15:01:49 INFO ExecutorRunner: Runner thread for executor app-20181127150145-0053/0 interrupted
+18/11/27 15:01:49 INFO ExecutorRunner: Killing process!
+18/11/27 15:01:49 INFO Worker: Executor app-20181127150145-0053/0 finished with state KILLED exitStatus 143
+18/11/27 15:01:49 INFO ExternalShuffleBlockResolver: Application app-20181127150145-0053 removed, cleanupLocalDirs = true
+18/11/27 15:01:49 INFO Worker: Cleaning up local directories for application app-20181127150145-0053
+18/11/27 15:02:01 INFO Worker: Asked to launch executor app-20181127150201-0054/0 for SparkHdfsLRDP
+18/11/27 15:02:01 INFO SecurityManager: Changing view acls to: john
+18/11/27 15:02:01 INFO SecurityManager: Changing modify acls to: john
+18/11/27 15:02:01 INFO SecurityManager: Changing view acls groups to: 
+18/11/27 15:02:01 INFO SecurityManager: Changing modify acls groups to: 
+18/11/27 15:02:01 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users  with view permissions: Set(john); groups with view permissions: Set(); users  with modify permissions: Set(john); groups with modify permissions: Set()
+18/11/27 15:02:01 INFO ExecutorRunner: Launch command: "/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java" "-cp" "/home/john/spark-2.2.0/conf/:/home/john/spark-2.2.0/assembly/target/scala-2.11/jars/*" "-Xmx1024M" "-Dspark.driver.port=40486" "org.apache.spark.executor.CoarseGrainedExecutorBackend" "--driver-url" "spark://CoarseGrainedScheduler@202.45.128.172:40486" "--executor-id" "0" "--hostname" "202.45.128.172" "--cores" "8" "--app-id" "app-20181127150201-0054" "--worker-url" "spark://Worker@202.45.128.172:42023"
+18/11/27 15:02:06 INFO Worker: Asked to kill executor app-20181127150201-0054/0
+18/11/27 15:02:06 INFO ExecutorRunner: Runner thread for executor app-20181127150201-0054/0 interrupted
+18/11/27 15:02:06 INFO ExecutorRunner: Killing process!
+18/11/27 15:02:06 INFO Worker: Executor app-20181127150201-0054/0 finished with state KILLED exitStatus 143
+18/11/27 15:02:06 INFO Worker: Cleaning up local directories for application app-20181127150201-0054
+18/11/27 15:02:06 INFO ExternalShuffleBlockResolver: Application app-20181127150201-0054 removed, cleanupLocalDirs = true
+18/11/27 15:05:53 INFO Worker: Asked to launch executor app-20181127150553-0055/0 for SparkHdfsLR
+18/11/27 15:05:53 INFO SecurityManager: Changing view acls to: john
+18/11/27 15:05:53 INFO SecurityManager: Changing modify acls to: john
+18/11/27 15:05:53 INFO SecurityManager: Changing view acls groups to: 
+18/11/27 15:05:53 INFO SecurityManager: Changing modify acls groups to: 
+18/11/27 15:05:53 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users  with view permissions: Set(john); groups with view permissions: Set(); users  with modify permissions: Set(john); groups with modify permissions: Set()
+18/11/27 15:05:53 INFO ExecutorRunner: Launch command: "/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java" "-cp" "/home/john/spark-2.2.0/conf/:/home/john/spark-2.2.0/assembly/target/scala-2.11/jars/*" "-Xmx1024M" "-Dspark.driver.port=32946" "org.apache.spark.executor.CoarseGrainedExecutorBackend" "--driver-url" "spark://CoarseGrainedScheduler@202.45.128.172:32946" "--executor-id" "0" "--hostname" "202.45.128.172" "--cores" "8" "--app-id" "app-20181127150553-0055" "--worker-url" "spark://Worker@202.45.128.172:42023"
+18/11/27 15:05:57 INFO Worker: Asked to kill executor app-20181127150553-0055/0
+18/11/27 15:05:57 INFO ExecutorRunner: Runner thread for executor app-20181127150553-0055/0 interrupted
+18/11/27 15:05:57 INFO ExecutorRunner: Killing process!
+18/11/27 15:05:57 INFO Worker: Executor app-20181127150553-0055/0 finished with state KILLED exitStatus 143
+18/11/27 15:05:57 INFO ExternalShuffleBlockResolver: Application app-20181127150553-0055 removed, cleanupLocalDirs = true
+18/11/27 15:05:57 INFO Worker: Cleaning up local directories for application app-20181127150553-0055
+18/11/27 15:06:11 INFO Worker: Asked to launch executor app-20181127150611-0056/0 for SparkHdfsLRDP
+18/11/27 15:06:11 INFO SecurityManager: Changing view acls to: john
+18/11/27 15:06:11 INFO SecurityManager: Changing modify acls to: john
+18/11/27 15:06:11 INFO SecurityManager: Changing view acls groups to: 
+18/11/27 15:06:11 INFO SecurityManager: Changing modify acls groups to: 
+18/11/27 15:06:11 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users  with view permissions: Set(john); groups with view permissions: Set(); users  with modify permissions: Set(john); groups with modify permissions: Set()
+18/11/27 15:06:11 INFO ExecutorRunner: Launch command: "/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java" "-cp" "/home/john/spark-2.2.0/conf/:/home/john/spark-2.2.0/assembly/target/scala-2.11/jars/*" "-Xmx1024M" "-Dspark.driver.port=39896" "org.apache.spark.executor.CoarseGrainedExecutorBackend" "--driver-url" "spark://CoarseGrainedScheduler@202.45.128.172:39896" "--executor-id" "0" "--hostname" "202.45.128.172" "--cores" "8" "--app-id" "app-20181127150611-0056" "--worker-url" "spark://Worker@202.45.128.172:42023"
+18/11/27 15:06:15 INFO Worker: Asked to kill executor app-20181127150611-0056/0
+18/11/27 15:06:15 INFO ExecutorRunner: Runner thread for executor app-20181127150611-0056/0 interrupted
+18/11/27 15:06:15 INFO ExecutorRunner: Killing process!
+18/11/27 15:06:16 INFO Worker: Executor app-20181127150611-0056/0 finished with state KILLED exitStatus 143
+18/11/27 15:06:16 INFO Worker: Cleaning up local directories for application app-20181127150611-0056
+18/11/27 15:06:16 INFO ExternalShuffleBlockResolver: Application app-20181127150611-0056 removed, cleanupLocalDirs = true
+18/11/27 15:30:51 INFO Worker: Asked to launch executor app-20181127153051-0057/0 for SparkKMeans
+18/11/27 15:30:51 INFO SecurityManager: Changing view acls to: john
+18/11/27 15:30:51 INFO SecurityManager: Changing modify acls to: john
+18/11/27 15:30:51 INFO SecurityManager: Changing view acls groups to: 
+18/11/27 15:30:51 INFO SecurityManager: Changing modify acls groups to: 
+18/11/27 15:30:51 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users  with view permissions: Set(john); groups with view permissions: Set(); users  with modify permissions: Set(john); groups with modify permissions: Set()
+18/11/27 15:30:51 INFO ExecutorRunner: Launch command: "/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java" "-cp" "/home/john/spark-2.2.0/conf/:/home/john/spark-2.2.0/assembly/target/scala-2.11/jars/*" "-Xmx1024M" "-Dspark.driver.port=32906" "org.apache.spark.executor.CoarseGrainedExecutorBackend" "--driver-url" "spark://CoarseGrainedScheduler@202.45.128.172:32906" "--executor-id" "0" "--hostname" "202.45.128.172" "--cores" "8" "--app-id" "app-20181127153051-0057" "--worker-url" "spark://Worker@202.45.128.172:42023"
+18/11/27 15:30:55 INFO Worker: Asked to kill executor app-20181127153051-0057/0
+18/11/27 15:30:55 INFO ExecutorRunner: Runner thread for executor app-20181127153051-0057/0 interrupted
+18/11/27 15:30:55 INFO ExecutorRunner: Killing process!
+18/11/27 15:30:55 INFO Worker: Executor app-20181127153051-0057/0 finished with state KILLED exitStatus 143
+18/11/27 15:30:55 INFO ExternalShuffleBlockResolver: Application app-20181127153051-0057 removed, cleanupLocalDirs = true
+18/11/27 15:30:55 INFO Worker: Cleaning up local directories for application app-20181127153051-0057
+18/11/27 15:35:05 INFO Worker: Asked to launch executor app-20181127153505-0058/0 for SparkKMeans
+18/11/27 15:35:05 INFO SecurityManager: Changing view acls to: john
+18/11/27 15:35:05 INFO SecurityManager: Changing modify acls to: john
+18/11/27 15:35:05 INFO SecurityManager: Changing view acls groups to: 
+18/11/27 15:35:05 INFO SecurityManager: Changing modify acls groups to: 
+18/11/27 15:35:05 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users  with view permissions: Set(john); groups with view permissions: Set(); users  with modify permissions: Set(john); groups with modify permissions: Set()
+18/11/27 15:35:05 INFO ExecutorRunner: Launch command: "/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java" "-cp" "/home/john/spark-2.2.0/conf/:/home/john/spark-2.2.0/assembly/target/scala-2.11/jars/*" "-Xmx1024M" "-Dspark.driver.port=42514" "org.apache.spark.executor.CoarseGrainedExecutorBackend" "--driver-url" "spark://CoarseGrainedScheduler@202.45.128.172:42514" "--executor-id" "0" "--hostname" "202.45.128.172" "--cores" "8" "--app-id" "app-20181127153505-0058" "--worker-url" "spark://Worker@202.45.128.172:42023"
+18/11/27 15:35:20 INFO Worker: Asked to kill executor app-20181127153505-0058/0
+18/11/27 15:35:21 INFO ExecutorRunner: Runner thread for executor app-20181127153505-0058/0 interrupted
+18/11/27 15:35:21 INFO ExecutorRunner: Killing process!
+18/11/27 15:35:21 INFO Worker: Executor app-20181127153505-0058/0 finished with state KILLED exitStatus 143
+18/11/27 15:35:21 INFO Worker: Cleaning up local directories for application app-20181127153505-0058
+18/11/27 15:35:21 INFO ExternalShuffleBlockResolver: Application app-20181127153505-0058 removed, cleanupLocalDirs = true
+18/11/27 15:35:55 INFO Worker: Asked to launch executor app-20181127153555-0059/0 for SparkKMeans
+18/11/27 15:35:55 INFO SecurityManager: Changing view acls to: john
+18/11/27 15:35:55 INFO SecurityManager: Changing modify acls to: john
+18/11/27 15:35:55 INFO SecurityManager: Changing view acls groups to: 
+18/11/27 15:35:55 INFO SecurityManager: Changing modify acls groups to: 
+18/11/27 15:35:55 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users  with view permissions: Set(john); groups with view permissions: Set(); users  with modify permissions: Set(john); groups with modify permissions: Set()
+18/11/27 15:35:55 INFO ExecutorRunner: Launch command: "/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java" "-cp" "/home/john/spark-2.2.0/conf/:/home/john/spark-2.2.0/assembly/target/scala-2.11/jars/*" "-Xmx1024M" "-Dspark.driver.port=46832" "org.apache.spark.executor.CoarseGrainedExecutorBackend" "--driver-url" "spark://CoarseGrainedScheduler@202.45.128.172:46832" "--executor-id" "0" "--hostname" "202.45.128.172" "--cores" "8" "--app-id" "app-20181127153555-0059" "--worker-url" "spark://Worker@202.45.128.172:42023"
+18/11/27 15:35:59 INFO Worker: Asked to kill executor app-20181127153555-0059/0
+18/11/27 15:35:59 INFO ExecutorRunner: Runner thread for executor app-20181127153555-0059/0 interrupted
+18/11/27 15:35:59 INFO ExecutorRunner: Killing process!
+18/11/27 15:35:59 INFO Worker: Executor app-20181127153555-0059/0 finished with state KILLED exitStatus 143
+18/11/27 15:35:59 INFO ExternalShuffleBlockResolver: Application app-20181127153555-0059 removed, cleanupLocalDirs = true
+18/11/27 15:35:59 INFO Worker: Cleaning up local directories for application app-20181127153555-0059
+18/11/27 15:36:43 INFO Worker: Asked to launch executor app-20181127153643-0060/0 for SparkKMeans
+18/11/27 15:36:43 INFO SecurityManager: Changing view acls to: john
+18/11/27 15:36:43 INFO SecurityManager: Changing modify acls to: john
+18/11/27 15:36:43 INFO SecurityManager: Changing view acls groups to: 
+18/11/27 15:36:43 INFO SecurityManager: Changing modify acls groups to: 
+18/11/27 15:36:43 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users  with view permissions: Set(john); groups with view permissions: Set(); users  with modify permissions: Set(john); groups with modify permissions: Set()
+18/11/27 15:36:43 INFO ExecutorRunner: Launch command: "/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java" "-cp" "/home/john/spark-2.2.0/conf/:/home/john/spark-2.2.0/assembly/target/scala-2.11/jars/*" "-Xmx1024M" "-Dspark.driver.port=43563" "org.apache.spark.executor.CoarseGrainedExecutorBackend" "--driver-url" "spark://CoarseGrainedScheduler@202.45.128.172:43563" "--executor-id" "0" "--hostname" "202.45.128.172" "--cores" "8" "--app-id" "app-20181127153643-0060" "--worker-url" "spark://Worker@202.45.128.172:42023"
+18/11/27 15:36:46 INFO Worker: Asked to kill executor app-20181127153643-0060/0
+18/11/27 15:36:46 INFO ExecutorRunner: Runner thread for executor app-20181127153643-0060/0 interrupted
+18/11/27 15:36:46 INFO ExecutorRunner: Killing process!
+18/11/27 15:36:47 INFO Worker: Executor app-20181127153643-0060/0 finished with state KILLED exitStatus 143
+18/11/27 15:36:47 INFO Worker: Cleaning up local directories for application app-20181127153643-0060
+18/11/27 15:36:47 INFO ExternalShuffleBlockResolver: Application app-20181127153643-0060 removed, cleanupLocalDirs = true
+18/11/27 15:38:49 INFO Worker: Asked to launch executor app-20181127153849-0061/0 for SparkKMeans
+18/11/27 15:38:49 INFO SecurityManager: Changing view acls to: john
+18/11/27 15:38:49 INFO SecurityManager: Changing modify acls to: john
+18/11/27 15:38:49 INFO SecurityManager: Changing view acls groups to: 
+18/11/27 15:38:49 INFO SecurityManager: Changing modify acls groups to: 
+18/11/27 15:38:49 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users  with view permissions: Set(john); groups with view permissions: Set(); users  with modify permissions: Set(john); groups with modify permissions: Set()
+18/11/27 15:38:49 INFO ExecutorRunner: Launch command: "/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java" "-cp" "/home/john/spark-2.2.0/conf/:/home/john/spark-2.2.0/assembly/target/scala-2.11/jars/*" "-Xmx1024M" "-Dspark.driver.port=44004" "org.apache.spark.executor.CoarseGrainedExecutorBackend" "--driver-url" "spark://CoarseGrainedScheduler@202.45.128.172:44004" "--executor-id" "0" "--hostname" "202.45.128.172" "--cores" "8" "--app-id" "app-20181127153849-0061" "--worker-url" "spark://Worker@202.45.128.172:42023"
+18/11/27 15:38:52 INFO Worker: Asked to kill executor app-20181127153849-0061/0
+18/11/27 15:38:52 INFO ExecutorRunner: Runner thread for executor app-20181127153849-0061/0 interrupted
+18/11/27 15:38:52 INFO ExecutorRunner: Killing process!
+18/11/27 15:38:53 INFO Worker: Executor app-20181127153849-0061/0 finished with state KILLED exitStatus 143
+18/11/27 15:38:53 INFO Worker: Cleaning up local directories for application app-20181127153849-0061
+18/11/27 15:38:53 INFO ExternalShuffleBlockResolver: Application app-20181127153849-0061 removed, cleanupLocalDirs = true
+18/11/27 15:39:13 INFO Worker: Asked to launch executor app-20181127153913-0062/0 for SparkKMeans
+18/11/27 15:39:13 INFO SecurityManager: Changing view acls to: john
+18/11/27 15:39:13 INFO SecurityManager: Changing modify acls to: john
+18/11/27 15:39:13 INFO SecurityManager: Changing view acls groups to: 
+18/11/27 15:39:13 INFO SecurityManager: Changing modify acls groups to: 
+18/11/27 15:39:13 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users  with view permissions: Set(john); groups with view permissions: Set(); users  with modify permissions: Set(john); groups with modify permissions: Set()
+18/11/27 15:39:13 INFO ExecutorRunner: Launch command: "/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java" "-cp" "/home/john/spark-2.2.0/conf/:/home/john/spark-2.2.0/assembly/target/scala-2.11/jars/*" "-Xmx1024M" "-Dspark.driver.port=46225" "org.apache.spark.executor.CoarseGrainedExecutorBackend" "--driver-url" "spark://CoarseGrainedScheduler@202.45.128.172:46225" "--executor-id" "0" "--hostname" "202.45.128.172" "--cores" "8" "--app-id" "app-20181127153913-0062" "--worker-url" "spark://Worker@202.45.128.172:42023"
+18/11/27 15:39:16 INFO Worker: Asked to kill executor app-20181127153913-0062/0
+18/11/27 15:39:16 INFO ExecutorRunner: Runner thread for executor app-20181127153913-0062/0 interrupted
+18/11/27 15:39:16 INFO ExecutorRunner: Killing process!
+18/11/27 15:39:16 INFO Worker: Executor app-20181127153913-0062/0 finished with state KILLED exitStatus 143
+18/11/27 15:39:16 INFO ExternalShuffleBlockResolver: Application app-20181127153913-0062 removed, cleanupLocalDirs = true
+18/11/27 15:39:16 INFO Worker: Cleaning up local directories for application app-20181127153913-0062
+18/11/27 15:39:23 INFO Worker: Asked to launch executor app-20181127153923-0063/0 for SparkKMeans
+18/11/27 15:39:23 INFO SecurityManager: Changing view acls to: john
+18/11/27 15:39:23 INFO SecurityManager: Changing modify acls to: john
+18/11/27 15:39:23 INFO SecurityManager: Changing view acls groups to: 
+18/11/27 15:39:23 INFO SecurityManager: Changing modify acls groups to: 
+18/11/27 15:39:23 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users  with view permissions: Set(john); groups with view permissions: Set(); users  with modify permissions: Set(john); groups with modify permissions: Set()
+18/11/27 15:39:23 INFO ExecutorRunner: Launch command: "/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java" "-cp" "/home/john/spark-2.2.0/conf/:/home/john/spark-2.2.0/assembly/target/scala-2.11/jars/*" "-Xmx1024M" "-Dspark.driver.port=41455" "org.apache.spark.executor.CoarseGrainedExecutorBackend" "--driver-url" "spark://CoarseGrainedScheduler@202.45.128.172:41455" "--executor-id" "0" "--hostname" "202.45.128.172" "--cores" "8" "--app-id" "app-20181127153923-0063" "--worker-url" "spark://Worker@202.45.128.172:42023"
+18/11/27 15:39:39 INFO Worker: Asked to kill executor app-20181127153923-0063/0
+18/11/27 15:39:39 INFO ExecutorRunner: Runner thread for executor app-20181127153923-0063/0 interrupted
+18/11/27 15:39:39 INFO ExecutorRunner: Killing process!
+18/11/27 15:39:40 INFO Worker: Executor app-20181127153923-0063/0 finished with state KILLED exitStatus 143
+18/11/27 15:39:40 INFO Worker: Cleaning up local directories for application app-20181127153923-0063
+18/11/27 15:39:40 INFO ExternalShuffleBlockResolver: Application app-20181127153923-0063 removed, cleanupLocalDirs = true
+18/11/27 15:40:00 INFO Worker: Asked to launch executor app-20181127154000-0064/0 for SparkKMeans
+18/11/27 15:40:00 INFO SecurityManager: Changing view acls to: john
+18/11/27 15:40:00 INFO SecurityManager: Changing modify acls to: john
+18/11/27 15:40:00 INFO SecurityManager: Changing view acls groups to: 
+18/11/27 15:40:00 INFO SecurityManager: Changing modify acls groups to: 
+18/11/27 15:40:00 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users  with view permissions: Set(john); groups with view permissions: Set(); users  with modify permissions: Set(john); groups with modify permissions: Set()
+18/11/27 15:40:00 INFO ExecutorRunner: Launch command: "/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java" "-cp" "/home/john/spark-2.2.0/conf/:/home/john/spark-2.2.0/assembly/target/scala-2.11/jars/*" "-Xmx1024M" "-Dspark.driver.port=42527" "org.apache.spark.executor.CoarseGrainedExecutorBackend" "--driver-url" "spark://CoarseGrainedScheduler@202.45.128.172:42527" "--executor-id" "0" "--hostname" "202.45.128.172" "--cores" "8" "--app-id" "app-20181127154000-0064" "--worker-url" "spark://Worker@202.45.128.172:42023"
+18/11/27 15:40:16 INFO Worker: Asked to kill executor app-20181127154000-0064/0
+18/11/27 15:40:16 INFO ExecutorRunner: Runner thread for executor app-20181127154000-0064/0 interrupted
+18/11/27 15:40:16 INFO ExecutorRunner: Killing process!
+18/11/27 15:40:17 INFO Worker: Executor app-20181127154000-0064/0 finished with state KILLED exitStatus 143
+18/11/27 15:40:17 INFO Worker: Cleaning up local directories for application app-20181127154000-0064
+18/11/27 15:40:17 INFO ExternalShuffleBlockResolver: Application app-20181127154000-0064 removed, cleanupLocalDirs = true
+18/11/27 15:40:43 INFO Worker: Asked to launch executor app-20181127154043-0065/0 for SparkKMeans
+18/11/27 15:40:43 INFO SecurityManager: Changing view acls to: john
+18/11/27 15:40:43 INFO SecurityManager: Changing modify acls to: john
+18/11/27 15:40:43 INFO SecurityManager: Changing view acls groups to: 
+18/11/27 15:40:43 INFO SecurityManager: Changing modify acls groups to: 
+18/11/27 15:40:43 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users  with view permissions: Set(john); groups with view permissions: Set(); users  with modify permissions: Set(john); groups with modify permissions: Set()
+18/11/27 15:40:43 INFO ExecutorRunner: Launch command: "/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java" "-cp" "/home/john/spark-2.2.0/conf/:/home/john/spark-2.2.0/assembly/target/scala-2.11/jars/*" "-Xmx1024M" "-Dspark.driver.port=39695" "org.apache.spark.executor.CoarseGrainedExecutorBackend" "--driver-url" "spark://CoarseGrainedScheduler@202.45.128.172:39695" "--executor-id" "0" "--hostname" "202.45.128.172" "--cores" "8" "--app-id" "app-20181127154043-0065" "--worker-url" "spark://Worker@202.45.128.172:42023"
+18/11/27 15:40:58 INFO Worker: Asked to kill executor app-20181127154043-0065/0
+18/11/27 15:40:58 INFO ExecutorRunner: Runner thread for executor app-20181127154043-0065/0 interrupted
+18/11/27 15:40:58 INFO ExecutorRunner: Killing process!
+18/11/27 15:40:58 INFO Worker: Executor app-20181127154043-0065/0 finished with state KILLED exitStatus 143
+18/11/27 15:40:58 INFO ExternalShuffleBlockResolver: Application app-20181127154043-0065 removed, cleanupLocalDirs = true
+18/11/27 15:40:58 INFO Worker: Cleaning up local directories for application app-20181127154043-0065

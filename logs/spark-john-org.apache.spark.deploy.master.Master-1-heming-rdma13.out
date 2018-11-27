@@ -440,3 +440,115 @@ Using Spark's default log4j profile: org/apache/spark/log4j-defaults.properties
 18/11/27 14:42:17 INFO Master: 10.22.1.13:51522 got disassociated, removing it.
 18/11/27 14:42:17 INFO Master: 202.45.128.172:33727 got disassociated, removing it.
 18/11/27 14:42:18 WARN Master: Got status update for unknown executor app-20181127144213-0051/0
+18/11/27 15:01:14 INFO Master: Registering app SparkHdfsLRDP
+18/11/27 15:01:14 INFO Master: Registered app SparkHdfsLRDP with ID app-20181127150114-0052
+18/11/27 15:01:14 INFO Master: Launching executor app-20181127150114-0052/0 on worker worker-20181126205727-202.45.128.172-42023
+18/11/27 15:01:18 INFO Master: Received unregister request from application app-20181127150114-0052
+18/11/27 15:01:18 INFO Master: Removing app app-20181127150114-0052
+18/11/27 15:01:18 INFO Master: 10.22.1.13:52616 got disassociated, removing it.
+18/11/27 15:01:18 INFO Master: 202.45.128.172:35255 got disassociated, removing it.
+18/11/27 15:01:18 WARN Master: Got status update for unknown executor app-20181127150114-0052/0
+18/11/27 15:01:45 INFO Master: Registering app SparkHdfsLRDP
+18/11/27 15:01:45 INFO Master: Registered app SparkHdfsLRDP with ID app-20181127150145-0053
+18/11/27 15:01:45 INFO Master: Launching executor app-20181127150145-0053/0 on worker worker-20181126205727-202.45.128.172-42023
+18/11/27 15:01:49 INFO Master: Received unregister request from application app-20181127150145-0053
+18/11/27 15:01:49 INFO Master: Removing app app-20181127150145-0053
+18/11/27 15:01:49 INFO Master: 10.22.1.13:52644 got disassociated, removing it.
+18/11/27 15:01:49 INFO Master: 202.45.128.172:38699 got disassociated, removing it.
+18/11/27 15:01:49 WARN Master: Got status update for unknown executor app-20181127150145-0053/0
+18/11/27 15:02:01 INFO Master: Registering app SparkHdfsLRDP
+18/11/27 15:02:01 INFO Master: Registered app SparkHdfsLRDP with ID app-20181127150201-0054
+18/11/27 15:02:01 INFO Master: Launching executor app-20181127150201-0054/0 on worker worker-20181126205727-202.45.128.172-42023
+18/11/27 15:02:06 INFO Master: Received unregister request from application app-20181127150201-0054
+18/11/27 15:02:06 INFO Master: Removing app app-20181127150201-0054
+18/11/27 15:02:06 INFO Master: 10.22.1.13:52662 got disassociated, removing it.
+18/11/27 15:02:06 INFO Master: 202.45.128.172:40486 got disassociated, removing it.
+18/11/27 15:02:06 WARN Master: Got status update for unknown executor app-20181127150201-0054/0
+18/11/27 15:05:53 INFO Master: Registering app SparkHdfsLR
+18/11/27 15:05:53 INFO Master: Registered app SparkHdfsLR with ID app-20181127150553-0055
+18/11/27 15:05:53 INFO Master: Launching executor app-20181127150553-0055/0 on worker worker-20181126205727-202.45.128.172-42023
+18/11/27 15:05:57 INFO Master: Received unregister request from application app-20181127150553-0055
+18/11/27 15:05:57 INFO Master: Removing app app-20181127150553-0055
+18/11/27 15:05:57 INFO Master: 10.22.1.13:52974 got disassociated, removing it.
+18/11/27 15:05:57 INFO Master: 202.45.128.172:32946 got disassociated, removing it.
+18/11/27 15:05:57 WARN Master: Got status update for unknown executor app-20181127150553-0055/0
+18/11/27 15:06:11 INFO Master: Registering app SparkHdfsLRDP
+18/11/27 15:06:11 INFO Master: Registered app SparkHdfsLRDP with ID app-20181127150611-0056
+18/11/27 15:06:11 INFO Master: Launching executor app-20181127150611-0056/0 on worker worker-20181126205727-202.45.128.172-42023
+18/11/27 15:06:15 INFO Master: Received unregister request from application app-20181127150611-0056
+18/11/27 15:06:15 INFO Master: Removing app app-20181127150611-0056
+18/11/27 15:06:15 INFO Master: 10.22.1.13:52998 got disassociated, removing it.
+18/11/27 15:06:15 INFO Master: 202.45.128.172:39896 got disassociated, removing it.
+18/11/27 15:06:16 WARN Master: Got status update for unknown executor app-20181127150611-0056/0
+18/11/27 15:30:51 INFO Master: Registering app SparkKMeans
+18/11/27 15:30:51 INFO Master: Registered app SparkKMeans with ID app-20181127153051-0057
+18/11/27 15:30:51 INFO Master: Launching executor app-20181127153051-0057/0 on worker worker-20181126205727-202.45.128.172-42023
+18/11/27 15:30:55 INFO Master: Received unregister request from application app-20181127153051-0057
+18/11/27 15:30:55 INFO Master: Removing app app-20181127153051-0057
+18/11/27 15:30:55 INFO Master: 10.22.1.13:54046 got disassociated, removing it.
+18/11/27 15:30:55 INFO Master: 202.45.128.172:32906 got disassociated, removing it.
+18/11/27 15:30:55 WARN Master: Got status update for unknown executor app-20181127153051-0057/0
+18/11/27 15:35:05 INFO Master: Registering app SparkKMeans
+18/11/27 15:35:05 INFO Master: Registered app SparkKMeans with ID app-20181127153505-0058
+18/11/27 15:35:05 INFO Master: Launching executor app-20181127153505-0058/0 on worker worker-20181126205727-202.45.128.172-42023
+18/11/27 15:35:20 INFO Master: Received unregister request from application app-20181127153505-0058
+18/11/27 15:35:20 INFO Master: Removing app app-20181127153505-0058
+18/11/27 15:35:21 INFO Master: 10.22.1.13:54380 got disassociated, removing it.
+18/11/27 15:35:21 INFO Master: 202.45.128.172:42514 got disassociated, removing it.
+18/11/27 15:35:21 WARN Master: Got status update for unknown executor app-20181127153505-0058/0
+18/11/27 15:35:55 INFO Master: Registering app SparkKMeans
+18/11/27 15:35:55 INFO Master: Registered app SparkKMeans with ID app-20181127153555-0059
+18/11/27 15:35:55 INFO Master: Launching executor app-20181127153555-0059/0 on worker worker-20181126205727-202.45.128.172-42023
+18/11/27 15:35:59 INFO Master: Received unregister request from application app-20181127153555-0059
+18/11/27 15:35:59 INFO Master: Removing app app-20181127153555-0059
+18/11/27 15:35:59 INFO Master: 10.22.1.13:54422 got disassociated, removing it.
+18/11/27 15:35:59 INFO Master: 202.45.128.172:46832 got disassociated, removing it.
+18/11/27 15:35:59 WARN Master: Got status update for unknown executor app-20181127153555-0059/0
+18/11/27 15:36:43 INFO Master: Registering app SparkKMeans
+18/11/27 15:36:43 INFO Master: Registered app SparkKMeans with ID app-20181127153643-0060
+18/11/27 15:36:43 INFO Master: Launching executor app-20181127153643-0060/0 on worker worker-20181126205727-202.45.128.172-42023
+18/11/27 15:36:46 INFO Master: Received unregister request from application app-20181127153643-0060
+18/11/27 15:36:46 INFO Master: Removing app app-20181127153643-0060
+18/11/27 15:36:46 INFO Master: 10.22.1.13:54462 got disassociated, removing it.
+18/11/27 15:36:46 INFO Master: 202.45.128.172:43563 got disassociated, removing it.
+18/11/27 15:36:47 WARN Master: Got status update for unknown executor app-20181127153643-0060/0
+18/11/27 15:38:49 INFO Master: Registering app SparkKMeans
+18/11/27 15:38:49 INFO Master: Registered app SparkKMeans with ID app-20181127153849-0061
+18/11/27 15:38:49 INFO Master: Launching executor app-20181127153849-0061/0 on worker worker-20181126205727-202.45.128.172-42023
+18/11/27 15:38:52 INFO Master: Received unregister request from application app-20181127153849-0061
+18/11/27 15:38:52 INFO Master: Removing app app-20181127153849-0061
+18/11/27 15:38:53 INFO Master: 10.22.1.13:54726 got disassociated, removing it.
+18/11/27 15:38:53 INFO Master: 202.45.128.172:44004 got disassociated, removing it.
+18/11/27 15:38:53 WARN Master: Got status update for unknown executor app-20181127153849-0061/0
+18/11/27 15:39:13 INFO Master: Registering app SparkKMeans
+18/11/27 15:39:13 INFO Master: Registered app SparkKMeans with ID app-20181127153913-0062
+18/11/27 15:39:13 INFO Master: Launching executor app-20181127153913-0062/0 on worker worker-20181126205727-202.45.128.172-42023
+18/11/27 15:39:16 INFO Master: Received unregister request from application app-20181127153913-0062
+18/11/27 15:39:16 INFO Master: Removing app app-20181127153913-0062
+18/11/27 15:39:16 INFO Master: 10.22.1.13:54750 got disassociated, removing it.
+18/11/27 15:39:16 INFO Master: 202.45.128.172:46225 got disassociated, removing it.
+18/11/27 15:39:16 WARN Master: Got status update for unknown executor app-20181127153913-0062/0
+18/11/27 15:39:23 INFO Master: Registering app SparkKMeans
+18/11/27 15:39:23 INFO Master: Registered app SparkKMeans with ID app-20181127153923-0063
+18/11/27 15:39:23 INFO Master: Launching executor app-20181127153923-0063/0 on worker worker-20181126205727-202.45.128.172-42023
+18/11/27 15:39:39 INFO Master: Received unregister request from application app-20181127153923-0063
+18/11/27 15:39:39 INFO Master: Removing app app-20181127153923-0063
+18/11/27 15:39:39 INFO Master: 10.22.1.13:54772 got disassociated, removing it.
+18/11/27 15:39:39 INFO Master: 202.45.128.172:41455 got disassociated, removing it.
+18/11/27 15:39:40 WARN Master: Got status update for unknown executor app-20181127153923-0063/0
+18/11/27 15:40:00 INFO Master: Registering app SparkKMeans
+18/11/27 15:40:00 INFO Master: Registered app SparkKMeans with ID app-20181127154000-0064
+18/11/27 15:40:00 INFO Master: Launching executor app-20181127154000-0064/0 on worker worker-20181126205727-202.45.128.172-42023
+18/11/27 15:40:16 INFO Master: Received unregister request from application app-20181127154000-0064
+18/11/27 15:40:16 INFO Master: Removing app app-20181127154000-0064
+18/11/27 15:40:16 INFO Master: 10.22.1.13:54814 got disassociated, removing it.
+18/11/27 15:40:16 INFO Master: 202.45.128.172:42527 got disassociated, removing it.
+18/11/27 15:40:17 WARN Master: Got status update for unknown executor app-20181127154000-0064/0
+18/11/27 15:40:43 INFO Master: Registering app SparkKMeans
+18/11/27 15:40:43 INFO Master: Registered app SparkKMeans with ID app-20181127154043-0065
+18/11/27 15:40:43 INFO Master: Launching executor app-20181127154043-0065/0 on worker worker-20181126205727-202.45.128.172-42023
+18/11/27 15:40:58 INFO Master: Received unregister request from application app-20181127154043-0065
+18/11/27 15:40:58 INFO Master: Removing app app-20181127154043-0065
+18/11/27 15:40:58 INFO Master: 10.22.1.13:54848 got disassociated, removing it.
+18/11/27 15:40:58 INFO Master: 202.45.128.172:39695 got disassociated, removing it.
+18/11/27 15:40:58 WARN Master: Got status update for unknown executor app-20181127154043-0065/0

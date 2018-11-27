@@ -33,7 +33,7 @@ import org.apache.spark.sql.SparkSession
  * please refer to org.apache.spark.ml.classification.LogisticRegression.
  */
 object SparkHdfsLR {
-  val D = 10   // Number of dimensions
+  val D = 2   // Number of dimensions
   val rand = new Random(42)
 
   case class DataPoint(x: Vector[Double], y: Double)
@@ -74,15 +74,15 @@ object SparkHdfsLR {
     val inputPath = args(0)
     val lines = spark.read.textFile(inputPath).rdd
 
-    val points = lines.map(parsePoint).cache()
+    val points = lines.map(parsePoint)
     val ITERATIONS = args(1).toInt
 
     // Initialize w to a random value
-    var w = DenseVector.fill(D) {2 * rand.nextDouble - 1}
-    println("Initial w: " + w)
+    var w = DenseVector(0.2,0.6)
+//    println("Initial w: " + w)
 
     for (i <- 1 to ITERATIONS) {
-      println("On iteration " + i)
+//      println("On iteration " + i)
       val gradient = points.map { p =>
         p.x * (1 / (1 + exp(-p.y * (w.dot(p.x)))) - 1) * p.y
       }.reduce(_ + _)

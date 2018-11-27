@@ -41,12 +41,12 @@ object SparkPiDP {
       if (x*x + y*y <= 1) 1 else 0
     }.reduceDP(_ + _)
     //**************Add noise**********************
-    val original = countresult._2
+    val original = countresult._2 / n
     val localSensitivity = countresult._1.map(qq => {
-       math.abs(original - qq)
+       math.abs(original - qq / (n-1))
     })
     //********End of add noise**********************
-    println("=====================Original : " + countresult._2)
+    println("=====================Original : " + original)
     println("=====================Max local Sensitivity: " + localSensitivity.max)
     spark.stop()
   }

@@ -76,7 +76,7 @@ object SparkKMeansDP {
     val K = args(1).toInt
     val convergeDist = args(2).toDouble
 
-    val kPoints = data.takeSample(withReplacement = false, K, 42)
+    val kPoints = Array(Vector(0.1,0.2,0.3),Vector(0.4,0.5,0.6),Vector(0.7,0.8,0.9),Vector(0.1,0.3,0.5),Vector(0.2,0.4,0.6))
     var tempDist = 1.0
 
     while(tempDist > convergeDist) {

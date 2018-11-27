@@ -76,15 +76,14 @@ object SparkHdfsLRDP {
 
     val points = lines.mapDP(parsePoint)
 
-    println("lines.mapDP(parsePoint): ")
-    points.original.collect().foreach(print)
-    println("End of lines.mapDP(parsePoint)")
-
+//    println("lines.mapDP(parsePoint): ")
+//    points.original.collect().foreach(print)
+//    println("End of lines.mapDP(parsePoint)")
 
     val ITERATIONS = args(1).toInt
 
     // Initialize w to a random value
-    var w = DenseVector.fill(D) {2 * rand.nextDouble - 1}
+    var w = DenseVector(0.2,0.6)
     println("Initial w: " + w)
 
     for (i <- 1 to ITERATIONS) {
@@ -93,11 +92,9 @@ object SparkHdfsLRDP {
         p.x * (1 / (1 + exp(-p.y * (w.dot(p.x)))) - 1) * p.y
       }
 
-      println("gradientDP1.original.collect(): ")
-      gradientDP1.original.collect().foreach(print)
-      println("End of gradientDP1.original.collect()")
-
-
+//      println("gradientDP1.original.collect(): ")
+//      gradientDP1.original.collect().foreach(print)
+//      println("End of gradientDP1.original.collect()")
       val gradientDP = gradientDP1.reduceDP(_ + _)
       //************Add noise*****************
 
@@ -111,14 +108,17 @@ object SparkHdfsLRDP {
         pp.toArray.zip(originalWeighted.toArray).map(ppp => {
           math.abs(ppp._2 - ppp._1)
         })
-      })
-      println("Local sensitivity")
-      originalSample.collect().foreach(n => {
-        n.foreach(nn => {
-          print(nn + " ")
+      }).reduce((a,b) => {
+        a.zip(b).map(ab => {
+          math.max(ab._1,ab._2)
         })
-        println("")
       })
+
+      println("Local sensitivity")
+      originalSample.foreach(osp => {
+        print(osp + " ")
+      })
+      println("")
 
       //******End of add noise*****************
       w -= gradient

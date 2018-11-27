@@ -76,7 +76,7 @@ object SparkKMeans {
     val K = args(1).toInt
     val convergeDist = args(2).toDouble
 
-    val kPoints = data.takeSample(withReplacement = false, K, 42)
+    val kPoints = Array(Vector(0.1,0.2,0.3),Vector(0.4,0.5,0.6),Vector(0.7,0.8,0.9),Vector(0.1,0.3,0.5),Vector(0.2,0.4,0.6))
     var tempDist = 1.0
 
     while(tempDist > convergeDist) {
@@ -85,11 +85,12 @@ object SparkKMeans {
       val pointStats = closest.reduceByKey{case ((p1, c1), (p2, c2)) => (p1 + p2, c1 + c2)}
 
       val newPoints = pointStats.map {pair =>
-        (pair._1, pair._2._1 * (1.0 / pair._2._2))}.collectAsMap()
+        (pair._1, pair._2._1 * (1.0 / pair._2._2))}.collectAsMap()//Here should be 4 itms
 
       tempDist = 0.0
       for (i <- 0 until K) {
-        tempDist += squaredDistance(kPoints(i), newPoints(i))
+        tempDist += squaredDistance(kPoints(i), newPoints(i))//eg  this
+        //tempDist += squaredDistance(kPoints(i), newPoints(i))
       }
 
       for (newP <- newPoints) {
