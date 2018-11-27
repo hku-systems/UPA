@@ -1,0 +1,9 @@
+/home/john/spark-2.2.0/streaming/src/test/java/org/apache/spark/streaming/LocalJavaStreamingContext.java
+/home/john/spark-2.2.0/streaming/src/test/java/org/apache/spark/streaming/JavaDurationSuite.java
+/home/john/spark-2.2.0/streaming/src/test/java/org/apache/spark/streaming/JavaStreamingListenerAPISuite.java
+/home/john/spark-2.2.0/streaming/src/test/java/test/org/apache/spark/streaming/Java8APISuite.java
+/home/john/spark-2.2.0/streaming/src/test/java/org/apache/spark/streaming/JavaTimeSuite.java
+/home/john/spark-2.2.0/streaming/src/test/java/org/apache/spark/streaming/JavaMapWithStateSuite.java
+/home/john/spark-2.2.0/streaming/src/test/java/org/apache/spark/streaming/JavaWriteAheadLogSuite.java
+/home/john/spark-2.2.0/streaming/src/test/java/test/org/apache/spark/streaming/JavaAPISuite.java
+/home/john/spark-2.2.0/streaming/src/test/java/org/apache/spark/streaming/JavaReceiverAPISuite.java

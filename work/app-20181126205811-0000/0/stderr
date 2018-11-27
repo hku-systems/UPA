@@ -1,0 +1,79 @@
+Using Spark's default log4j profile: org/apache/spark/log4j-defaults.properties
+18/11/26 20:58:12 INFO CoarseGrainedExecutorBackend: Started daemon with process name: 1681@heming-rdma13
+18/11/26 20:58:12 INFO SignalUtils: Registered signal handler for TERM
+18/11/26 20:58:12 INFO SignalUtils: Registered signal handler for HUP
+18/11/26 20:58:12 INFO SignalUtils: Registered signal handler for INT
+18/11/26 20:58:12 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+18/11/26 20:58:12 WARN Utils: Your hostname, heming-rdma13 resolves to a loopback address: 127.0.0.1; using 202.45.128.172 instead (on interface eno1)
+18/11/26 20:58:12 WARN Utils: Set SPARK_LOCAL_IP if you need to bind to another address
+18/11/26 20:58:12 INFO SecurityManager: Changing view acls to: john
+18/11/26 20:58:12 INFO SecurityManager: Changing modify acls to: john
+18/11/26 20:58:12 INFO SecurityManager: Changing view acls groups to: 
+18/11/26 20:58:12 INFO SecurityManager: Changing modify acls groups to: 
+18/11/26 20:58:12 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users  with view permissions: Set(john); groups with view permissions: Set(); users  with modify permissions: Set(john); groups with modify permissions: Set()
+18/11/26 20:58:12 INFO TransportClientFactory: Successfully created connection to /202.45.128.172:33657 after 28 ms (0 ms spent in bootstraps)
+18/11/26 20:58:12 INFO SecurityManager: Changing view acls to: john
+18/11/26 20:58:12 INFO SecurityManager: Changing modify acls to: john
+18/11/26 20:58:12 INFO SecurityManager: Changing view acls groups to: 
+18/11/26 20:58:12 INFO SecurityManager: Changing modify acls groups to: 
+18/11/26 20:58:12 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users  with view permissions: Set(john); groups with view permissions: Set(); users  with modify permissions: Set(john); groups with modify permissions: Set()
+18/11/26 20:58:12 INFO TransportClientFactory: Successfully created connection to /202.45.128.172:33657 after 0 ms (0 ms spent in bootstraps)
+18/11/26 20:58:12 INFO DiskBlockManager: Created local directory at /tmp/spark-e704dd7b-016b-4f63-8ac6-1450b68ffb4e/executor-f41fc3b4-8a1f-445c-9a3a-18289bb72f07/blockmgr-0ce0d640-8331-4250-a901-08917c1f6b62
+18/11/26 20:58:12 INFO MemoryStore: MemoryStore started with capacity 366.3 MB
+18/11/26 20:58:13 INFO CoarseGrainedExecutorBackend: Connecting to driver: spark://CoarseGrainedScheduler@202.45.128.172:33657
+18/11/26 20:58:13 INFO WorkerWatcher: Connecting to worker spark://Worker@202.45.128.172:42023
+18/11/26 20:58:13 INFO TransportClientFactory: Successfully created connection to /202.45.128.172:42023 after 0 ms (0 ms spent in bootstraps)
+18/11/26 20:58:13 INFO WorkerWatcher: Successfully connected to spark://Worker@202.45.128.172:42023
+18/11/26 20:58:13 INFO CoarseGrainedExecutorBackend: Successfully registered with driver
+18/11/26 20:58:13 INFO Executor: Starting executor ID 0 on host 202.45.128.172
+18/11/26 20:58:13 INFO Utils: Successfully started service 'org.apache.spark.network.netty.NettyBlockTransferService' on port 34488.
+18/11/26 20:58:13 INFO NettyBlockTransferService: Server created on 202.45.128.172:34488
+18/11/26 20:58:13 INFO BlockManager: Using org.apache.spark.storage.RandomBlockReplicationPolicy for block replication policy
+18/11/26 20:58:13 INFO BlockManagerMaster: Registering BlockManager BlockManagerId(0, 202.45.128.172, 34488, None)
+18/11/26 20:58:13 INFO BlockManagerMaster: Registered BlockManager BlockManagerId(0, 202.45.128.172, 34488, None)
+18/11/26 20:58:13 INFO BlockManager: Initialized BlockManager: BlockManagerId(0, 202.45.128.172, 34488, None)
+18/11/26 20:58:13 INFO CoarseGrainedExecutorBackend: Got assigned task 0
+18/11/26 20:58:13 INFO CoarseGrainedExecutorBackend: Got assigned task 1
+18/11/26 20:58:13 INFO CoarseGrainedExecutorBackend: Got assigned task 2
+18/11/26 20:58:13 INFO CoarseGrainedExecutorBackend: Got assigned task 3
+18/11/26 20:58:13 INFO Executor: Running task 0.0 in stage 0.0 (TID 0)
+18/11/26 20:58:13 INFO Executor: Running task 2.0 in stage 0.0 (TID 2)
+18/11/26 20:58:13 INFO Executor: Running task 1.0 in stage 0.0 (TID 1)
+18/11/26 20:58:13 INFO Executor: Running task 3.0 in stage 0.0 (TID 3)
+18/11/26 20:58:13 INFO CoarseGrainedExecutorBackend: Got assigned task 4
+18/11/26 20:58:13 INFO CoarseGrainedExecutorBackend: Got assigned task 5
+18/11/26 20:58:13 INFO Executor: Running task 4.0 in stage 0.0 (TID 4)
+18/11/26 20:58:13 INFO Executor: Running task 5.0 in stage 0.0 (TID 5)
+18/11/26 20:58:13 INFO CoarseGrainedExecutorBackend: Got assigned task 6
+18/11/26 20:58:13 INFO Executor: Fetching spark://202.45.128.172:33657/jars/spark-examples_2.11-2.2.0.jar with timestamp 1543237091575
+18/11/26 20:58:13 INFO CoarseGrainedExecutorBackend: Got assigned task 7
+18/11/26 20:58:13 INFO Executor: Running task 6.0 in stage 0.0 (TID 6)
+18/11/26 20:58:13 INFO Executor: Running task 7.0 in stage 0.0 (TID 7)
+18/11/26 20:58:13 INFO TransportClientFactory: Successfully created connection to /202.45.128.172:33657 after 0 ms (0 ms spent in bootstraps)
+18/11/26 20:58:13 INFO Utils: Fetching spark://202.45.128.172:33657/jars/spark-examples_2.11-2.2.0.jar to /tmp/spark-e704dd7b-016b-4f63-8ac6-1450b68ffb4e/executor-f41fc3b4-8a1f-445c-9a3a-18289bb72f07/spark-573903f5-2619-4d85-9543-2d390cbf0e56/fetchFileTemp3821521938610024789.tmp
+18/11/26 20:58:13 INFO Utils: Copying /tmp/spark-e704dd7b-016b-4f63-8ac6-1450b68ffb4e/executor-f41fc3b4-8a1f-445c-9a3a-18289bb72f07/spark-573903f5-2619-4d85-9543-2d390cbf0e56/-16029774191543237091575_cache to /home/john/spark-2.2.0/work/app-20181126205811-0000/0/./spark-examples_2.11-2.2.0.jar
+18/11/26 20:58:13 INFO Executor: Adding file:/home/john/spark-2.2.0/work/app-20181126205811-0000/0/./spark-examples_2.11-2.2.0.jar to class loader
+18/11/26 20:58:13 INFO TorrentBroadcast: Started reading broadcast variable 0
+18/11/26 20:58:13 INFO TransportClientFactory: Successfully created connection to /202.45.128.172:44390 after 0 ms (0 ms spent in bootstraps)
+18/11/26 20:58:13 INFO MemoryStore: Block broadcast_0_piece0 stored as bytes in memory (estimated size 1172.0 B, free 366.3 MB)
+18/11/26 20:58:13 INFO TorrentBroadcast: Reading broadcast variable 0 took 50 ms
+18/11/26 20:58:13 INFO MemoryStore: Block broadcast_0 stored as values in memory (estimated size 1832.0 B, free 366.3 MB)
+18/11/26 20:58:13 INFO Executor: Finished task 3.0 in stage 0.0 (TID 3). 1614 bytes result sent to driver
+18/11/26 20:58:13 INFO CoarseGrainedExecutorBackend: Got assigned task 8
+18/11/26 20:58:13 INFO Executor: Running task 8.0 in stage 0.0 (TID 8)
+18/11/26 20:58:13 INFO Executor: Finished task 7.0 in stage 0.0 (TID 7). 824 bytes result sent to driver
+18/11/26 20:58:13 INFO CoarseGrainedExecutorBackend: Got assigned task 9
+18/11/26 20:58:13 INFO Executor: Running task 9.0 in stage 0.0 (TID 9)
+18/11/26 20:58:13 INFO Executor: Finished task 4.0 in stage 0.0 (TID 4). 824 bytes result sent to driver
+18/11/26 20:58:13 INFO Executor: Finished task 2.0 in stage 0.0 (TID 2). 824 bytes result sent to driver
+18/11/26 20:58:13 INFO Executor: Finished task 0.0 in stage 0.0 (TID 0). 867 bytes result sent to driver
+18/11/26 20:58:13 INFO Executor: Finished task 5.0 in stage 0.0 (TID 5). 824 bytes result sent to driver
+18/11/26 20:58:13 INFO Executor: Finished task 8.0 in stage 0.0 (TID 8). 824 bytes result sent to driver
+18/11/26 20:58:13 INFO Executor: Finished task 6.0 in stage 0.0 (TID 6). 824 bytes result sent to driver
+18/11/26 20:58:13 INFO Executor: Finished task 9.0 in stage 0.0 (TID 9). 824 bytes result sent to driver
+18/11/26 20:58:13 INFO Executor: Finished task 1.0 in stage 0.0 (TID 1). 824 bytes result sent to driver
+18/11/26 20:58:13 INFO CoarseGrainedExecutorBackend: Driver commanded a shutdown
+18/11/26 20:58:13 INFO MemoryStore: MemoryStore cleared
+18/11/26 20:58:13 INFO BlockManager: BlockManager stopped
+18/11/26 20:58:13 INFO ShutdownHookManager: Shutdown hook called
+18/11/26 20:58:13 INFO ShutdownHookManager: Deleting directory /tmp/spark-e704dd7b-016b-4f63-8ac6-1450b68ffb4e/executor-f41fc3b4-8a1f-445c-9a3a-18289bb72f07/spark-573903f5-2619-4d85-9543-2d390cbf0e56
