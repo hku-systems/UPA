@@ -33,13 +33,16 @@ import edu.hku.cs.dp.{dpobject, dpread, dpobjectKV}
   * please refer to org.apache.spark.ml.classification.LogisticRegression.
   */
 object SparkHdfsLRDP {
-  val D = 2   // Number of dimensions
+//  val D = 1   //efficiency Test
+val D = 10   // Number of dimensions
   val rand = new Random(42)
 
   case class DataPoint(x: Vector[Double], y: Double)
 
   def parsePoint(line: String): DataPoint = {
-    val tok = new java.util.StringTokenizer(line, " ")
+//    val tok = new java.util.StringTokenizer(line, " ")
+    val tok = new java.util.StringTokenizer(line, ",")
+
     var y = tok.nextToken.toDouble
     var x = new Array[Double](D)
     var i = 0
@@ -72,6 +75,9 @@ object SparkHdfsLRDP {
       .getOrCreate()
 
     val inputPath = args(0)
+
+    val OverallStartTime = System.nanoTime()
+
     val lines = new dpread(spark.read.textFile(inputPath).rdd)
 
     val points = lines.mapDP(parsePoint)
@@ -83,11 +89,12 @@ object SparkHdfsLRDP {
     val ITERATIONS = args(1).toInt
 
     // Initialize w to a random value
-    var w = DenseVector(0.2,0.6)
-    println("Initial w: " + w)
+//    var w = DenseVector(1.0) //Efficiency
+var w = DenseVector(0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0)
+//    println("Initial w: " + w)
 
     for (i <- 1 to ITERATIONS) {
-      println("On iteration " + i)
+//      println("On iteration " + i)
       val gradientDP1 = points.mapDP { p =>
         p.x * (1 / (1 + exp(-p.y * (w.dot(p.x)))) - 1) * p.y
       }
@@ -123,8 +130,10 @@ object SparkHdfsLRDP {
       //******End of add noise*****************
       w -= gradient
     }
-
-    println("Final w: " + w)
+    val OverallEndTime = System.nanoTime()
+    w.foreach(p =>
+    print(p + " "))
+    println
     spark.stop()
   }
 }

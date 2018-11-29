@@ -33,13 +33,13 @@ import org.apache.spark.sql.SparkSession
  * please refer to org.apache.spark.ml.classification.LogisticRegression.
  */
 object SparkHdfsLR {
-  val D = 2   // Number of dimensions
+  val D = 10   // Number of dimensions
   val rand = new Random(42)
 
   case class DataPoint(x: Vector[Double], y: Double)
 
   def parsePoint(line: String): DataPoint = {
-    val tok = new java.util.StringTokenizer(line, " ")
+    val tok = new java.util.StringTokenizer(line, ",")
     var y = tok.nextToken.toDouble
     var x = new Array[Double](D)
     var i = 0
@@ -78,7 +78,7 @@ object SparkHdfsLR {
     val ITERATIONS = args(1).toInt
 
     // Initialize w to a random value
-    var w = DenseVector(0.2,0.6)
+    var w = DenseVector(0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0)
 //    println("Initial w: " + w)
 
     for (i <- 1 to ITERATIONS) {
@@ -89,7 +89,9 @@ object SparkHdfsLR {
       w -= gradient
     }
 
-    println("Final w: " + w)
+    w.foreach(p =>
+      print(p + " "))
+    println
     spark.stop()
   }
 }

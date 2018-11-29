@@ -31,7 +31,7 @@ import org.apache.spark.sql.SparkSession
 object SparkKMeansDP {
 
   def parseVector(line: String): Vector[Double] = {
-    DenseVector(line.split(' ').map(_.toDouble))
+    DenseVector(line.split(',').map(_.toDouble))
   }
 
   def closestPoint(p: Vector[Double], centers: Array[Vector[Double]]): Int = {
@@ -76,7 +76,11 @@ object SparkKMeansDP {
     val K = args(1).toInt
     val convergeDist = args(2).toDouble
 
-    val kPoints = Array(Vector(0.1,0.2,0.3),Vector(0.4,0.5,0.6),Vector(0.7,0.8,0.9),Vector(0.1,0.3,0.5),Vector(0.2,0.4,0.6))
+    val kPoints = Array(Vector(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1),
+      Vector(0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2),
+      Vector(0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3),
+      Vector(0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4),
+      Vector(0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5))
     var tempDist = 1.0
 
     while(tempDist > convergeDist) {

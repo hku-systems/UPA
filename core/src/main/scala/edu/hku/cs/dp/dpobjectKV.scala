@@ -3,6 +3,8 @@ package edu.hku.cs.dp
 import org.apache.spark.internal.Logging
 import org.apache.spark.rdd.RDD
 
+import scala.collection.immutable.HashMap
+import scala.collection.immutable.HashSet
 import scala.collection.mutable.ArrayBuffer
 import scala.reflect.ClassTag
 
@@ -30,30 +32,28 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputoriginal: RDD[(K, 
 //        new dplocalMap[K,V](sampleWithMap)
 //      }
 
+//      [automated, efficient and precise] [sensitivity] in DISC
+
+
+//      def filterDPKV(f: (K,V) => Boolean) : dpobjectKV[K,V] = {
+//        new dpobjectKV(inputsample.filter(f), inputoriginal.filter(f))
+//      }
 
       def reduceByKeyDP(func: (V, V) => V): dpobject[(K,V)] = {
-
+//reduce shuffle, use map rather than reduce/reduceByKey
         val originalresult = inputoriginal.reduceByKey(func)//Reduce original first
-
-        val allkeys = sample.keys.collect()//collect keys from sample
-
-//        println("reduceByKeyDP: allkeys")
-//        allkeys.foreach(println)
-//        println("End of allkeys")
-
-        var allKVofRDD = allkeys.map( q => {
-          val rddvalue = original.lookup(q).head // can use head because after reduce, each key should only associate with 1 element
-          (q,rddvalue)
-        }).toMap
-
-        val b1 = sample.sparkContext.broadcast(allKVofRDD)
-
-        val result = sample.reduceByKey(func).map(p => {
-          val value = b1.value.getOrElse(p._1, p._2).asInstanceOf[V]
-          (p._1,func(value,p._2))
+        val originalfinalresult = sample.union(originalresult).reduceByKey(func)
+        val broadcastOriginal = sample.sparkContext.broadcast(HashMap() ++ originalresult.groupByKey.collect())//Unique Key
+        val broadcastSample = sample.sparkContext.broadcast(HashMap() ++ sample.groupByKey.collect())//May not be UniqueKey
+        val withoutSample = sample.map(p => {//"sample" means the aggregated result without that record
+          val option2list1 = broadcastSample.value.get(p._1).toList
+          val option2list2 = broadcastOriginal.value.get(p._1).toList
+          val option2list = option2list1 ++ option2list2
+        val s = HashSet() ++ option2list.flatMap(l => l) //join value in sample and result of a key, should take short time if not many element in those keys
+        val ss = s - p._2
+          (p._1,(s.reduce(func)))
         })
-
-        new dpobject(result,originalresult)
+        new dpobject(withoutSample,originalfinalresult)
       }
 
       //********************Join****************************

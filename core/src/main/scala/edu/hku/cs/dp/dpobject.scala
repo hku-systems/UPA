@@ -4,7 +4,7 @@ import java.util.Random
 
 import org.apache.spark.SparkContext
 import org.apache.spark.internal.Logging
-import org.apache.spark.rdd.RDD
+import org.apache.spark.rdd.{MapPartitionsRDD, RDD}
 import org.apache.spark.util.Utils
 import org.apache.spark.util.random.SamplingUtils
 
@@ -53,7 +53,7 @@ class dpobject[T: ClassTag](
     val samplecollected = sample.collect()//collect sample to local
     val tmp = HashSet() ++ samplecollected
     val broadcastvar = sample.sparkContext.broadcast(tmp)
-    val withSample = sample.map(p => {//"sample" means the aggregated result without that record
+    val withoutSample = sample.map(p => {//"sample" means the aggregated result without that record
       val s = broadcastvar.value - p
       f(s.reduce(f),result)
     })
@@ -64,7 +64,7 @@ class dpobject[T: ClassTag](
 //    println("dpobject RDDForResult")
 //    RDDForResultd.map(p => println(p))
 
-    (withSample, aggregatedResult)
+    (withoutSample, aggregatedResult)
   }
 
 //  def takeSampleDP(
@@ -73,6 +73,9 @@ class dpobject[T: ClassTag](
 //                  seed: Long = Utils.random.nextLong): Array[T] = {//sample the original is sufficient because for the sample one we want them to be there to form neighbouring datasets
 //      inputoriginal.takeSample(withReplacement,num,seed)
 //    }
+def filterDP(f: T => Boolean) : dpobject[T] = {
+  new dpobject(inputsample.filter(f), inputoriginal.filter(f))
+}
 
   def addnoise(): Any = {
     sample.asInstanceOf[Any] match {
