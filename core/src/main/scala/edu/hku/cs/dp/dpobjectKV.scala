@@ -42,7 +42,7 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputoriginal: RDD[(K, 
       def reduceByKeyDP(func: (V, V) => V): dpobject[(K,V)] = {
 //reduce shuffle, use map rather than reduce/reduceByKey
         val originalresult = inputoriginal.reduceByKey(func)//Reduce original first
-        val originalfinalresult = sample.union(originalresult).reduceByKey(func)
+//        val originalfinalresult = sample.union(originalresult).reduceByKey(func)
         val broadcastOriginal = sample.sparkContext.broadcast(HashMap() ++ originalresult.groupByKey.collect())//Unique Key
         val broadcastSample = sample.sparkContext.broadcast(HashMap() ++ sample.groupByKey.collect())//May not be UniqueKey
         val withoutSample = sample.map(p => {//"sample" means the aggregated result without that record
@@ -53,12 +53,15 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputoriginal: RDD[(K, 
         val ss = s - p._2
           (p._1,(s.reduce(func)))
         })
-        new dpobject(withoutSample,originalfinalresult)
+        new dpobject(withoutSample,originalresult)
       }
 
+//      def filterDPKV(f: (K,V) => Boolean) : dpobjectKV[K, V] = {
+//        new dpobject(inputsample.filter(f), inputoriginal.filter(f))
+//      }
       //********************Join****************************
 
-      def joinDP[W](otherDP: dpobjectKV[K, W]): dpobjectKV[K, (V, W)] = {
+      def joinDP[W](otherDP: dpobjectKV[K, W]): dpobject[(K, (V, W))] = {
 
         //No need to care about sample2 join sample1
 
@@ -140,7 +143,7 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputoriginal: RDD[(K, 
         })
 
         val ss = joinvalueswithkey.flatMap(p => p).flatMap(p => p)
-        new dpobjectKV(ss,joinresult)
+        new dpobject(ss,joinresult)
       }
 
 

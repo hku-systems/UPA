@@ -18,7 +18,7 @@ object TpchQuery1 {
     val count = new dpread(spark.read.textFile(args(0)).rdd)
 
     val countresult = count.mapDP(line => {
-      val part = line.split(' ').map(_.toInt)
+      val part = line.split(',').map(_.toInt)
       (part(0),part(1))
     }).filterDP(p => p._2 > 1.0).mapDPKV(q => q).reduceByKeyDP(_ + _)
     //**************Add noise**********************
@@ -38,7 +38,10 @@ object TpchQuery1 {
     val localSensitivity = countresult.sample
     //********End of add noise**********************
     println("=====================Original : " + original)
-    println("=====================Max local Sensitivity: " + localSensitivity.max)
+    println("=====================Max local Sensitivity: ")
+    newPointsSampleMaxLocalSensitivity.collect().foreach(n => {
+      print(n._1 + "," + n._2)
+    })
     spark.stop()
   }
 }

@@ -33,8 +33,8 @@ import edu.hku.cs.dp.{dpobject, dpread, dpobjectKV}
   * please refer to org.apache.spark.ml.classification.LogisticRegression.
   */
 object SparkHdfsLRDP {
-//  val D = 1   //efficiency Test
-val D = 10   // Number of dimensions
+  val D = 1   //efficiency Test
+//val D = 10   // Number of dimensions
   val rand = new Random(42)
 
   case class DataPoint(x: Vector[Double], y: Double)
@@ -89,8 +89,8 @@ val D = 10   // Number of dimensions
     val ITERATIONS = args(1).toInt
 
     // Initialize w to a random value
-//    var w = DenseVector(1.0) //Efficiency
-var w = DenseVector(0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0)
+    var w = DenseVector(1.0) //Efficiency
+//var w = DenseVector(0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0)
 //    println("Initial w: " + w)
 
     for (i <- 1 to ITERATIONS) {
