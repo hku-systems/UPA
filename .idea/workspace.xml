@@ -2,35 +2,26 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b6c26e8f-5fd4-49bb-a67f-abef29b066ee" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/core/src/main/scala/edu/hku/cs/dp/dpsql.scala" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/examples/src/main/scala/main/scala/Q34.scala" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/examples/src/main/scala/org/apache/spark/examples/tpch/TpchSchemaProvider.scala" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/examples/src/main/scala/main/scala/Q31DP.scala" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/examples/src/main/scala/main/scala/Q34DP.scala" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/examples/src/main/scala/main/scala/Q43.scala" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/examples/src/main/scala/main/scala/Q43DP.scala" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/examples/src/main/scala/main/scala/Q46.scala" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/examples/src/main/scala/main/scala/Q46DP.scala" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/examples/src/main/scala/main/scala/Q51.scala" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/examples/src/main/scala/main/scala/Q51DP.scala" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/run_example.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/send_data.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/setupcluster.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/stopcluster.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/src/main/scala/tpch/Q01.scala" beforeDir="false" afterPath="$PROJECT_DIR$/examples/src/main/scala/main/scala/Q31.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/src/main/scala/tpch/Q02.scala" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/src/main/scala/tpch/Q03.scala" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/src/main/scala/tpch/Q04.scala" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/src/main/scala/tpch/Q05.scala" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/src/main/scala/tpch/Q06.scala" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/src/main/scala/tpch/Q07.scala" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/src/main/scala/tpch/Q08.scala" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/src/main/scala/tpch/Q09.scala" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/src/main/scala/tpch/Q10.scala" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/src/main/scala/tpch/Q11.scala" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/src/main/scala/tpch/Q12.scala" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/src/main/scala/tpch/Q13.scala" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/src/main/scala/tpch/Q14.scala" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/src/main/scala/tpch/Q15.scala" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/src/main/scala/tpch/Q16.scala" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/src/main/scala/tpch/Q17.scala" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/src/main/scala/tpch/Q18.scala" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/src/main/scala/tpch/Q19.scala" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/src/main/scala/tpch/Q20.scala" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/src/main/scala/tpch/Q21.scala" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/src/main/scala/tpch/Q22.scala" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/src/main/scala/tpch/TpchQuery.scala" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/src/main/scala/tpch/TpchSchemaProvider.scala" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/scala/edu/hku/cs/dp/dpobject.scala" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/scala/edu/hku/cs/dp/dpobject.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/scala/edu/hku/cs/dp/dpobjectKV.scala" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/scala/edu/hku/cs/dp/dpobjectKV.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/scala/edu/hku/cs/dp/dpread.scala" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/scala/edu/hku/cs/dp/dpread.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/scala/edu/hku/cs/dp/dpsql.scala" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/src/main/scala/main/scala/Q31.scala" beforeDir="false" afterPath="$PROJECT_DIR$/examples/src/main/scala/main/scala/Q31.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/src/main/scala/main/scala/Q34.scala" beforeDir="false" afterPath="$PROJECT_DIR$/examples/src/main/scala/main/scala/Q34.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sync.sh" beforeDir="false" afterPath="$PROJECT_DIR$/sync.sh" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
@@ -71,52 +62,101 @@
     <option name="isMigrated" value="true" />
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="horizontal" split-proportion="0.5769231">
-      <split-first>
-        <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-          <file pinned="false" current-in-tab="true">
-            <entry file="file://$PROJECT_DIR$/examples/src/main/scala/main/scala/Q34.scala">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="332">
-                  <caret line="38" column="39" lean-forward="true" selection-start-line="38" selection-start-column="39" selection-end-line="38" selection-end-column="39" />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/examples/src/main/scala/main/scala/Q04.scala">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="302">
-                  <caret line="26" column="32" selection-start-line="26" selection-start-column="17" selection-end-line="26" selection-end-column="32" />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/examples/src/main/scala/main/scala/Q31.scala">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="83">
-                  <caret line="30" column="26" selection-start-line="30" selection-start-column="26" selection-end-line="30" selection-end-column="26" />
-                </state>
-              </provider>
-            </entry>
-          </file>
-        </leaf>
-      </split-first>
-      <split-second>
-        <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-          <file pinned="false" current-in-tab="true">
-            <entry file="file://$PROJECT_DIR$/examples/src/main/scala/main/scala/TpchSchemaProvider.scala">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="151">
-                  <caret line="172" column="24" selection-start-line="172" selection-start-column="9" selection-end-line="172" selection-end-column="24" />
-                </state>
-              </provider>
-            </entry>
-          </file>
-        </leaf>
-      </split-second>
-    </splitter>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/examples/src/main/scala/main/scala/Q31DP.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="555">
+              <caret line="36" column="37" selection-start-line="36" selection-start-column="26" selection-end-line="36" selection-end-column="37" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/examples/src/main/scala/main/scala/Q34DP.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state>
+              <caret line="8" column="2" lean-forward="true" selection-start-line="8" selection-start-column="2" selection-end-line="8" selection-end-column="2" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/examples/src/main/scala/main/scala/Q43DP.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="315">
+              <caret line="24" column="36" lean-forward="true" selection-start-line="24" selection-start-column="25" selection-end-line="24" selection-end-column="36" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/examples/src/main/scala/main/scala/Q51.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="45">
+              <caret line="29" column="62" selection-start-line="29" selection-start-column="62" selection-end-line="29" selection-end-column="62" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/examples/src/main/scala/main/scala/Q51DP.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="126">
+              <caret line="36" column="62" selection-start-line="36" selection-start-column="62" selection-end-line="36" selection-end-column="62" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/core/src/main/scala/edu/hku/cs/dp/dpobject.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="201">
+              <caret line="122" column="19" selection-start-line="122" selection-start-column="6" selection-end-line="122" selection-end-column="19" />
+              <folding>
+                <element signature="e#23#46#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/examples/src/main/scala/main/scala/Q43.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="361">
+              <caret line="33" selection-start-line="33" selection-start-column="2" selection-end-line="34" selection-end-column="36" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/core/src/main/scala/org/apache/spark/rdd/PairRDDFunctions.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="172">
+              <caret line="651" column="6" selection-start-line="651" selection-start-column="6" selection-end-line="651" selection-end-column="6" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/core/src/main/scala/edu/hku/cs/dp/dpobjectKV.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="88">
+              <caret line="70" lean-forward="true" selection-start-line="70" selection-end-line="70" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/examples/src/main/scala/main/scala/Q46DP.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="196">
+              <caret line="35" column="32" lean-forward="true" selection-start-line="35" selection-start-column="21" selection-end-line="35" selection-end-column="32" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -127,17 +167,36 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>main.scala.Q01</find>
-      <find>Q01</find>
-      <find>dfMap</find>
-      <find>l_shipdate</find>
-      <find>l_returnflag</find>
-      <find>l_linestatus</find>
-      <find>l_quantity</find>
-      <find>l_extendedprice</find>
-      <find>execute</find>
-      <find>lineitem</find>
-      <find>inputDir</find>
+      <find>ps_suppkey</find>
+      <find>s_suppkey</find>
+      <find>s_</find>
+      <find>l_receiptdate</find>
+      <find>l_commitdate</find>
+      <find>o_orderkey</find>
+      <find>nation</find>
+      <find>l_orderkey</find>
+      <find>n_nationkey</find>
+      <find>n_</find>
+      <find>s_nationkey</find>
+      <find>suppkey_count</find>
+      <find>suppkey_max</find>
+      <find>l_suppkey</find>
+      <find>o_orderstatus</find>
+      <find>n_name</find>
+      <find>s_name</find>
+      <find>Brand#45</find>
+      <find>sample</find>
+      <find>filter</find>
+      <find>Auto</find>
+      <find>reduceByKeyDP</find>
+      <find>inputsample.filter</find>
+      <find>lineitem_input</find>
+      <find>supplier_input</find>
+      <find>line1</find>
+      <find>line2</find>
+      <find>order_input</find>
+      <find>collect()</find>
+      <find>flineitem</find>
     </findStrings>
     <replaceStrings>
       <replace>dfMapDP</replace>
@@ -152,19 +211,36 @@
         <option value="$PROJECT_DIR$/examples/src/main/scala/org/apache/spark/examples/tpch/Q01.scala" />
         <option value="$PROJECT_DIR$/examples/src/main/scala/org/apache/spark/examples/tpch/TpchQuery.scala" />
         <option value="$PROJECT_DIR$/examples/src/main/scala/org/apache/spark/examples/tpch/TpchSchemaProvider.scala" />
-        <option value="$PROJECT_DIR$/sync.sh" />
         <option value="$PROJECT_DIR$/core/src/main/scala/edu/hku/cs/dp/dpsql.scala" />
-        <option value="$PROJECT_DIR$/examples/src/main/scala/main/scala/TpchSchemaProvider.scala" />
         <option value="$PROJECT_DIR$/examples/src/main/scala/main/scala/TpchQuery.scala" />
-        <option value="$PROJECT_DIR$/examples/src/main/scala/main/scala/Q31.scala" />
+        <option value="$PROJECT_DIR$/examples/src/main/scala/main/scala/Q13.scala" />
         <option value="$PROJECT_DIR$/examples/src/main/scala/main/scala/Q34.scala" />
+        <option value="$PROJECT_DIR$/examples/src/main/scala/main/scala/Q31.scala" />
+        <option value="$PROJECT_DIR$/examples/src/main/scala/main/scala/TpchSchemaProvider.scala" />
+        <option value="$PROJECT_DIR$/examples/src/main/scala/org/apache/spark/examples/mllib/SVMWithSGDExample.scala" />
+        <option value="$PROJECT_DIR$/stopcluster.sh" />
+        <option value="$PROJECT_DIR$/setupcluster.sh" />
+        <option value="$PROJECT_DIR$/send_data.sh" />
+        <option value="$PROJECT_DIR$/core/src/main/scala/edu/hku/cs/dp/dpread.scala" />
+        <option value="$PROJECT_DIR$/run_example.sh" />
+        <option value="$PROJECT_DIR$/sync.sh" />
+        <option value="$PROJECT_DIR$/examples/src/main/scala/main/scala/Q31DP.scala" />
+        <option value="$PROJECT_DIR$/examples/src/main/scala/main/scala/Q34DP.scala" />
+        <option value="$PROJECT_DIR$/core/src/main/scala/edu/hku/cs/dp/dpobjectKV.scala" />
+        <option value="$PROJECT_DIR$/examples/src/main/scala/main/scala/Q43.scala" />
+        <option value="$PROJECT_DIR$/examples/src/main/scala/main/scala/Q43DP.scala" />
+        <option value="$PROJECT_DIR$/examples/src/main/scala/main/scala/Q46.scala" />
+        <option value="$PROJECT_DIR$/examples/src/main/scala/main/scala/Q46DP.scala" />
+        <option value="$PROJECT_DIR$/core/src/main/scala/edu/hku/cs/dp/dpobject.scala" />
+        <option value="$PROJECT_DIR$/examples/src/main/scala/main/scala/Q51DP.scala" />
+        <option value="$PROJECT_DIR$/examples/src/main/scala/main/scala/Q51.scala" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="132" />
+    <option name="x" value="32" />
     <option name="y" value="23" />
-    <option name="width" value="1194" />
+    <option name="width" value="1280" />
     <option name="height" value="773" />
   </component>
   <component name="ProjectView">
@@ -172,7 +248,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="PackagesPane" />
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -259,11 +335,15 @@
               <item name="scala" type="462c0819:PsiDirectoryNode" />
               <item name="examples" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="spark-parent_2.11" type="b2602c69:ProjectViewProjectNode" />
+              <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
+            </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
+      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -272,6 +352,7 @@
     <property name="aspect.path.notification.shown" value="true" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
+    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
   </component>
   <component name="RecentsManager">
     <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
@@ -330,18 +411,19 @@
       <workItem from="1557069315411" duration="22086000" />
       <workItem from="1557734182022" duration="2279000" />
       <workItem from="1557743851300" duration="7352000" />
-      <workItem from="1557834271704" duration="14501000" />
+      <workItem from="1557834271704" duration="27050000" />
+      <workItem from="1558071399716" duration="22489000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="55232000" />
+    <option name="totallyTimeSpent" value="90270000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="132" y="23" width="1194" height="773" extended-state="0" />
+    <frame x="32" y="23" width="1280" height="773" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.1423611" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.15347335" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Designer" order="2" />
       <window_info id="Image Layers" order="3" />
@@ -350,12 +432,12 @@
       <window_info id="Favorites" order="6" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" sideWeight="0.49919224" weight="0.32892805" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49510762" visible="true" weight="0.20264317" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49510762" visible="true" weight="0.20264317" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Terminal" order="7" weight="0.32917318" />
+      <window_info anchor="bottom" id="Terminal" order="7" weight="0.25256976" />
       <window_info anchor="bottom" id="Docker" order="8" show_stripe_button="false" />
       <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.50489235" side_tool="true" weight="0.20264317" />
       <window_info anchor="bottom" id="Messages" order="10" />
@@ -378,177 +460,6 @@
     <option name="version" value="1" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/examples/src/main/scala/org/apache/spark/examples/tpch/Q10.scala" />
-    <entry file="file://$PROJECT_DIR$/examples/src/main/scala/org/apache/spark/examples/tpch/Q03.scala" />
-    <entry file="file://$PROJECT_DIR$/examples/src/main/scala/org/apache/spark/examples/mllib/KernelDensityEstimationExample.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="26" column="7" selection-start-line="26" selection-start-column="7" selection-end-line="26" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/main/scala/org/apache/spark/SparkContext.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="142">
-          <caret line="72" column="18" selection-start-line="72" selection-start-column="18" selection-end-line="72" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/examples/src/main/scala/org/apache/spark/examples/tpch/Q02.scala" />
-    <entry file="file://$PROJECT_DIR$/examples/src/main/scala/org/apache/spark/examples/tpch/Q01.scala" />
-    <entry file="file://$PROJECT_DIR$/examples/src/main/scala/org/apache/spark/examples/tpch/TpchQuery.scala" />
-    <entry file="file://$PROJECT_DIR$/examples/src/main/scala/org/apache/spark/examples/TpchQuery2.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="200">
-          <caret line="15" column="22" selection-start-line="15" selection-start-column="22" selection-end-line="15" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/examples/src/main/scala/org/apache/spark/examples/mllib/SVMWithSGDExample.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="140">
-          <caret line="26" selection-start-line="26" selection-end-line="26" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/examples/src/main/scala/org/apache/spark/examples/sql/UserDefinedTypedAggregation.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-60">
-          <caret line="25" column="7" selection-start-line="25" selection-start-column="7" selection-end-line="25" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/examples/src/main/scala/org/apache/spark/examples/TpchQuery1Normal.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="175">
-          <caret line="8" column="7" selection-start-line="8" selection-start-column="7" selection-end-line="8" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/examples/src/main/scala/org/apache/spark/examples/sql/SparkSQLExample.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="58" column="27" lean-forward="true" selection-start-line="58" selection-start-column="27" selection-end-line="58" selection-end-column="27" />
-          <folding>
-            <element signature="e#840#871#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/examples/src/main/scala/org/apache/spark/examples/sql/SQLDataSourceExample.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="44" column="32" lean-forward="true" selection-start-line="44" selection-start-column="32" selection-end-line="44" selection-end-column="32" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/sql/core/src/main/scala/org/apache/spark/sql/DataFrameReader.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="154" column="31" lean-forward="true" selection-start-line="154" selection-start-column="31" selection-end-line="154" selection-end-column="31" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/examples/src/main/scala/org/apache/spark/examples/tpch/package.scala">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/examples/src/main/scala/org/apache/spark/examples/tpch/TpchSchemaProvider.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="60">
-          <caret line="4" lean-forward="true" selection-start-line="4" selection-end-line="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/plans/logical/LogicalPlan.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="108" column="19" lean-forward="true" selection-start-line="108" selection-start-column="19" selection-end-line="108" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/sql/core/src/main/scala/org/apache/spark/sql/functions.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="10050">
-          <caret line="702" column="6" selection-start-line="702" selection-start-column="6" selection-end-line="702" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$MAVEN_REPOSITORY$/org/scala-lang/scala-library/2.11.8/scala-library-2.11.8.jar!/scala/Predef.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="8" column="6" selection-start-line="8" selection-start-column="6" selection-end-line="8" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar:///Library/Java/JavaVirtualMachines/jdk1.8.0_73.jdk/Contents/Home/src.zip!/java/lang/System.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="5310">
-          <caret line="398" column="30" selection-start-line="398" selection-start-column="30" selection-end-line="398" selection-end-column="30" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/sql/core/src/main/scala/org/apache/spark/sql/SQLImplicits.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="202">
-          <caret line="42" column="8" selection-start-line="42" selection-start-column="8" selection-end-line="42" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/sql/core/src/main/scala/org/apache/spark/sql/Dataset.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1110">
-          <caret line="161" column="24" lean-forward="true" selection-start-line="161" selection-start-column="24" selection-end-line="161" selection-end-column="24" />
-          <folding>
-            <element signature="e#832#862#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/main/scala/org/apache/spark/rdd/RDD.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-675">
-          <caret line="368" column="6" selection-start-line="368" selection-start-column="6" selection-end-line="368" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$MAVEN_REPOSITORY$/org/scala-lang/scala-library/2.11.8/scala-library-2.11.8.jar!/scala/Option.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="6" column="6" selection-start-line="6" selection-start-column="6" selection-end-line="6" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/main/scala/edu/hku/cs/dp/dpsql.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="62" selection-start-line="62" selection-end-line="62" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/main/scala/edu/hku/cs/dp/dpobject.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="21" column="31" selection-start-line="21" selection-start-column="31" selection-end-line="21" selection-end-column="31" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/main/scala/edu/hku/cs/dp/dpread.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="19" column="41" selection-start-line="19" selection-start-column="41" selection-end-line="19" selection-end-column="41" />
-          <folding>
-            <element signature="e#23#59#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/sql/core/src/main/scala/org/apache/spark/sql/RelationalGroupedDataset.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2790">
-          <caret line="216" column="3" selection-start-line="216" selection-end-line="217" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/sql/core/src/main/scala/org/apache/spark/sql/package.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="435">
@@ -563,27 +474,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="375">
           <caret line="31" column="23" selection-start-line="31" selection-end-line="32" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/sync.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="1" column="182" selection-start-line="1" selection-start-column="182" selection-end-line="1" selection-end-column="182" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/examples/src/main/scala/org/apache/spark/examples/TpchQuery1.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret line="3" column="35" selection-start-line="3" selection-end-line="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/examples/src/main/scala/org/apache/spark/examples/TpchQuery3.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-163">
-          <caret line="8" column="7" selection-start-line="8" selection-start-column="7" selection-end-line="8" selection-end-column="7" />
         </state>
       </provider>
     </entry>
@@ -678,38 +568,263 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/examples/src/main/scala/main/scala/Q13.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="390">
-          <caret line="30" column="3" lean-forward="true" selection-start-line="30" selection-start-column="3" selection-end-line="30" selection-end-column="3" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/examples/src/main/scala/main/scala/TpchSchemaProvider.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="151">
-          <caret line="172" column="24" selection-start-line="172" selection-start-column="9" selection-end-line="172" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/examples/src/main/scala/main/scala/Q04.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="302">
+        <state relative-caret-position="316">
           <caret line="26" column="32" selection-start-line="26" selection-start-column="17" selection-end-line="26" selection-end-column="32" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/examples/src/main/scala/main/scala/Q13.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="274">
+          <caret line="26" column="29" selection-start-line="26" selection-start-column="19" selection-end-line="26" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/examples/src/main/scala/main/scala/Q21.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="322">
+          <caret line="50" column="22" selection-start-line="50" selection-start-column="22" selection-end-line="50" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mllib/src/main/scala/org/apache/spark/mllib/stat/KernelDensity.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="195">
+          <caret line="91" column="39" lean-forward="true" selection-start-line="91" selection-start-column="39" selection-end-line="91" selection-end-column="39" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/examples/src/main/scala/org/apache/spark/examples/mllib/SVMWithSGDExample.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="375">
+          <caret line="44" column="28" selection-start-line="44" selection-start-column="28" selection-end-line="44" selection-end-column="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mllib/src/main/scala/org/apache/spark/mllib/classification/SVM.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1620">
+          <caret line="131" column="17" selection-start-line="131" selection-start-column="17" selection-end-line="131" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/examples/src/main/scala/org/apache/spark/examples/mllib/KernelDensityEstimationExample.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="390">
+          <caret line="44" column="27" selection-start-line="44" selection-start-column="27" selection-end-line="44" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/examples/src/main/scala/org/apache/spark/examples/TpchQuery1Normal.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="8" column="7" selection-start-line="8" selection-start-column="7" selection-end-line="8" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/scala-lang/scala-library/2.11.8/scala-library-2.11.8.jar!/scala/math/package.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="540">
+          <caret line="36" column="47" selection-start-line="36" selection-start-column="47" selection-end-line="36" selection-end-column="47" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/examples/src/main/scala/main/scala/Q16.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="420">
+          <caret line="32" column="39" selection-start-line="32" selection-start-column="39" selection-end-line="32" selection-end-column="39" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/examples/src/main/scala/main/scala/Q31.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="83">
-          <caret line="30" column="26" selection-start-line="30" selection-start-column="26" selection-end-line="30" selection-end-column="26" />
+        <state relative-caret-position="135">
+          <caret line="9" column="10" selection-start-line="9" selection-start-column="10" selection-end-line="9" selection-end-column="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/examples/src/main/scala/org/apache/spark/examples/TpchQuery1.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="150">
+          <caret line="10" column="7" selection-start-line="10" selection-start-column="7" selection-end-line="10" selection-end-column="7" />
+          <folding>
+            <element signature="e#35#62#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/examples/src/main/scala/org/apache/spark/examples/TpchQuery3.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="360">
+          <caret line="24" column="36" selection-start-line="24" selection-start-column="23" selection-end-line="24" selection-end-column="36" />
+          <folding>
+            <element signature="e#35#62#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/examples/src/main/scala/main/scala/TpchSchemaProvider.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="47">
+          <caret line="159" column="17" lean-forward="true" selection-start-line="159" selection-start-column="17" selection-end-line="159" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/updateclass.sh">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/main/scala/edu/hku/cs/dp/dpread.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="331">
+          <caret line="33" column="27" selection-start-line="33" selection-start-column="27" selection-end-line="33" selection-end-column="27" />
+          <folding>
+            <element signature="e#23#59#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/examples/src/main/scala/org/apache/spark/examples/MultiBroadcastTest.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-395">
+          <caret line="27" column="7" selection-start-line="27" selection-start-column="7" selection-end-line="27" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/send_data.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="210">
+          <caret line="14" column="61" lean-forward="true" selection-start-line="14" selection-start-column="61" selection-end-line="14" selection-end-column="61" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stopcluster.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="2" selection-start-line="2" selection-end-line="10" selection-end-column="70" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/setupcluster.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="265">
+          <caret line="24" selection-start-line="24" selection-end-line="33" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sync.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="45">
+          <caret line="3" column="125" selection-start-line="3" selection-start-column="125" selection-end-line="3" selection-end-column="125" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/run_example.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="150">
+          <caret line="10" column="5" lean-forward="true" selection-start-line="10" selection-start-column="5" selection-end-line="10" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/main/scala/org/apache/spark/rdd/RDD.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="165">
+          <caret line="385" column="6" selection-start-line="385" selection-start-column="6" selection-end-line="385" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/scala-lang/scala-library/2.11.8/scala-library-2.11.8.jar!/scala/Tuple2.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="2" column="70" selection-start-line="2" selection-start-column="70" selection-end-line="2" selection-end-column="70" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/examples/src/main/scala/main/scala/Q34.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="332">
-          <caret line="38" column="39" lean-forward="true" selection-start-line="38" selection-start-column="39" selection-end-line="38" selection-end-column="39" />
+        <state relative-caret-position="312">
+          <caret line="25" column="50" lean-forward="true" selection-start-line="25" selection-start-column="50" selection-end-line="25" selection-end-column="50" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/examples/src/main/scala/main/scala/Q31DP.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="555">
+          <caret line="36" column="37" selection-start-line="36" selection-start-column="26" selection-end-line="36" selection-end-column="37" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/main/scala/edu/hku/cs/dp/dpobjectKV.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="88">
+          <caret line="70" lean-forward="true" selection-start-line="70" selection-end-line="70" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/main/scala/org/apache/spark/rdd/PairRDDFunctions.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="172">
+          <caret line="651" column="6" selection-start-line="651" selection-start-column="6" selection-end-line="651" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/examples/src/main/scala/main/scala/Q34DP.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret line="8" column="2" lean-forward="true" selection-start-line="8" selection-start-column="2" selection-end-line="8" selection-end-column="2" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/examples/src/main/scala/main/scala/Q46.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="270">
+          <caret line="36" column="94" selection-start-line="36" selection-start-column="94" selection-end-line="36" selection-end-column="94" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/examples/src/main/scala/main/scala/Q46DP.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="196">
+          <caret line="35" column="32" lean-forward="true" selection-start-line="35" selection-start-column="21" selection-end-line="35" selection-end-column="32" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/examples/src/main/scala/main/scala/Q43.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="361">
+          <caret line="33" selection-start-line="33" selection-start-column="2" selection-end-line="34" selection-end-column="36" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/examples/src/main/scala/main/scala/Q43DP.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="315">
+          <caret line="24" column="36" lean-forward="true" selection-start-line="24" selection-start-column="25" selection-end-line="24" selection-end-column="36" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/main/scala/edu/hku/cs/dp/dpobject.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="201">
+          <caret line="122" column="19" selection-start-line="122" selection-start-column="6" selection-end-line="122" selection-end-column="19" />
+          <folding>
+            <element signature="e#23#46#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/examples/src/main/scala/main/scala/Q51DP.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="126">
+          <caret line="36" column="62" selection-start-line="36" selection-start-column="62" selection-end-line="36" selection-end-column="62" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/examples/src/main/scala/main/scala/Q51.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="45">
+          <caret line="29" column="62" selection-start-line="29" selection-start-column="62" selection-end-line="29" selection-end-column="62" />
         </state>
       </provider>
     </entry>

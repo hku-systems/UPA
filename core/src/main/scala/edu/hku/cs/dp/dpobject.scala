@@ -12,7 +12,6 @@ import scala.collection.{Map, mutable}
 import scala.collection.immutable.HashSet
 import scala.reflect.ClassTag
 
-
 /**
   * Created by lionon on 10/22/18.
   */
@@ -77,7 +76,63 @@ def filterDP(f: T => Boolean) : dpobject[T] = {
   new dpobject(inputsample.filter(f), inputoriginal.filter(f))
 }
 
+  def addnoiseQ31(): Unit = {
+    val q31DP = sample.asInstanceOf[RDD[((String,String),(Double,Double,Double,Double,Double,Int))]]
+    val get_max = q31DP.reduceByKey((a,b) => (scala.math.max(a._1,b._1),scala.math.max(a._2,b._2),scala.math.max(a._3,b._3),scala.math.max(a._4,b._4),scala.math.max(a._5,b._5),scala.math.max(a._6,b._6)))
+    println("***********computing min***********")
+    val get_min = q31DP.reduceByKey((a,b) => (scala.math.min(a._1,b._1),scala.math.min(a._2,b._2),scala.math.min(a._3,b._3),scala.math.min(a._4,b._4),scala.math.min(a._5,b._5),scala.math.min(a._6,b._6)))
+    println("***********computing lambda***********")
+    val get_lambda = get_max.union(get_min).reduceByKey((a,b) => (scala.math.abs(a._1 - b._1), scala.math.abs(a._2 - b._2), scala.math.abs(a._3 - b._3), scala.math.abs(a._4 - b._4),scala.math.abs(a._5 - b._5),scala.math.abs(a._6 - b._6)))
+    print("Sensitvity is: " + get_lambda.collect().foreach(println))
+    print("Original result is: " + original.collect().foreach(println))
+  }
+
+  def addnoiseQ34(): Unit = {
+    val q34DP = sample.asInstanceOf[RDD[((String,String),Int)]]
+    val get_max = q34DP.reduceByKey((a,b) => (scala.math.max(a,b)))
+    println("***********computing min***********")
+    val get_min = q34DP.reduceByKey((a,b) => (scala.math.min(a,b)))
+    println("***********computing lambda***********")
+    val get_lambda = get_max.union(get_min).reduceByKey((a,b) => (scala.math.abs(a - b)))
+    print("Sensitvity is: " + get_lambda.collect().foreach(println))
+    print("Original result is: " + original.collect().foreach(println))
+  }
+
+  def addnoiseQ41(): Unit = {
+    val q34DP = sample.asInstanceOf[RDD[((Long,Long),Int)]]
+    val get_max = q34DP.reduceByKey((a,b) => (scala.math.max(a,b)))
+    println("***********computing min***********")
+    val get_min = q34DP.reduceByKey((a,b) => (scala.math.min(a,b)))
+    println("***********computing lambda***********")
+    val get_lambda = get_max.union(get_min).reduceByKey((a,b) => (scala.math.abs(a - b)))
+    print("Sensitvity is: " + get_lambda.collect().foreach(println))
+    print("Original result is: " + original.collect().foreach(println))
+  }
+
+  def addnoiseQ46(): Unit = {
+    val q34DP = sample.asInstanceOf[RDD[((String,String,Long),Int)]]
+    val get_max = q34DP.reduceByKey((a,b) => (scala.math.max(a,b)))
+    println("***********computing min***********")
+    val get_min = q34DP.reduceByKey((a,b) => (scala.math.min(a,b)))
+    println("***********computing lambda***********")
+    val get_lambda = get_max.union(get_min).reduceByKey((a,b) => (scala.math.abs(a - b)))
+    print("Sensitvity is: " + get_lambda.collect().foreach(println))
+    print("Original result is: " + original.collect().foreach(println))
+  }
+
+  def addnoiseQ51(): Unit = {
+    val q34DP = sample.asInstanceOf[RDD[(String,Int)]]
+    val get_max = q34DP.reduceByKey((a,b) => (scala.math.max(a,b)))
+    println("***********computing min***********")
+    val get_min = q34DP.reduceByKey((a,b) => (scala.math.min(a,b)))
+    println("***********computing lambda***********")
+    val get_lambda = get_max.union(get_min).reduceByKey((a,b) => (scala.math.abs(a - b)))
+    print("Sensitvity is: " + get_lambda.collect().foreach(println))
+    print("Original result is: " + original.collect().foreach(println))
+  }
+
   def addnoise(): Any = {
+    println("***********Adding noise***********")
     sample.asInstanceOf[Any] match {
       case intsample : RDD[Int] =>
         val sorted = intsample.sortBy(p => p)
@@ -89,7 +144,7 @@ def filterDP(f: T => Boolean) : dpobject[T] = {
         println("Int max: " + max)
         println("Int min: " + min)
         println("Sensitivity: " + laprand)
-        original.asInstanceOf[RDD[Int]].collect().head.toDouble + laprand.toDouble
+//        original.asInstanceOf[RDD[Int]].collect().head.toDouble + laprand.toDouble
       case doublesample : RDD[Double] =>
         val sorted = doublesample.sortBy(p => p)
         val max = sorted.max
@@ -98,17 +153,28 @@ def filterDP(f: T => Boolean) : dpobject[T] = {
         sorted.map(p => println(p))
         println("Double max: " + max)
         println("Double min: " + min)
-        original.asInstanceOf[RDD[Double]].collect().head + max - min
+//        original.asInstanceOf[RDD[Double]].collect().head + max - min
       case threeIntTuplesample : RDD[(Int,(Int,Int))] =>
         val sorted1 = threeIntTuplesample.map(p => p._2._1)
         val max1 = sorted1.max
         val min1 = sorted1.min
         val laprand1 = max1 - min1
-
         val sorted2 = threeIntTuplesample.map(p => p._2._1)
         val max2 = sorted2.max
         val min2 = sorted2.min
         val laprand2 = max2 - min2
+      case q31DP : RDD[((String,String),(Double,Double,Double,Double,Double,Int))] =>
+        println("***********computing max***********")
+        val get_max = q31DP.reduceByKey((a,b) => (scala.math.max(a._1,b._1),scala.math.max(a._2,b._2),scala.math.max(a._3,b._3),scala.math.max(a._4,b._4),scala.math.max(a._5,b._5),scala.math.max(a._6,b._6)))
+        println("***********computing min***********")
+        val get_min = q31DP.reduceByKey((a,b) => (scala.math.min(a._1,b._1),scala.math.min(a._2,b._2),scala.math.min(a._3,b._3),scala.math.min(a._4,b._4),scala.math.min(a._5,b._5),scala.math.min(a._6,b._6)))
+        println("***********computing lambda***********")
+        val get_lambda = get_max.union(get_min).reduceByKey((a,b) => (scala.math.abs(a._1 - b._1), scala.math.abs(a._2 - b._2), scala.math.abs(a._3 - b._3), scala.math.abs(a._4 - b._4),scala.math.abs(a._5 - b._5),scala.math.abs(a._6 - b._6)))
+        print("Sensitvity is: " + get_lambda.collect())
+        print("Original result is: " + original.collect())
+      case _ =>
+        println("no match")
+
     }
 //    result
   }
