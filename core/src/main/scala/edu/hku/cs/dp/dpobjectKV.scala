@@ -43,21 +43,60 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputoriginal: RDD[(K, 
 //        new dpobjectKV(inputsample.map(f).asInstanceOf[RDD[(K,V)]], inputoriginal.map(f).asInstanceOf[RDD[(K,V)]])
 //      }
 
+      //parallelise inter key operation or intra key operation
+      //seems use less collect is better
+      //because collect then parallelise requires more rtt and sorting
       def reduceByKeyDP(func: (V, V) => V): dpobject[(K,V)] = {
 //reduce shuffle, use map rather than reduce/reduceByKey
         val originalresult = inputoriginal.reduceByKey(func)//Reduce original first
+        val sample_gp_key = sample.groupByKey()
 //        val originalfinalresult = sample.union(originalresult).reduceByKey(func)
-        val broadcastOriginal = sample.sparkContext.broadcast(HashMap() ++ originalresult.groupByKey.collect())//Unique Key
-        val broadcastSample = sample.sparkContext.broadcast(HashMap() ++ sample.groupByKey.collect())//May not be UniqueKey
-        val withoutSample = sample.map(p => {//"sample" means the aggregated result without that record
-          val option2list1 = broadcastSample.value.get(p._1).toList
-          val option2list2 = broadcastOriginal.value.get(p._1).toList
-          val option2list = option2list1 ++ option2list2
-        val s = HashSet() ++ option2list.flatMap(l => l) //join value in sample and result of a key, should take short time if not many element in those keys
-        val ss = s - p._2
-          (p._1,(s.reduce(func)))
+
+        //should leverage the isolation between keys
+        //each aggregation process only involve on key
+//        val broadcastOriginal = sample.sparkContext.broadcast(HashMap() ++ originalresult.collect())//Unique Key
+//        val broadcastSample = sample.sparkContext.broadcast(HashMap() ++ sample_gp_key.collect())//May not be UniqueKey
+
+        sample_gp_key.map(p => {
+          val iter = p._2
+          val key = p._1
+          val inner = new ArrayBuffer[V]
+          val outer = new ArrayBuffer[ArrayBuffer[V]]
+          var run_length = 8
+          if (p._2.size <= 8)
+            run_length = p._2.size - 1
+
+          for (i <- 1 to run_length){//to is inclusive
+            val divider = p._2.size / i
+            for( a <- 0 to divider) {
+              val each_value = iter.toSeq.combinations(1)
+            }
+          }
+
+
+
+
         })
-        new dpobject(withoutSample,originalresult)
+
+//        val without_a_sample =
+//        val withoutSample = sample.map(p => {//"sample" means the aggregated result without that record
+//          val option2list1 = broadcastSample.value.get(p._1).toList
+//          val option2list2 = broadcastOriginal.value.get(p._1).toList
+//          val option2list = option2list1 ++ option2list2 //flat because option2's value is a iterable (after using group by key)
+//        val s = HashSet() ++ option2list.flatMap(l => l) //join value in sample and result of a key, should take short time if not many element in those keys
+//        val ss = s - p._2
+//          (p._1,(s.reduce(func)))
+//        })
+
+//val without_that_Sample = sample.flatMap { case(key, value) =>
+//  broadcastOriginal.value.get(key).map { otherValue =>
+//            (key, (value, otherValue))
+//          }
+
+//        }
+        val final_result = originalresult.union(sample).reduceByKey(func)
+        //each element of the sample has only one key
+        new dpobject(originalresult,originalresult)
       }
 
       def filterDPKV(f: ((K,V)) => Boolean) : dpobjectKV[K, V] = {
@@ -76,8 +115,12 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputoriginal: RDD[(K, 
 
         val with_sample = sample.join(input2)
         val with_input2_sample = original.join(otherDP.sample)
+        val samples_join = sample.join(input2_sample)
 
-        new dpobject(joinresult,with_sample.union(with_input2_sample))
+        //This is final original result because there is no inter key
+        //or intra key combination for join i.e., no over lapping scenario
+        //within or between keys
+        new dpobject(joinresult,with_sample.union(with_input2_sample).union(samples_join))
 
 //        val allselfkeys = self.keys.collect().toSeq //the number of keys may be much less than the number of sampled elements
 //        val allvaluesforjoin = allselfkeys.map(key => {//Can I run this distributively? the main challenge is RDD cannot access RDD

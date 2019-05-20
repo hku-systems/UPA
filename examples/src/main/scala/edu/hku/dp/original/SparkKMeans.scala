@@ -16,10 +16,9 @@
  */
 
 // scalastyle:off println
-package org.apache.spark.examples
+package edu.hku.dp.original
 
-import breeze.linalg.{squaredDistance, DenseVector, Vector}
-
+import breeze.linalg.{DenseVector, Vector, squaredDistance}
 import org.apache.spark.sql.SparkSession
 
 /**
@@ -72,7 +71,7 @@ object SparkKMeans {
       .getOrCreate()
 
     val lines = spark.read.textFile(args(0)).rdd
-    val data = lines.map(parseVector _).cache()
+    val data = lines.map(parseVector _)
     val K = 5
 
     val kPoints = Array(Vector(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1),
@@ -83,14 +82,9 @@ object SparkKMeans {
     var tempDist = 1.0
 
 //    while(tempDist > convergeDist) {
-      val closest = data.map (p => (closestPoint(p, kPoints), (p, 1)))
+    val closest = data.map(p => closestPoint(p, kPoints))
 
-      val pointStats = closest.reduceByKey{case ((p1, c1), (p2, c2)) => (p1 + p2, c1 + c2)}
-
-      val newPoints = pointStats.map {pair =>
-        (pair._1, pair._2._1 * (1.0 / pair._2._2))}.collectAsMap()//Here should be 4 itms
-
-    newPoints.foreach(p => print(p._1))
+    closest.collect().foreach(println)
     spark.stop()
   }
 }

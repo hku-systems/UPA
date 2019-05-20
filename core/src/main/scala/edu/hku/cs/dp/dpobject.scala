@@ -11,6 +11,7 @@ import org.apache.spark.util.random.SamplingUtils
 import scala.collection.{Map, mutable}
 import scala.collection.immutable.HashSet
 import scala.reflect.ClassTag
+import scala.collection.mutable.ArrayBuffer
 
 /**
   * Created by lionon on 10/22/18.
@@ -41,27 +42,55 @@ class dpobject[T: ClassTag](
     new dpobjectKV(inputsample.map(f).asInstanceOf[RDD[(K,V)]], inputoriginal.map(f).asInstanceOf[RDD[(K,V)]])
   }
 
-//  def mapLocal[U: ClassTag](f: T => U): (RDD[T],T) = {
-//    new dpobject(inputsample.map(f).asInstanceOf[RDD[U]], inputoriginal.map(f).asInstanceOf[RDD[U]])
-//  }
-
-  def reduceDP(f: (T, T) => T) : (RDD[T],T) = {
+  def reduceDP(f: (T, T) => T) : T = {
     //The "sample" field carries the aggregated result already
+
     val result = original.reduce(f)
     val aggregatedResult = f(sample.reduce(f),result)//get the aggregated result
     val samplecollected = sample.collect()//collect sample to local
     val tmp = HashSet() ++ samplecollected
-    val broadcastvar = sample.sparkContext.broadcast(tmp)
-    val withoutSample = sample.map(p => {//"sample" means the aggregated result without that record
-      val s = broadcastvar.value - p
-      f(s.reduce(f),result)
-    })
-//    println("dpobject result" + result.toString)
-//    println("dpobject aggregatedResult" + aggregatedResult.toString)
-//    println("dpobject sample collect")
-//    samplecollected.map(p => println(p))
-//    println("dpobject RDDForResult")
-//    RDDForResultd.map(p => println(p))
+//    val broadcastvar = sample.sparkContext.broadcast(tmp)
+
+//    val inner = new ArrayBuffer[V]
+    var inner_num = 0
+    var outer_num = 8
+    val sample_count = sample.count //e.g., 64
+    val broadcast_sample = original.sparkContext.broadcast(sample.collect())
+    if (sample_count <= 1) {
+      sample //directly return
+    }
+    else {
+      if(sample_count <= 7)
+        outer_num = sample_count / sample_count - 1
+      else
+        outer_num = sample_count / 8 //outer_num = 8
+      var array = new Array[Array[T]](outer_num)
+      var i = outer_num
+      while(i  > 0) {
+          val up_to_index = sample_count / i// 8
+        if(i == outer_num) {
+          val inner_array = original.sparkContext.parallelize(0 to up_to_index - 1) //(0,1,2,3,4,5,6,7)
+            .map(p => {
+            val inside_array = broadcast_sample.value.slice(p, p + i)
+            inside_array.reduce(f) //(0 -> 7, 8 -> 15, 16, 24, 32, 40, 48, 56)
+          }).collect()
+          array[i - 1] = inner_array
+        } else {
+          val inner_array = original.sparkContext.parallelize(0 to up_to_index - 1) //(0,1,2,3,4,5,6,7)
+            .map(p => {
+            f(array(i)(p),broadcast_sample.value(p + i - 1))
+          }).collect()
+          array[i - 1] = inner_array
+        }
+        i = i - 1
+      }
+    }
+
+
+//    val withoutSample = sample.map(p => {//"sample" means the aggregated result without that record
+//      val s = broadcastvar.value - p
+//      f(s.reduce(f),result)
+//    })
 
     (withoutSample, aggregatedResult)
   }
@@ -83,8 +112,11 @@ def filterDP(f: T => Boolean) : dpobject[T] = {
     val get_min = q31DP.reduceByKey((a,b) => (scala.math.min(a._1,b._1),scala.math.min(a._2,b._2),scala.math.min(a._3,b._3),scala.math.min(a._4,b._4),scala.math.min(a._5,b._5),scala.math.min(a._6,b._6)))
     println("***********computing lambda***********")
     val get_lambda = get_max.union(get_min).reduceByKey((a,b) => (scala.math.abs(a._1 - b._1), scala.math.abs(a._2 - b._2), scala.math.abs(a._3 - b._3), scala.math.abs(a._4 - b._4),scala.math.abs(a._5 - b._5),scala.math.abs(a._6 - b._6)))
-    print("Sensitvity is: " + get_lambda.collect().foreach(println))
-    print("Original result is: " + original.collect().foreach(println))
+    print("Sensitvity is: " + get_lambda.collect().foreach(p => print(p._1._1 + "," + p._1._2 + ":" + p._2._1 + "," + p._2._2 + "," + p._2._3 + "," + p._2._4 + "," + p._2._5 + "," + p._2._6 + "\n")))
+    print("Original result is: " + original.collect.foreach(println))
+//      .asInstanceOf[RDD[((String,String),(Double,Double,Double,Double,Double,Int))]]
+//      .collect()
+//      .foreach(p => print(p._1._1 + "," + p._1._2 + ":" + p._2._1 + "," + p._2._2 + "," + p._2._3 + "," + p._2._4 + "," + p._2._5 + "," + p._2._6 + "\n")))
   }
 
   def addnoiseQ34(): Unit = {
@@ -94,8 +126,8 @@ def filterDP(f: T => Boolean) : dpobject[T] = {
     val get_min = q34DP.reduceByKey((a,b) => (scala.math.min(a,b)))
     println("***********computing lambda***********")
     val get_lambda = get_max.union(get_min).reduceByKey((a,b) => (scala.math.abs(a - b)))
-    print("Sensitvity is: " + get_lambda.collect().foreach(println))
-    print("Original result is: " + original.collect().foreach(println))
+    print("Sensitvity is: " + get_lambda.collect().foreach(p => print(p._1._1 + "," + p._1._2 + ":" + p._2)))
+    print("Original result is: " + original.asInstanceOf[RDD[((String,String),Int)]].collect().foreach(p => print(p._1._1 + "," + p._1._2 + ":" + p._2)))
   }
 
   def addnoiseQ41(): Unit = {
@@ -105,8 +137,8 @@ def filterDP(f: T => Boolean) : dpobject[T] = {
     val get_min = q34DP.reduceByKey((a,b) => (scala.math.min(a,b)))
     println("***********computing lambda***********")
     val get_lambda = get_max.union(get_min).reduceByKey((a,b) => (scala.math.abs(a - b)))
-    print("Sensitvity is: " + get_lambda.collect().foreach(println))
-    print("Original result is: " + original.collect().foreach(println))
+    print("Sensitvity is: " + get_lambda.collect().foreach(p => print(p._1._1 + "," + p._1._2 + ":" + p._2)))
+    print("Original result is: " + original.asInstanceOf[RDD[((Long,Long),Int)]].collect().foreach(p => print(p._1._1 + "," + p._1._2 + ":" + p._2)))
   }
 
   def addnoiseQ46(): Unit = {
@@ -116,8 +148,8 @@ def filterDP(f: T => Boolean) : dpobject[T] = {
     val get_min = q34DP.reduceByKey((a,b) => (scala.math.min(a,b)))
     println("***********computing lambda***********")
     val get_lambda = get_max.union(get_min).reduceByKey((a,b) => (scala.math.abs(a - b)))
-    print("Sensitvity is: " + get_lambda.collect().foreach(println))
-    print("Original result is: " + original.collect().foreach(println))
+    print("Sensitvity is: " + get_lambda.collect().foreach(p => print(p._1._1 + "," + p._1._2 + p._1._3 +  ":" + p._2)))
+    print("Original result is: " + original.asInstanceOf[RDD[((String,String,Long),Int)]].collect().foreach(p => print(p._1._1 + "," + p._1._2 + p._1._3 +  ":" + p._2)))
   }
 
   def addnoiseQ51(): Unit = {
@@ -127,8 +159,8 @@ def filterDP(f: T => Boolean) : dpobject[T] = {
     val get_min = q34DP.reduceByKey((a,b) => (scala.math.min(a,b)))
     println("***********computing lambda***********")
     val get_lambda = get_max.union(get_min).reduceByKey((a,b) => (scala.math.abs(a - b)))
-    print("Sensitvity is: " + get_lambda.collect().foreach(println))
-    print("Original result is: " + original.collect().foreach(println))
+    print("Sensitvity is: " + get_lambda.collect().foreach(p => print(p._1 + ":" + p._2)))
+    print("Original result is: " + original.asInstanceOf[RDD[(String,Int)]].collect().foreach(p => print(p._1 + ":" + p._2)))
   }
 
   def addnoise(): Any = {

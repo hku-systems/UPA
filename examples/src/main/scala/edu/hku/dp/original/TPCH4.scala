@@ -1,4 +1,4 @@
-package main.scala
+package edu.hku.dp.original
 
 import org.apache.spark.sql.SparkSession
 
@@ -7,7 +7,7 @@ import org.apache.spark.sql.SparkSession
  * Savvas Savvides <savvas@purdue.edu>
  *
  */
-object Q34 {
+object TPCH4 {
 
   def main(args: Array[String]): Unit = {
     // this is used to implicitly convert an RDD to a DataFrame.

@@ -16,19 +16,19 @@
  */
 
 // scalastyle:off println
-package org.apache.spark.examples
+package edu.hku.dp.original
 
-import breeze.linalg.{squaredDistance, DenseVector, Vector}
-
+import breeze.linalg.{DenseVector, Vector, squaredDistance}
+import edu.hku.cs.dp.dpread
 import org.apache.spark.sql.SparkSession
 
 /**
- * K-means clustering.
- *
- * This is an example implementation for learning how to use Spark. For more conventional use,
- * please refer to org.apache.spark.ml.clustering.KMeans.
- */
-object SparkKMeans {
+  * K-means clustering.
+  *
+  * This is an example implementation for learning how to use Spark. For more conventional use,
+  * please refer to org.apache.spark.ml.clustering.KMeans.
+  */
+object SparkKMeansDP {
 
   def parseVector(line: String): Vector[Double] = {
     DenseVector(line.split(',').map(_.toDouble))
@@ -71,8 +71,8 @@ object SparkKMeans {
       .appName("SparkKMeans")
       .getOrCreate()
 
-    val lines = spark.read.textFile(args(0)).rdd
-    val data = lines.map(parseVector _).cache()
+    val lines = new dpread(spark.sparkContext.textFile(args(0)))
+    val data = lines.mapDP(parseVector _)
     val K = 5
 
     val kPoints = Array(Vector(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1),
@@ -80,17 +80,11 @@ object SparkKMeans {
       Vector(0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3),
       Vector(0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4),
       Vector(0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5))
-    var tempDist = 1.0
 
-//    while(tempDist > convergeDist) {
-      val closest = data.map (p => (closestPoint(p, kPoints), (p, 1)))
+    //    while(tempDist > convergeDist) {
+    val closest = data.mapDP(p => closestPoint(p, kPoints))
 
-      val pointStats = closest.reduceByKey{case ((p1, c1), (p2, c2)) => (p1 + p2, c1 + c2)}
-
-      val newPoints = pointStats.map {pair =>
-        (pair._1, pair._2._1 * (1.0 / pair._2._2))}.collectAsMap()//Here should be 4 itms
-
-    newPoints.foreach(p => print(p._1))
+    closest.collect().foreach(println)
     spark.stop()
   }
 }

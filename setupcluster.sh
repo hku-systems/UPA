@@ -1,5 +1,5 @@
 #!/bin/bash
-3,12-21, no 17
+#3,12-21, no 17
 
 ./sbin/start-master.sh -h 10.22.1.3 -p 7081
 
@@ -10,15 +10,15 @@
 
 c=7081
 
-ssh john@10.22.1.12 "./AutoDP/sbin/start-slave.sh spark://10.22.1.3:$c"
+#ssh john@10.22.1.12 "./AutoDP/sbin/start-slave.sh spark://10.22.1.3:$c"
 ssh john@10.22.1.13 "./AutoDP/sbin/start-slave.sh spark://10.22.1.3:$c"
 ssh john@10.22.1.14 "./AutoDP/sbin/start-slave.sh spark://10.22.1.3:$c"
 ssh john@10.22.1.15 "./AutoDP/sbin/start-slave.sh spark://10.22.1.3:$c"
 ssh john@10.22.1.16 "./AutoDP/sbin/start-slave.sh spark://10.22.1.3:$c"
 ssh john@10.22.1.18 "./AutoDP/sbin/start-slave.sh spark://10.22.1.3:$c"
 ssh john@10.22.1.19 "./AutoDP/sbin/start-slave.sh spark://10.22.1.3:$c"
-ssh john@10.22.1.20 "./AutoDP/sbin/start-slave.sh spark://10.22.1.3:$c"
-ssh john@10.22.1.21 "./AutoDP/sbin/start-slave.sh spark://10.22.1.3:$c"
+#ssh john@10.22.1.20 "./AutoDP/sbin/start-slave.sh spark://10.22.1.3:$c"
+#ssh john@10.22.1.21 "./AutoDP/sbin/start-slave.sh spark://10.22.1.3:$c"
 
 #cd AutoDP
 #rm output.txt

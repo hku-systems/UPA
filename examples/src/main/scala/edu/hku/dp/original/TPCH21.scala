@@ -1,6 +1,7 @@
-package main.scala
+package edu.hku.dp.original
 
 import org.apache.spark.sql.SparkSession
+
 import scala.math.max
 
 /**
@@ -8,7 +9,7 @@ import scala.math.max
  * Savvas Savvides <savvas@purdue.edu>
  *
  */
-object Q51 {
+object TPCH21 {
 
   def main(args: Array[String]): Unit = {
     // this is used to implicitly convert an RDD to a DataFrame.

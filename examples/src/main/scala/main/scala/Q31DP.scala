@@ -44,13 +44,17 @@ object Q31DP {
         val inter = decrease(p._6,p._7)
         ((p._9,p._10),(p._5,p._6, p._7, inter,increase(inter,p._8),1))
       })
-      .reduceByKeyDP((a,b) => {
+
+//    println("filtered_result original")
+//    filtered_result.original.collect().foreach(println)
+
+    val final_result = filtered_result.reduceByKeyDP((a,b) => {
       val x = decrease(a._2,a._3)
       val y = decrease(b._2,b._3)
       (a._1 + b._1, a._2 + b._2, a._3 + b._3 , a._4 + b._4, a._5 + b._5, a._6 + b._6)
     })
 
-    filtered_result.addnoiseQ31()
+    final_result.addnoiseQ31()
 
   }
 }

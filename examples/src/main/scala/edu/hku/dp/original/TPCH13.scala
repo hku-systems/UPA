@@ -1,4 +1,4 @@
-package main.scala
+package edu.hku.dp.original
 
 import org.apache.spark.sql.SparkSession
 
@@ -7,7 +7,7 @@ import org.apache.spark.sql.SparkSession
  * Savvas Savvides <savvas@purdue.edu>
  *
  */
-object Q43 {
+object TPCH13 {
 
   def special(x: String): Boolean = {
     x.matches(".*special.*requests.*")

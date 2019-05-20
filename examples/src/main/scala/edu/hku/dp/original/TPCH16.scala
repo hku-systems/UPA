@@ -1,4 +1,4 @@
-package main.scala
+package edu.hku.dp.original
 
 import org.apache.spark.sql.SparkSession
 
@@ -7,7 +7,7 @@ import org.apache.spark.sql.SparkSession
  * Savvas Savvides <savvas@purdue.edu>
  *
  */
-object Q46 {
+object TPCH16 {
 
   def decrease(x: Double, y: Double): Double = {
   x * (1 - y)
