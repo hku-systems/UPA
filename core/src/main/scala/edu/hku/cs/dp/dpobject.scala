@@ -12,6 +12,7 @@ import scala.collection.{Map, mutable}
 import scala.collection.immutable.HashSet
 import scala.reflect.ClassTag
 import scala.collection.mutable.ArrayBuffer
+import scala.math.{pow,log,exp}
 
 /**
   * Created by lionon on 10/22/18.
@@ -24,6 +25,11 @@ class dpobject[T: ClassTag](
 
   var sample = inputsample //for each element, sample refers to "if this element exists"
   var original = inputoriginal
+  val epsilon = 0.1
+  val delta = pow(10,-8)
+  val k_distance_double = 1/epsilon
+  val k_distance = k_distance_double.toInt
+  val beta = epsilon / (2*scala.math.log(2/delta))
 
 
   override def compute(split: org.apache.spark.Partition, context: org.apache.spark.TaskContext): Iterator[T] =
@@ -42,65 +48,92 @@ class dpobject[T: ClassTag](
     new dpobjectKV(inputsample.map(f).asInstanceOf[RDD[(K,V)]], inputoriginal.map(f).asInstanceOf[RDD[(K,V)]])
   }
 
-  def reduceDP(f: (T, T) => T) : T = {
+  def reduceDP(f: (T, T) => T) : (Array[RDD[T]],T) = {
     //The "sample" field carries the aggregated result already
 
     val result = original.reduce(f)
     val aggregatedResult = f(sample.reduce(f),result)//get the aggregated result
-    val samplecollected = sample.collect()//collect sample to local
-    val tmp = HashSet() ++ samplecollected
-//    val broadcastvar = sample.sparkContext.broadcast(tmp)
 
 //    val inner = new ArrayBuffer[V]
     var inner_num = 0
-    var outer_num = 8
+    var outer_num = k_distance
     val sample_count = sample.count //e.g., 64
     val broadcast_sample = original.sparkContext.broadcast(sample.collect())
     if (sample_count <= 1) {
-      sample //directly return
+      val inner = new Array[RDD[T]](1) //directly return
+      if(sample_count == 0)
+        inner(0) = original.sparkContext.parallelize(Seq(result))
+      else
+        inner(0) = sample
+      (inner,aggregatedResult)
     }
     else {
-      if(sample_count <= 7)
-        outer_num = sample_count / sample_count - 1
+      if(sample_count <= k_distance - 1)
+        outer_num = (sample_count / sample_count - 1).toInt
       else
-        outer_num = sample_count / 8 //outer_num = 8
-      var array = new Array[Array[T]](outer_num)
+        outer_num = (sample_count / k_distance).toInt //outer_num = 8
+      var array = new Array[RDD[T]](outer_num)
       var i = outer_num
       while(i  > 0) {
-          val up_to_index = sample_count / i// 8
+          val up_to_index = (sample_count / i).toInt// 8
         if(i == outer_num) {
           val inner_array = original.sparkContext.parallelize(0 to up_to_index - 1) //(0,1,2,3,4,5,6,7)
             .map(p => {
             val inside_array = broadcast_sample.value.slice(p, p + i)
-            inside_array.reduce(f) //(0 -> 7, 8 -> 15, 16, 24, 32, 40, 48, 56)
-          }).collect()
-          array[i - 1] = inner_array
+            f(inside_array.reduce(f),result) //(0 -> 7, 8 -> 15, 16, 24, 32, 40, 48, 56)
+          })
+          array(i - 1) = inner_array
         } else {
+          val upper_array = original.sparkContext.broadcast(array(i).collect())
           val inner_array = original.sparkContext.parallelize(0 to up_to_index - 1) //(0,1,2,3,4,5,6,7)
             .map(p => {
-            f(array(i)(p),broadcast_sample.value(p + i - 1))
-          }).collect()
-          array[i - 1] = inner_array
+            f(f(upper_array.value(p),broadcast_sample.value(p + i - 1)),result)
+          })
+          array(i - 1) = inner_array
         }
         i = i - 1
       }
+      (array,aggregatedResult)
     }
-
-
-//    val withoutSample = sample.map(p => {//"sample" means the aggregated result without that record
-//      val s = broadcastvar.value - p
-//      f(s.reduce(f),result)
-//    })
-
-    (withoutSample, aggregatedResult)
   }
 
-//  def takeSampleDP(
-//                  withReplacement: Boolean,
-//                  num: Int,
-//                  seed: Long = Utils.random.nextLong): Array[T] = {//sample the original is sufficient because for the sample one we want them to be there to form neighbouring datasets
-//      inputoriginal.takeSample(withReplacement,num,seed)
-//    }
+def reduce_and_add_noise_KDE(f: (T, T) => T): (T,T) = {
+  //computin candidates of smooth sensitivity
+val array = reduceDP(f).asInstanceOf[(Array[RDD[Double]],Double)]
+  val neigbour_local_senstivity = array._1.map(p => {
+    val max = p.max
+    val min = p.min
+    max - min
+  })
+    var max_nls = 0.0
+  for (i <- 0 until neigbour_local_senstivity.length) {
+    neigbour_local_senstivity(i) = neigbour_local_senstivity(i)*exp(-beta*(i+1))
+    if(neigbour_local_senstivity(i) > max_nls)
+      max_nls = neigbour_local_senstivity(i)
+  }
+  (max_nls.asInstanceOf[T],array._2.asInstanceOf[T]) //sensitivity
+}
+
+  def reduce_and_add_noise_LR(f: (T, T) => T): (T,T) = {
+    //computin candidates of smooth sensitivity
+    val array = reduceDP(f).asInstanceOf[(Array[RDD[Vector[Double]]],Vector[Double])]
+    val vector_length = array._2.length
+    val neigbour_local_senstivity = array._1.map(p => {
+      val max = p.reduce((a,b) => {
+        a.zip(b).map(q => scala.math.max(q._1,q._2))
+      })
+      max
+    })
+    var max_nls = Vector.fill(vector_length)(0.0)
+    for (i <- 0 until neigbour_local_senstivity.length) {
+//      neigbour_local_senstivity(i) = neigbour_local_senstivity(i)*exp(-beta*(i+1))
+      max_nls = max_nls
+        .zip(neigbour_local_senstivity(i).asInstanceOf[Vector[Double]])
+        .map(p => scala.math.max(p._1,p._2))
+    }
+    (max_nls.asInstanceOf[T],array._2.asInstanceOf[T]) //sensitivity
+  }
+
 def filterDP(f: T => Boolean) : dpobject[T] = {
   new dpobject(inputsample.filter(f), inputoriginal.filter(f))
 }

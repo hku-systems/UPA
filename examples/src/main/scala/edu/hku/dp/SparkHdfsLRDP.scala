@@ -85,8 +85,10 @@ object SparkHdfsLRDP {
       //      println("On iteration " + i)
       val gradient = points.mapDP { p =>
         p.x * (1 / (1 + exp(-p.y * (w.dot(p.x)))) - 1) * p.y
-      }.reduceDP((a,b) => a + b)
-      w -= gradient
+      }.reduce_and_add_noise_LR((a,b) => a + b)
+      w -= gradient._2
+      println("Result: " + gradient._2)
+      println("Sensitivity: " + gradient._1)
     }
 
     w.foreach(p =>
