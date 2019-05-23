@@ -31,7 +31,7 @@ class dpread[T: ClassTag](
     //Normal Sample is ok e.g., tuple
         val mainresult = main
 //        val sample_rate = 1111/main.count()
-        val sampling = main.sparkContext.parallelize(main.takeSample(false, 1111))
+        val sampling = main.sparkContext.parallelize(main.takeSample(false, 111))
         new dpobject(sampling.map(f),mainresult.subtract(sampling).map(f))
 //    }
   }

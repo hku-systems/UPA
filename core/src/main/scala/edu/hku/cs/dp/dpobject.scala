@@ -69,25 +69,50 @@ class dpobject[T: ClassTag](
     }
     else {
       if(sample_count <= k_distance - 1)
-        outer_num = (sample_count / sample_count - 1).toInt
+        outer_num = k_distance - 1
       else
-        outer_num = (sample_count / k_distance).toInt //outer_num = 8
+        outer_num = k_distance //outer_num = 8
       var array = new Array[RDD[T]](outer_num)
       var i = outer_num
       while(i  > 0) {
-          val up_to_index = (sample_count / i).toInt// 8
+          val up_to_index = (sample_count - i).toInt
         if(i == outer_num) {
+          println("sample_count: " + sample_count)
+          println("outer-most loop: " + up_to_index)
+
           val inner_array = original.sparkContext.parallelize(0 to up_to_index - 1) //(0,1,2,3,4,5,6,7)
             .map(p => {
-            val inside_array = broadcast_sample.value.slice(p, p + i)
+            val inside_array = broadcast_sample.value.patch(p, Nil, i)
             f(inside_array.reduce(f),result) //(0 -> 7, 8 -> 15, 16, 24, 32, 40, 48, 56)
           })
           array(i - 1) = inner_array
         } else {
-          val upper_array = original.sparkContext.broadcast(array(i).collect())
+          val array_collected = array(i).collect()
+          val upper_array = original.sparkContext.broadcast(array_collected)
+
+          val array_length = array_collected.length
+          val array_length_broadcast = original.sparkContext.broadcast(array_length)
+          val up_to_index = (sample_count - i).toInt
+
+          println("sample_count: " + sample_count)
+          println("array_length: " + array_length)
+          println("current i: " + i)
+          println("outer_num: " + outer_num)
+          println("up_to_index: " + up_to_index)
+
           val inner_array = original.sparkContext.parallelize(0 to up_to_index - 1) //(0,1,2,3,4,5,6,7)
             .map(p => {
-            f(f(upper_array.value(p),broadcast_sample.value(p + i - 1)),result)
+            if(p < array_length_broadcast.value) {
+              val ss = upper_array.value(p)
+              val sss = broadcast_sample.value(p + i + 1)
+              f(f(upper_array.value(p), broadcast_sample.value(p + i + 1)), result)
+            }
+            else if(p == array_length_broadcast)
+              f(f(upper_array.value(p - 1),broadcast_sample.value(p)),result)
+            else {
+              val inside_array = broadcast_sample.value.patch(p, Nil, i)
+              f(inside_array.reduce(f),result)
+            }
           })
           array(i - 1) = inner_array
         }

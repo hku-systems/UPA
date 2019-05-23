@@ -61,10 +61,10 @@ object SimpleSVMDP {
 //    println("Initial w: " + w)
     //      println("On iteration " + i)
       val dual_coef_error = points.mapDPKV{ p =>
-        val classifier = p.x * (1 / (1 + exp(-p.y * (w.dot(p.x)))) - 1) * p.y
+        val classifier = p.x * (1 / (1 + exp(-p.y * (dual_coef.dot(p.x)))) - 1) * p.y
         (p.y, p.y - classifier.dot(p.x))
       }
-      val margin_norm = dual_coef_error.reduceByKeyDP((a,b) => scala.math.min(a,b)).reduceDP(_+_)
+      val margin_norm = dual_coef_error.reduceByKeyDP((a,b) => scala.math.min(a,b))
 
     println(margin_norm)
     spark.stop()
