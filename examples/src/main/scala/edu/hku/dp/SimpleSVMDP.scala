@@ -66,7 +66,7 @@ object SimpleSVMDP {
       }
       val margin_norm = dual_coef_error.reduceByKeyDP((a,b) => scala.math.min(a,b))
 
-    println(margin_norm)
+    margin_norm.collect().foreach(p => p._1 + ":" + p._2)
     spark.stop()
   }
 }

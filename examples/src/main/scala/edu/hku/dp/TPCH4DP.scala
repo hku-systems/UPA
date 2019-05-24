@@ -36,6 +36,6 @@ object TPCH4DP {
       .mapDPKV(p => (p._2._2,p._2._1))
       .reduceByKeyDP((a,b)=> a + b)
 
-      result.addnoiseQ34()
+    result.collect().foreach(p => print(p._1._1 + "," + p._1._2 + ":" + p._2 + "\n"))
   }
 }

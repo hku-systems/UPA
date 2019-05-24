@@ -53,8 +53,9 @@ class dpobject[T: ClassTag](
 
     val result = original.reduce(f)
     val aggregatedResult = f(sample.reduce(f),result)//get the aggregated result
+    val broadcast_result = original.sparkContext.broadcast(result)
 
-//    val inner = new ArrayBuffer[V]
+    //    val inner = new ArrayBuffer[V]
     var inner_num = 0
     var outer_num = k_distance
     val sample_count = sample.count //e.g., 64
@@ -62,9 +63,9 @@ class dpobject[T: ClassTag](
     if (sample_count <= 1) {
       val inner = new Array[RDD[T]](1) //directly return
       if(sample_count == 0)
-        inner(0) = original.sparkContext.parallelize(Seq(result))
+        inner(0) = original.sparkContext.parallelize(Seq(aggregatedResult))
       else
-        inner(0) = sample
+        inner(0) = original.sparkContext.parallelize(Seq(result)) //without that sample
       (inner,aggregatedResult)
     }
     else {
@@ -77,14 +78,16 @@ class dpobject[T: ClassTag](
       while(i  > 0) {
           val up_to_index = (sample_count - i).toInt
         if(i == outer_num) {
-          println("sample_count: " + sample_count)
-          println("outer-most loop: " + up_to_index)
+//          println("sample_count: " + sample_count)
+//          println("outer-most loop: " + up_to_index)
 
           val inner_array = original.sparkContext.parallelize(0 to up_to_index - 1) //(0,1,2,3,4,5,6,7)
             .map(p => {
             val inside_array = broadcast_sample.value.patch(p, Nil, i)
-            f(inside_array.reduce(f),result) //(0 -> 7, 8 -> 15, 16, 24, 32, 40, 48, 56)
+            f(inside_array.reduce(f),broadcast_result.value) //(0 -> 7, 8 -> 15, 16, 24, 32, 40, 48, 56)
           })
+          println("i is " + i)
+          inner_array.collect().foreach(println)
           array(i - 1) = inner_array
         } else {
           val array_collected = array(i).collect()
@@ -94,26 +97,26 @@ class dpobject[T: ClassTag](
           val array_length_broadcast = original.sparkContext.broadcast(array_length)
           val up_to_index = (sample_count - i).toInt
 
-          println("sample_count: " + sample_count)
-          println("array_length: " + array_length)
-          println("current i: " + i)
-          println("outer_num: " + outer_num)
-          println("up_to_index: " + up_to_index)
+//          println("sample_count: " + sample_count)
+//          println("array_length: " + array_length)
+//          println("current i: " + i)
+//          println("outer_num: " + outer_num)
+//          println("up_to_index: " + up_to_index)
 
           val inner_array = original.sparkContext.parallelize(0 to up_to_index - 1) //(0,1,2,3,4,5,6,7)
             .map(p => {
             if(p < array_length_broadcast.value) {
-              val ss = upper_array.value(p)
-              val sss = broadcast_sample.value(p + i + 1)
-              f(f(upper_array.value(p), broadcast_sample.value(p + i + 1)), result)
+              f(upper_array.value(p), broadcast_sample.value(p + i + 1))//no need to include result, as it is included
             }
-            else if(p == array_length_broadcast)
-              f(f(upper_array.value(p - 1),broadcast_sample.value(p)),result)
+            else if(p == array_length_broadcast.value)
+              f(upper_array.value(p - 1),broadcast_sample.value(p))
             else {
               val inside_array = broadcast_sample.value.patch(p, Nil, i)
-              f(inside_array.reduce(f),result)
+              f(inside_array.reduce(f),broadcast_result.value)
             }
           })
+          println("i is " + i)
+          inner_array.collect().foreach(println)
           array(i - 1) = inner_array
         }
         i = i - 1
@@ -122,13 +125,13 @@ class dpobject[T: ClassTag](
     }
   }
 
-def reduce_and_add_noise_KDE(f: (T, T) => T): (T,T) = {
+def reduce_and_add_noise_KDE(f: (T, T) => T): T = {
   //computin candidates of smooth sensitivity
 val array = reduceDP(f).asInstanceOf[(Array[RDD[Double]],Double)]
   val neigbour_local_senstivity = array._1.map(p => {
     val max = p.max
     val min = p.min
-    max - min
+    scala.math.max(scala.math.abs(max - array._2),scala.math.abs(min - array._2))
   })
     var max_nls = 0.0
   for (i <- 0 until neigbour_local_senstivity.length) {
@@ -136,16 +139,20 @@ val array = reduceDP(f).asInstanceOf[(Array[RDD[Double]],Double)]
     if(neigbour_local_senstivity(i) > max_nls)
       max_nls = neigbour_local_senstivity(i)
   }
-  (max_nls.asInstanceOf[T],array._2.asInstanceOf[T]) //sensitivity
+  println("sensitivity is: " + max_nls)
+  array._2.asInstanceOf[T] //sensitivity
 }
 
-  def reduce_and_add_noise_LR(f: (T, T) => T): (T,T) = {
+  def reduce_and_add_noise_LR(f: (T, T) => T): T = {
     //computin candidates of smooth sensitivity
     val array = reduceDP(f).asInstanceOf[(Array[RDD[Vector[Double]]],Vector[Double])]
     val vector_length = array._2.length
+    val b_result = sample.sparkContext.broadcast(array._2)
     val neigbour_local_senstivity = array._1.map(p => {
       val max = p.reduce((a,b) => {
-        a.zip(b).map(q => scala.math.max(q._1,q._2))
+        a.zip(b).zip(b_result.value).map(q => {
+          scala.math.max(scala.math.abs(q._1._1 - q._2),scala.math.abs(q._1._2 - q._2))
+        })
       })
       max
     })
@@ -156,7 +163,8 @@ val array = reduceDP(f).asInstanceOf[(Array[RDD[Double]],Double)]
         .zip(neigbour_local_senstivity(i).asInstanceOf[Vector[Double]])
         .map(p => scala.math.max(p._1,p._2))
     }
-    (max_nls.asInstanceOf[T],array._2.asInstanceOf[T]) //sensitivity
+    println("sensitivity is: " + max_nls)
+    array._2.asInstanceOf[T] //sensitivity
   }
 
 def filterDP(f: T => Boolean) : dpobject[T] = {

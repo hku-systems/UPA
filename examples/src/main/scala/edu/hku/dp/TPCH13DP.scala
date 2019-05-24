@@ -39,7 +39,7 @@ object TPCH13DP {
 //      .map(p => (p._2,1))
 //      .reduceByKey((a,b) => a + b)
 
-    final_result.addnoiseQ41()
+    final_result.collect().foreach(p => print(p._1._1 + "," + p._1._2 + ":" + p._2 + "\n"))
 
   }
 }

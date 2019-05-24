@@ -58,6 +58,6 @@ object TPCH16DP {
       .mapDPKV(p => ((p._2._2._1,p._2._2._2,p._2._2._3),1))
       .reduceByKeyDP((a,b) => a + b)
 
-    final_result.addnoiseQ46()
+    final_result.collect().foreach(p => print(p._1._1 + "," + p._1._2 + p._1._3 +  ":" + p._2 + "\n"))
   }
 }

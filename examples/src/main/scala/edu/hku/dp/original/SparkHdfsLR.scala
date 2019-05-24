@@ -88,9 +88,7 @@ object SparkHdfsLR {
       w -= gradient
     }
 
-    w.foreach(p =>
-      print(p + " "))
-    println
+    w.foreach(p => print(p + ","))
     spark.stop()
   }
 }

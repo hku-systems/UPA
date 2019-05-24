@@ -6,6 +6,7 @@ import org.apache.spark.rdd.RDD
 import scala.collection.immutable.HashMap
 import scala.collection.immutable.HashSet
 import scala.collection.mutable.ArrayBuffer
+import scala.math.{exp, pow}
 import scala.reflect.ClassTag
 
 /**
@@ -17,88 +18,197 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputoriginal: RDD[(K, 
     {
       var sample = inputsample
       var original = inputoriginal
-
-      //*******************ReduceByKey****************************
-
-//      def collectAsMapDP(): dplocalMap[K,V] = {
-//
-//        val collectedMap = inputoriginal.collectAsMap()
-//
-//        val sampleWithMap = inputsample.map(p => {
-//          val map = collection.mutable.Map(p._1 -> p._2) ++ collectedMap
-//          map
-//        })
-//
-//        new dplocalMap[K,V](sampleWithMap)
-//      }
-
-//      [automated, efficient and precise] [sensitivity] in DISC
-
-
-//      def filterDPKV(f: (K,V) => Boolean) : dpobjectKV[K,V] = {
-//        new dpobjectKV(inputsample.filter(f), inputoriginal.filter(f))
-//      }
-
-//      def mapDPKV(f: T => (K,V)): dpobjectKV[K,V]= {
-//        new dpobjectKV(inputsample.map(f).asInstanceOf[RDD[(K,V)]], inputoriginal.map(f).asInstanceOf[RDD[(K,V)]])
-//      }
+      val epsilon = 0.1
+      val delta = pow(10,-8)
+      val k_distance_double = 1/epsilon
+      val k_distance = k_distance_double.toInt
+      val beta = epsilon / (2*scala.math.log(2/delta))
 
       //parallelise inter key operation or intra key operation
       //seems use less collect is better
       //because collect then parallelise requires more rtt and sorting
-      def reduceByKeyDP(func: (V, V) => V): dpobject[(K,V)] = {
+      def reduceByKeyDP_deep(func: (V, V) => V): (Array[(K,Array[RDD[V]])],RDD[(K,V)]) = {
 //reduce shuffle, use map rather than reduce/reduceByKey
         val originalresult = inputoriginal.reduceByKey(func)//Reduce original first
-        val sample_gp_key = sample.groupByKey()
-//        val originalfinalresult = sample.union(originalresult).reduceByKey(func)
+        val aggregatedResult = originalresult.union(sample).reduceByKey(func)
+        val broadcast_result = original.sparkContext.broadcast(originalresult.collect().toMap)
+        val broadcast_aggregated = original.sparkContext.broadcast(aggregatedResult.collect().toMap)
 
-        //should leverage the isolation between keys
-        //each aggregation process only involve on key
-//        val broadcastOriginal = sample.sparkContext.broadcast(HashMap() ++ originalresult.collect())//Unique Key
-//        val broadcastSample = sample.sparkContext.broadcast(HashMap() ++ sample_gp_key.collect())//May not be UniqueKey
-
-        sample_gp_key.map(p => {
-          val iter = p._2
-          val key = p._1
-          val inner = new ArrayBuffer[V]
-          val outer = new ArrayBuffer[ArrayBuffer[V]]
-          var run_length = 8
-          if (p._2.size <= 8)
-            run_length = p._2.size - 1
-
-          for (i <- 1 to run_length){//to is inclusive
-            val divider = p._2.size / i
-            for( a <- 0 to divider) {
-              val each_value = iter.toSeq.combinations(1)
+           //should do based on key to reduce shuffling, 1) we assume only few distinct keys
+          //in the output, 2)the total output produced is less than 1111 because
+          //inter keys differing element provides redundant information, so
+          //we do not consider them
+          //Indeed it is like reduceDP if we order the sample based on the keys,
+          //just we do not consider inter-keys sampling
+          val nighnouring_output = sample.groupByKey.collect().map(p => {
+            var inner_num = 0
+            var outer_num = k_distance
+            val sample_count = p._2.size //e.g., 64
+            val broadcast_sample = original.sparkContext.broadcast(p._2.toArray)
+            if (sample_count <= 1) {
+              val inner = new Array[RDD[V]](1) //directly return
+              if(sample_count == 0)
+                inner(0) = original.sparkContext.parallelize(aggregatedResult.lookup(p._1))
+              else
+                inner(0) = original.sparkContext.parallelize(originalresult.lookup(p._1)) //without that sample
+              (p._1,inner)
             }
+            else {
+              if(sample_count <= k_distance - 1)
+                outer_num = k_distance - 1
+              else
+                outer_num = k_distance //outer_num = 8
+              var array = new Array[RDD[V]](outer_num)
+              var i = outer_num
+              while(i  > 0) {
+                val up_to_index = (sample_count - i).toInt
+                if(i == outer_num) {
+                  //          println("sample_count: " + sample_count)
+                  //          println("outer-most loop: " + up_to_index)
+                  val inner_array = original.sparkContext.parallelize(0 to up_to_index - 1) //(0,1,2,3,4,5,6,7)
+                    .map(q => {
+                    val inside_array = broadcast_sample.value.patch(q, Nil, i)
+                    func(inside_array.reduce(func),Seq(broadcast_result.value.get(p._1)).flatMap(l => l).head) //(0 -> 7, 8 -> 15, 16, 24, 32, 40, 48, 56)
+                  })
+                  println("i is " + i)
+                  inner_array.collect().foreach(println)
+                  array(i - 1) = inner_array
+                } else {
+                  val array_collected = array(i).collect()
+                  val upper_array = original.sparkContext.broadcast(array_collected)
+
+                  val array_length = array_collected.length
+                  val array_length_broadcast = original.sparkContext.broadcast(array_length)
+                  val up_to_index = (sample_count - i).toInt
+
+                  //          println("sample_count: " + sample_count)
+                  //          println("array_length: " + array_length)
+                  //          println("current i: " + i)
+                  //          println("outer_num: " + outer_num)
+                  //          println("up_to_index: " + up_to_index)
+
+                  val inner_array = original.sparkContext.parallelize(0 to up_to_index - 1) //(0,1,2,3,4,5,6,7)
+                    .map(q => {
+                    if(q < array_length_broadcast.value) {
+                      func(upper_array.value(q), broadcast_sample.value(q + i + 1))//no need to include result, as it is included
+                    }
+                    else if(p == array_length_broadcast)
+                      func(upper_array.value(q - 1),broadcast_sample.value(q))
+                    else {
+                      val inside_array = broadcast_sample.value.patch(q, Nil, i)
+                      func(inside_array.reduce(func),Seq(broadcast_result.value.get(p._1)).flatMap(l => l).head)
+                    }
+                  })
+                  println("i is " + i)
+                  inner_array.collect().foreach(println)
+                  array(i - 1) = inner_array
+                }
+                i = i - 1
+              }
+              (p._1,array)
+            }
+          })
+
+          (nighnouring_output,aggregatedResult)
+        }
+
+
+      def reduceByKeyDP(func: (V, V) => V): RDD[(K,V)] = {
+        val array = reduceByKeyDP_deep(func)
+        val ls = array._1.map(p => {
+          val lls = p._2.map(q => {
+
+            val sensitivity = q match {
+              case qint: RDD[Int] =>
+                val max = qint.asInstanceOf[RDD[Int]].max
+                val min = qint.asInstanceOf[RDD[Int]].min
+                val value_of_key = array._2.lookup(p._1)(0).asInstanceOf[Int]
+                scala.math.max(scala.math.abs(max - value_of_key),scala.math.abs(min - value_of_key))
+              case qdouble: RDD[Double] =>
+                val max = qdouble.asInstanceOf[RDD[Double]].max
+                val min = qdouble.asInstanceOf[RDD[Double]].min
+                val value_of_key = array._2.lookup(p._1)(0).asInstanceOf[Double]
+                scala.math.max(scala.math.abs(max - value_of_key),scala.math.abs(min - value_of_key))
+              case qtuples: RDD[(Double,Double,Double,Double,Double,Int)]=>
+                val result = array._2.asInstanceOf[RDD[(K,(Double,Double,Double,Double,Double,Int))]]
+                val this_key = result.lookup(p._1)(0)
+                val result_broadcast = result.sparkContext.broadcast(this_key)
+                val max = qtuples
+                  .asInstanceOf[RDD[(Double,Double,Double,Double,Double,Int)]]
+                  .reduce((a,b) => {
+                    val b_result = result_broadcast.value
+                    val first = scala.math.max(scala.math.abs(a._1 - b_result._1),scala.math.abs(b._1 - b_result._1))
+                    val second = scala.math.max(scala.math.abs(a._2 - b_result._2),scala.math.abs(b._2 - b_result._2))
+                    val third = scala.math.max(scala.math.abs(a._3 - b_result._3),scala.math.abs(b._3 - b_result._3))
+                    val forth = scala.math.max(scala.math.abs(a._4 - b_result._4),scala.math.abs(b._4 - b_result._4))
+                    val fifth = scala.math.max(scala.math.abs(a._5 - b_result._5),scala.math.abs(b._5 - b_result._5))
+                    val sixth = scala.math.max(scala.math.abs(a._6 - b_result._6),scala.math.abs(b._6 - b_result._6))
+                    (first, second, third, forth,fifth, sixth)
+                  })
+              case _ => throw new Exception("Cannot match any pattern")
+
+            }
+            sensitivity.asInstanceOf[V]
+          }).asInstanceOf[Any]
+
+          val final_senstiviity = lls match {
+            case intArray: Array[Int] =>
+              var intArray_in = intArray.asInstanceOf[Array[Int]]
+              var max_nls = 0
+              for (i <- 0 until intArray_in.length) {
+                intArray_in(i) = intArray_in(i)*exp(-beta*(i+1)).toInt
+                if(intArray_in(i) > max_nls)
+                  max_nls = intArray_in(i)
+              }
+              max_nls
+            case doubleArray: Array[Double] =>
+              var doubleArray_in = doubleArray.asInstanceOf[Array[Double]]
+              var max_nls = 0.0
+              for (i <- 0 until doubleArray_in.length) {
+                doubleArray_in(i) = doubleArray_in(i)*exp(-beta*(i+1))
+                if(doubleArray_in(i) > max_nls)
+                  max_nls = doubleArray_in(i)
+              }
+              max_nls
+            case tupleArray: Array[(Double,Double,Double,Double,Double,Int)] =>
+              var tupleArray_in = tupleArray.asInstanceOf[Array[(Double,Double,Double,Double,Double,Int)]]
+              var max_nls_1 = 0.0
+              var max_nls_2 = 0.0
+              var max_nls_3 = 0.0
+              var max_nls_4 = 0.0
+              var max_nls_5 = 0.0
+              var max_nls_6 = 0
+              for (i <- 0 until tupleArray_in.length) {
+                if(tupleArray_in(i)._1*exp(-beta*(i+1)) > max_nls_1)
+                  max_nls_1 = tupleArray_in(i)._1
+                if(tupleArray_in(i)._2*exp(-beta*(i+1)) > max_nls_2)
+                  max_nls_2 = tupleArray_in(i)._2
+                if(tupleArray_in(i)._3*exp(-beta*(i+1)) > max_nls_3)
+                  max_nls_3 = tupleArray_in(i)._3
+                if(tupleArray_in(i)._4*exp(-beta*(i+1)) > max_nls_4)
+                  max_nls_4 = tupleArray_in(i)._4
+                if(tupleArray_in(i)._5*exp(-beta*(i+1)) > max_nls_5)
+                  max_nls_5 = tupleArray_in(i)._5
+                if(tupleArray_in(i)._6*exp(-beta*(i+1)).toInt > max_nls_6)
+                  max_nls_6 = tupleArray_in(i)._6
+              }
+              (max_nls_1,max_nls_2,max_nls_3,max_nls_4,max_nls_5,max_nls_6)
           }
+
+
+          (p._1,final_senstiviity.asInstanceOf[V])
         })
-
-//        val without_a_sample =
-//        val withoutSample = sample.map(p => {//"sample" means the aggregated result without that record
-//          val option2list1 = broadcastSample.value.get(p._1).toList
-//          val option2list2 = broadcastOriginal.value.get(p._1).toList
-//          val option2list = option2list1 ++ option2list2 //flat because option2's value is a iterable (after using group by key)
-//        val s = HashSet() ++ option2list.flatMap(l => l) //join value in sample and result of a key, should take short time if not many element in those keys
-//        val ss = s - p._2
-//          (p._1,(s.reduce(func)))
-//        })
-
-//val without_that_Sample = sample.flatMap { case(key, value) =>
-//  broadcastOriginal.value.get(key).map { otherValue =>
-//            (key, (value, otherValue))
-//          }
-
-//        }
-        val final_result = originalresult.union(sample).reduceByKey(func)
-        //each element of the sample has only one key
-        new dpobject(originalresult,originalresult)
+        println("sensitivity is: ")
+        ls.foreach(println)
+        array._2
       }
+
 
       def filterDPKV(f: ((K,V)) => Boolean) : dpobjectKV[K, V] = {
         new dpobjectKV(inputsample.filter(f), inputoriginal.filter(f))
       }
       //********************Join****************************
+
 
       def joinDP[W](otherDP: dpobjectKV[K, W]): dpobject[(K, (V, W))] = {
 
@@ -118,80 +228,6 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputoriginal: RDD[(K, 
         //within or between keys
         new dpobject(joinresult,with_sample.union(with_input2_sample).union(samples_join))
 
-//        val allselfkeys = self.keys.collect().toSeq //the number of keys may be much less than the number of sampled elements
-//        val allvaluesforjoin = allselfkeys.map(key => {//Can I run this distributively? the main challenge is RDD cannot access RDD
-//
-//          val resultvalues = joinresult.partitioner match {
-//            case Some(p) =>
-//              val index = p.getPartition(key)
-//              val process = (it: Iterator[(K, (V,W))]) => {
-//                val buf = new ArrayBuffer[(V,W)]
-//                for (pair <- it if pair._1 == key) {
-//                  buf += pair._2
-//                }
-//                buf
-//              } : Seq[(V,W)]
-//              val res = self.context.runJob(joinresult, process, Array(index))
-//              res(0).asInstanceOf[Seq[(V,W)]]
-//            case None =>
-//              self.filter(_._1 == key).map(_._2).collect().toSeq.asInstanceOf[Seq[(V,W)]]
-//          } //Use lookup -> save memory (as look up from disk)
-//
-//          val samplevalues = other.partitioner match {
-//            case Some(p) =>
-//              val index = p.getPartition(key)
-//              val process = (it: Iterator[(K, W)]) => {
-//                val buf = new ArrayBuffer[W]
-//                for (pair <- it if pair._1 == key) {
-//                  buf += pair._2
-//                }
-//                buf
-//              } : Seq[W]
-//              val res = self.context.runJob(other, process, Array(index))
-//              res(0).asInstanceOf[Seq[W]]
-//            case None =>
-//              self.filter(_._1 == key).map(_._2).collect().toSeq.asInstanceOf[Seq[W]]
-//          } //Use lookup -> save memory (as look up from disk)
-//
-//          if(!resultvalues.isEmpty)
-//          {
-//            (key,resultvalues.map(_._2) ++ samplevalues)
-//          }
-//          else
-//          {
-//            val othervalues = input2.partitioner match {
-//              case Some(p) =>
-//                val index = p.getPartition(key)
-//                val process = (it: Iterator[(K, W)]) => {
-//                  val buf = new ArrayBuffer[W]
-//                  for (pair <- it if pair._1 == key) {
-//                    buf += pair._2
-//                  }
-//                  buf
-//                } : Seq[W]
-//                val res = self.context.runJob(input2, process, Array(index))
-//                res(0).asInstanceOf[Seq[W]]
-//              case None =>
-//                self.filter(_._1 == key).map(_._2).collect().toSeq.asInstanceOf[Seq[W]]
-//            } //if the original does not consist such a key, then the whole key-value pair maybe missing, therefore, need to rejoin
-//            (key, samplevalues ++ othervalues)
-//          }
-//        }).toMap
-//
-//        val joinvalueswithkey = self.map(p => {
-//          var values = allvaluesforjoin.getOrElse(p._1,p._2).asInstanceOf[Seq[W]]
-//          if(!values.isEmpty) {
-//            Some(values.map(q => {
-//              (p._1, (p._2,q))
-//            }))
-//          }
-//          else {
-//            None
-//          }
-//        })
-//
-//        val ss = joinvalueswithkey.flatMap(p => p).flatMap(p => p)
-//        new dpobject(ss,joinresult)
       }
 
 

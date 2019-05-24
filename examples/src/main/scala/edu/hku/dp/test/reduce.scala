@@ -3,7 +3,7 @@ package edu.hku.dp.test
 import edu.hku.cs.dp.dpread
 import org.apache.spark.sql.SparkSession
 
-object reduceDP {
+object reduce {
   def main(args: Array[String]) {
     val spark = SparkSession
       .builder
@@ -11,11 +11,10 @@ object reduceDP {
       .getOrCreate()
     val slices = if (args.length > 0) args(0).toInt else 2
 //    val n = math.min(100000L * slices, Int.MaxValue).toInt // avoid overflow
-    val count = new dpread(spark.sparkContext.parallelize(1 until 1000, slices))
-      .mapDP { i =>
+    val count = spark.sparkContext.parallelize(1 until 1000, slices)
+      .map{ i =>
       i*1.0
-    }
-      .reduce_and_add_noise_KDE(_ + _)
+    }.reduce(_ + _)
     println("Output is: " + count)
     spark.stop()
   }

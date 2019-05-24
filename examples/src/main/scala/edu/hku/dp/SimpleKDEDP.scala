@@ -33,9 +33,7 @@ object SimpleKDEDP {
         Kernel2(phi(p.toDouble))
     }).reduce_and_add_noise_KDE(_+_)
 
-    println("Result: " + points._2)
-    println("Sensitivity: " + points._1)
-
+    println("Result: " + points)
 //    val final_result = points.collect()
 //    println(final_result)
     spark.stop
