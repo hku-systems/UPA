@@ -71,7 +71,7 @@ object SparkKMeansDP {
       .appName("SparkKMeans")
       .getOrCreate()
 
-    val lines = new dpread(spark.sparkContext.textFile(args(0)))
+    val lines = new dpread(spark.sparkContext.textFile(args(0)),spark.sparkContext.textFile(args(1)))
     val data = lines.mapDP(parseVector _)
     val K = 5
 

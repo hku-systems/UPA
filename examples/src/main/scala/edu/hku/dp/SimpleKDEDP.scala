@@ -25,8 +25,7 @@ object SimpleKDEDP {
       .appName("Kernel Density Estimation")
       .getOrCreate()
 
-    val inputPath = args(0)
-    val lines = new dpread(spark.sparkContext.textFile(inputPath))
+    val lines = new dpread(spark.sparkContext.textFile(args(0)),spark.sparkContext.textFile(args(1)))
 
     val points = lines
       .mapDP(p => {

@@ -35,7 +35,7 @@ object TPCH1DP {
 //        avg($"l_quantity"), avg($"l_extendedprice"), avg($"l_discount"), count($"l_quantity"))
 //      .sort($"l_returnflag", $"l_linestatus")
 
-    val filtered_result = new dpread(spark.sparkContext.textFile(inputDir + "/lineitem.tbl*"))
+    val filtered_result = new dpread(spark.sparkContext.textFile(inputDir + "/lineitem.tbl*"),spark.sparkContext.textFile(inputDir + "/lineitem.tbl*"))
       .mapDP(_.split('|'))
       .mapDP(p =>
       (p(0).trim.toLong, p(1).trim.toLong, p(2).trim.toLong, p(3).trim.toLong, p(4).trim.toDouble, p(5).trim.toDouble, p(6).trim.toDouble, p(7).trim.toDouble, p(8).trim, p(9).trim, p(10).trim, p(11).trim, p(12).trim, p(13).trim, p(14).trim, p(15).trim))
@@ -49,7 +49,7 @@ object TPCH1DP {
 //    println("filtered_result original")
 //    filtered_result.original.collect().foreach(println)
 
-    val final_result = filtered_result.reduceByKeyDP((a,b) => {
+    val final_result = filtered_result.reduceByKeyDP_Tuple((a,b) => {
       val x = decrease(a._2,a._3)
       val y = decrease(b._2,b._3)
       (a._1 + b._1, a._2 + b._2, a._3 + b._3 , a._4 + b._4, a._5 + b._5, a._6 + b._6)

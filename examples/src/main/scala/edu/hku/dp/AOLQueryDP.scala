@@ -19,6 +19,7 @@
 package edu.hku.dp.original
 
 import org.apache.spark.{SparkConf, SparkContext}
+import edu.hku.cs.dp.dpread
 
 /**
   * Executes a roll up-style query against Apache logs.
@@ -46,14 +47,15 @@ object AOLQueryDP {
     val sparkConf = new SparkConf().setAppName("AOL Query")
     val sc = new SparkContext(sparkConf)
 
-    val dataSet = sc.textFile(args(0))
-      .map(p => p.split(' ')).map(line => {
+    val dataSet = new dpread(sc.textFile(args(0)),sc.textFile(args(1)))
+      .mapDP(p => p.split(' '))
+      .mapDPKV(line => {
       if(line.size <= 3)
         ((line(0).trim,line(1).trim,line(2).trim),0)
       else
         ((line(0).trim,line(1).trim,line(2).trim),line(3).trim.toInt)
     })
-      .reduceByKey((a, b) => a + b)
+      .reduceByKeyDP_Int((a, b) => a + b)
       .collect().foreach(p => println(p._1._1 + "," + p._1._2 + "," + p._1._3 + ":" + p._2))
     sc.stop()
   }

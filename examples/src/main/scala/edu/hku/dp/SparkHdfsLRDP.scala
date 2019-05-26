@@ -71,8 +71,7 @@ object SparkHdfsLRDP {
       .appName("SparkHdfsLR")
       .getOrCreate()
 
-    val inputPath = args(0)
-    val lines = new dpread(spark.sparkContext.textFile(inputPath))
+    val lines = new dpread(spark.sparkContext.textFile(args(0)),spark.sparkContext.textFile(args(1)))
 
     val points = lines.mapDP(parsePoint)
     val ITERATIONS = args(1).toInt

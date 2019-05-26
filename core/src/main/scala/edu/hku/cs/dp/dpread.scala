@@ -11,11 +11,12 @@ import scala.reflect.ClassTag
   * Created by lionon on 10/22/18.
   */
 class dpread[T: ClassTag](
-  var rdd1 : RDD[T])
+  var rdd1 : RDD[T],
+  var rdd2 : RDD[T])
   extends RDD[T] (rdd1)
 {
-  var sample = rdd1
   var main = rdd1
+  var advance = rdd2
 
   override def compute(split: org.apache.spark.Partition,context: org.apache.spark.TaskContext): Iterator[T] =
   {
@@ -29,16 +30,16 @@ class dpread[T: ClassTag](
 //    main match {
 //      case a: RDD[Int] =>
     //Normal Sample is ok e.g., tuple
-        val mainresult = main
 //        val sample_rate = 1111/main.count()
         val sampling = main.sparkContext.parallelize(main.takeSample(false, 111))
-        new dpobject(sampling.map(f),mainresult.subtract(sampling).map(f))
+        val advance_sampling = advance.sparkContext.parallelize(advance.takeSample(false, 111))
+        new dpobject(sampling.map(f),advance_sampling.map(f),main.subtract(sampling).map(f))
 //    }
   }
 
   def mapDPKV[K: ClassTag,V: ClassTag](f: T => (K,V)): dpobjectKV[K,V]= {
-    val mainresult = main
-    val sampling = mainresult.sample(false,0.2)
-    new dpobjectKV(sampling.map(f).asInstanceOf[RDD[(K,V)]], mainresult.subtract(sampling).map(f).asInstanceOf[RDD[(K,V)]])
+    val sampling = main.sparkContext.parallelize(main.takeSample(false, 111))
+    val advance_sampling = advance.sparkContext.parallelize(advance.takeSample(false, 111))
+    new dpobjectKV(sampling.map(f).asInstanceOf[RDD[(K,V)]],advance_sampling.map(f).asInstanceOf[RDD[(K,V)]],main.subtract(sampling).map(f).asInstanceOf[RDD[(K,V)]])
   }
 }

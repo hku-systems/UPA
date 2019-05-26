@@ -12,7 +12,7 @@ object reduceByKey {
 //    val n = math.min(100000L * slices, Int.MaxValue).toInt // avoid overflow
     val count = spark.sparkContext.parallelize(1 until 1000, slices)
       .map{ i =>
-        (i%100, i*1.0)
+        (i%3, i*1.0)
     }.reduceByKey(_ + _)
     println("Output is: ")
     count.foreach(println)

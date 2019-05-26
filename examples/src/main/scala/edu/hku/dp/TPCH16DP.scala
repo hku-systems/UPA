@@ -33,21 +33,21 @@ object TPCH16DP {
       .getOrCreate()
     val inputDir = "/home/john/tpch-spark/dbgen"
 
-    val part_input = new dpread(spark.sparkContext.textFile(inputDir + "/part.tbl*"))
+    val part_input = new dpread(spark.sparkContext.textFile(inputDir + "/part.tbl*"),spark.sparkContext.textFile(inputDir + "/part.tbl*"))
       .mapDP(_.split('|'))
       .mapDP(p =>
       (p(0).trim.toLong, (p(3).trim, p(4).trim, p(5).trim.toLong)))
       .filterDP(p => p._2._1 != "Brand#45" && !polished(p._2._2) && numbers(p._2._3)).mapDPKV(p => p)
 
 
-    val supplier_input = new dpread(spark.sparkContext.textFile(inputDir + "/supplier.tbl*"))
+    val supplier_input = new dpread(spark.sparkContext.textFile(inputDir + "/supplier.tbl*"),spark.sparkContext.textFile(inputDir + "/supplier.tbl*"))
       .mapDP(_.split('|'))
       .mapDP(p =>
       (p(0).trim.toLong, p(6).trim))
       .filterDP(p => !complains(p._2))
       .mapDPKV(p => p)
 
-    val partsupp_input = new dpread(spark.sparkContext.textFile(inputDir + "/partsupp.tbl*"))
+    val partsupp_input = new dpread(spark.sparkContext.textFile(inputDir + "/partsupp.tbl*"),spark.sparkContext.textFile(inputDir + "/partsupp.tbl*"))
       .mapDP(_.split('|'))
       .mapDPKV(p =>
       ( p(1).trim.toLong,p(0).trim.toLong))
@@ -56,7 +56,7 @@ object TPCH16DP {
       .mapDPKV(p => (p._2._2,p._1))
       .joinDP(part_input)
       .mapDPKV(p => ((p._2._2._1,p._2._2._2,p._2._2._3),1))
-      .reduceByKeyDP((a,b) => a + b)
+      .reduceByKeyDP_Int((a,b) => a + b)
 
     final_result.collect().foreach(p => print(p._1._1 + "," + p._1._2 + p._1._3 +  ":" + p._2 + "\n"))
   }

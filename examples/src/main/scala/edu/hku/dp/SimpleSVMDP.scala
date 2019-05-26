@@ -50,8 +50,7 @@ object SimpleSVMDP {
       .appName("Simple SVM")
       .getOrCreate()
 
-    val inputPath = args(0)
-    val lines = new dpread(spark.sparkContext.textFile(inputPath))
+    val lines = new dpread(spark.sparkContext.textFile(args(0)),spark.sparkContext.textFile(args(1)))
 
     val points = lines.mapDP(parsePoint)
     val ITERATIONS = args(1).toInt
@@ -64,7 +63,7 @@ object SimpleSVMDP {
         val classifier = p.x * (1 / (1 + exp(-p.y * (dual_coef.dot(p.x)))) - 1) * p.y
         (p.y, p.y - classifier.dot(p.x))
       }
-      val margin_norm = dual_coef_error.reduceByKeyDP((a,b) => scala.math.min(a,b))
+      val margin_norm = dual_coef_error.reduceByKeyDP_Double((a,b) => scala.math.min(a,b))
 
     margin_norm.collect().foreach(p => p._1 + ":" + p._2)
     spark.stop()

@@ -22,12 +22,12 @@ object TPCH13DP {
       .getOrCreate()
     val inputDir = "/home/john/tpch-spark/dbgen"
 
-    val customer_input = new dpread(spark.sparkContext.textFile(inputDir + "/customer.tbl*"))
+    val customer_input = new dpread(spark.sparkContext.textFile(inputDir + "/customer.tbl*"),spark.sparkContext.textFile(inputDir + "/customer.tbl*"))
       .mapDP(_.split('|'))
       .mapDPKV(p =>
       (p(0).trim.toLong,1))
 
-    val order_input = new dpread(spark.sparkContext.textFile(inputDir + "/orders.tbl*"))
+    val order_input = new dpread(spark.sparkContext.textFile(inputDir + "/orders.tbl*"),spark.sparkContext.textFile(inputDir + "/orders.tbl*"))
       .mapDP(_.split('|'))
       .mapDPKV(p =>
       (p(1).trim.toLong, p(0).trim.toLong))
@@ -35,7 +35,7 @@ object TPCH13DP {
     val final_result = customer_input
       .joinDP(order_input)
       .mapDPKV(p => ((p._1,p._2._2),p._2._1))
-      .reduceByKeyDP((a,b) => a + b)
+      .reduceByKeyDP_Int((a,b) => a + b)
 //      .map(p => (p._2,1))
 //      .reduceByKey((a,b) => a + b)
 
