@@ -63,7 +63,7 @@ object SimpleSVMDP {
         val classifier = p.x * (1 / (1 + exp(-p.y * (dual_coef.dot(p.x)))) - 1) * p.y
         (p.y, p.y - classifier.dot(p.x))
       }
-      val margin_norm = dual_coef_error.reduceByKeyDP_Double((a,b) => scala.math.min(a,b))
+      val margin_norm = dual_coef_error.reduceByKeyDP_Double((a,b) => scala.math.min(a,b),"SimpleSVMDP")
 
     margin_norm.collect().foreach(p => p._1 + ":" + p._2)
     spark.stop()

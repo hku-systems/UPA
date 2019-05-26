@@ -14,7 +14,7 @@ object reduceByKeyDP {
     val count = new dpread(spark.sparkContext.parallelize(1 until 1000, slices),spark.sparkContext.parallelize(1 until 1000, slices))
       .mapDPKV( i => {
         (i % 3, i * 1.0)
-      }).reduceByKeyDP_Double(_ + _)
+      }).reduceByKeyDP_Double(_ + _, "reduceByKeyDP")
     println("Output is: ")
     count.foreach(println)
     spark.stop()

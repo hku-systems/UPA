@@ -164,7 +164,7 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
           (nighnouring_output,nighnouring_advance_output,aggregatedResult)
         }
 
-      def reduceByKeyDP_Int(func: (V, V) => V): RDD[(K,V)] = {
+      def reduceByKeyDP_Int(func: (V, V) => V, app_name: String): RDD[(K,V)] = {
         val array = reduceByKeyDP_deep(func)
 //          .asInstanceOf[(Array[(K,Array[RDD[Int]])],Array[(K,Array[RDD[Int]])],RDD[(K,Int)])]
         val ls = array._1.map(p => {//each key
@@ -210,11 +210,21 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
         val sensitivity_array = ls ++ ls_advance
         val sensitivity = array._2.head._2.head.sparkContext.parallelize(sensitivity_array)
           .reduceByKey((a,b) => scala.math.max(a,b))
-          .collect()
-         array._3
+
+
+        val entire_array = (array._1 ++ array._2).groupBy(_._1).toList.map(p =>{
+          val array_int = p._2.map(_._2).flatMap(l => l).toList.reduce((a,b) => a.union(b)).asInstanceOf[RDD[Int]]
+          val sensitivity_k = sensitivity.lookup(p._1).head
+          val result = array._3.lookup(p._1).head.asInstanceOf[Int]
+          val upperbound = result + sensitivity_k
+          val lowerbound = result - sensitivity_k
+          println("[" + app_name + "] meta data: " + array_int.mean + "," + array_int.stdev + "," + array_int.count + "," + sensitivity_k + "," + upperbound + "," + lowerbound)
+        })
+
+        array._3
       }
 
-        def reduceByKeyDP_Double(func: (V, V) => V): RDD[(K,V)] = {
+        def reduceByKeyDP_Double(func: (V, V) => V, app_name: String): RDD[(K,V)] = {
 
           val array = reduceByKeyDP_deep(func)
 
@@ -301,12 +311,20 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
           val sensitivity_array = ls ++ ls_advance
           val sensitivity = array._2.head._2.head.sparkContext.parallelize(sensitivity_array)
             .reduceByKey((a,b) => scala.math.max(a,b))
-            .collect()
+
+          val entire_array = (array._1 ++ array._2).groupBy(_._1).toList.map(p =>{
+            val array_int = p._2.map(_._2).flatMap(l => l).toList.reduce((a,b) => a.union(b)).asInstanceOf[RDD[Double]]
+            val sensitivity_k = sensitivity.lookup(p._1).head
+            val result = array._3.lookup(p._1).head.asInstanceOf[Double]
+            val upperbound = result + sensitivity_k
+            val lowerbound = result - sensitivity_k
+            println("[" + app_name + "] meta data: " + array_int.mean + "," + array_int.stdev + "," + array_int.count + "," + sensitivity_k + "," + upperbound + "," + lowerbound)
+          })
 
           array._3
           }
 
-      def reduceByKeyDP_Tuple(func: (V, V) => V): RDD[(K,V)] = {
+      def reduceByKeyDP_Tuple(func: (V, V) => V, app_name: String): RDD[(K,V)] = {
         val array = reduceByKeyDP_deep(func)
         val ls = array._1.map(p => {
           val lls = p._2.map(q => {

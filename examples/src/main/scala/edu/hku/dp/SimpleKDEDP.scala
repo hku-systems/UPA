@@ -31,7 +31,7 @@ object SimpleKDEDP {
       .mapDP(p => {
         val points = p.split(',').head
         Kernel2(phi(points.toDouble))
-    }).reduce_and_add_noise_KDE(_+_)
+    }).reduce_and_add_noise_KDE(_+_,"SimpleKDEDP")
 
     println("Result: " + points)
 //    val final_result = points.collect()

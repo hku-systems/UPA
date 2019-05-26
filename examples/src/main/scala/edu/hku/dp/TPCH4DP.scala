@@ -34,7 +34,7 @@ object TPCH4DP {
     val result = lineitem_filtered
       .joinDP(order_filtered)
       .mapDPKV(p => (p._2._2,p._2._1))
-      .reduceByKeyDP_Int((a,b)=> a + b)
+      .reduceByKeyDP_Int((a,b)=> a + b, "TPCH4DP")
 
     result.collect().foreach(p => print(p._1._1 + "," + p._1._2 + ":" + p._2 + "\n"))
   }

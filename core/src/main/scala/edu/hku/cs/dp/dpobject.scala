@@ -167,29 +167,19 @@ class dpobject[T: ClassTag](
     (array,array_advance,aggregatedResult)
   }
 
-def reduce_and_add_noise_KDE(f: (T, T) => T): T = {
-  var max_bound = 0.0
-  var min_bound = 0.0
+def reduce_and_add_noise_KDE(f: (T, T) => T, app_name: String): T = {
   //computin candidates of smooth sensitivity
 
 val array = reduceDP(f).asInstanceOf[(Array[RDD[Double]],Array[RDD[Double]],Double)]
   val neigbour_local_senstivity = array._1.map(p => {
     val max = p.max
     val min = p.min
-    if(max > max_bound)
-      max_bound = max
-    if(min < min_bound)
-      min_bound = min
     scala.math.max(scala.math.abs(max - array._3),scala.math.abs(min - array._3))
   })
 
   val neigbour_local_advance_senstivity = array._2.map(p => {
     val max = p.max
     val min = p.min
-    if(max > max_bound)
-      max_bound = max
-    if(min < min_bound)
-      min_bound = min
     scala.math.max(scala.math.abs(max - array._3),scala.math.abs(min - array._3))
   })
 
@@ -212,11 +202,13 @@ val array = reduceDP(f).asInstanceOf[(Array[RDD[Double]],Array[RDD[Double]],Doub
   val counting = all_rdd.count()
 
 
-  println("meta data: " + max_bound + "," + min_bound + "," + mean + "," + sd + "," + counting + "," + max_nls)
+  val upperbound = array._3 + max_nls
+  val lowerbound = array._3 - max_nls
+  println("[" + app_name + "] meta data: " + mean + "," + sd + "," + counting + "," + max_nls + "," + upperbound + "," + lowerbound)
   array._3.asInstanceOf[T] //sensitivity
 }
 
-  def reduce_and_add_noise_LR(f: (T, T) => T): T = {
+  def reduce_and_add_noise_LR(f: (T, T) => T, app_name: String): T = {
     //computin candidates of smooth sensitivity
 
     val array = reduceDP(f).asInstanceOf[(Array[RDD[Vector[Double]]],Array[RDD[Vector[Double]]],Vector[Double])]

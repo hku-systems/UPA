@@ -55,7 +55,7 @@ object AOLQueryDP {
       else
         ((line(0).trim,line(1).trim,line(2).trim),line(3).trim.toInt)
     })
-      .reduceByKeyDP_Int((a, b) => a + b)
+      .reduceByKeyDP_Int((a, b) => a + b,"AOLQueryDP")
       .collect().foreach(p => println(p._1._1 + "," + p._1._2 + "," + p._1._3 + ":" + p._2))
     sc.stop()
   }
