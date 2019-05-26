@@ -170,8 +170,6 @@ class dpobject[T: ClassTag](
 def reduce_and_add_noise_KDE(f: (T, T) => T): T = {
   var max_bound = 0.0
   var min_bound = 0.0
-  var mean = 0.0
-  var sd = 0.0
   //computin candidates of smooth sensitivity
 
 val array = reduceDP(f).asInstanceOf[(Array[RDD[Double]],Array[RDD[Double]],Double)]
@@ -195,8 +193,6 @@ val array = reduceDP(f).asInstanceOf[(Array[RDD[Double]],Array[RDD[Double]],Doub
     scala.math.max(scala.math.abs(max - array._3),scala.math.abs(min - array._3))
   })
 
-
-
     var max_nls = 0.0
   for (i <- 0 until neigbour_local_senstivity.length) {
     neigbour_local_senstivity(i) = neigbour_local_senstivity(i)*exp(-beta*(i+1))
@@ -211,15 +207,18 @@ val array = reduceDP(f).asInstanceOf[(Array[RDD[Double]],Array[RDD[Double]],Doub
   }
 
   val all_rdd = (array._1 ++ array._2).toList.reduce((a,b) => a.union(b))
-  mean = all_rdd.mean
-  sd = all_rdd.stdev
+  val mean = all_rdd.mean
+  val sd = all_rdd.stdev
+  val counting = all_rdd.count()
 
-  println("sensitivity is: " + max_nls)
+
+  println("meta data: " + max_bound + "," + min_bound + "," + mean + "," + sd + "," + counting + "," + max_nls)
   array._3.asInstanceOf[T] //sensitivity
 }
 
   def reduce_and_add_noise_LR(f: (T, T) => T): T = {
     //computin candidates of smooth sensitivity
+
     val array = reduceDP(f).asInstanceOf[(Array[RDD[Vector[Double]]],Array[RDD[Vector[Double]]],Vector[Double])]
     val vector_length = array._3.length
     val b_result = sample.sparkContext.broadcast(array._3)
