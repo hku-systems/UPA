@@ -168,56 +168,34 @@ class dpobject[T: ClassTag](
   }
 
 def reduce_and_add_noise_KDE(f: (T, T) => T): T = {
+  var max_bound = 0.0
+  var min_bound = 0.0
+  var mean = 0.0
+  var sd = 0.0
   //computin candidates of smooth sensitivity
 
 val array = reduceDP(f).asInstanceOf[(Array[RDD[Double]],Array[RDD[Double]],Double)]
   val neigbour_local_senstivity = array._1.map(p => {
     val max = p.max
     val min = p.min
+    if(max > max_bound)
+      max_bound = max
+    if(min < min_bound)
+      min_bound = min
     scala.math.max(scala.math.abs(max - array._3),scala.math.abs(min - array._3))
   })
-
-//  //**********Testing***************
-//  println("Verifying correctness")
-//  for(i <- 0 until array._1.length)
-//  {
-//    println("distance is: " + (i+1))
-//    var min = (i+1).toDouble
-//    val array_collect = array._1(i).sortBy(p => p).collect()
-//    for(ii <- 0 until array_collect.length-1)
-//      {
-//        val diff = array_collect(ii+1) - array_collect(ii)
-//        if(diff < min)
-//          min = diff
-//      }
-//    println("min distance is: " + min)
-//  }
-//
-//  println("Verifying correctness")
-//  for(i <- 0 until array._2.length)
-//  {
-//    println("distance is: " + (i+1))
-//    var min = (i+1).toDouble
-//    val array_collect = array._1(i).sortBy(p => p).collect()
-//    for(ii <- 0 until array_collect.length-1)
-//    {
-//      val diff = array_collect(ii+1) - array_collect(ii)
-//      if(diff < min)
-//        {
-//          println("array_collect(ii+1): " + array_collect(ii+1))
-//          println("array_collect(ii): " + array_collect(ii))
-//          min = diff
-//        }
-//    }
-//    println("min distance is: " + min)
-//  }
-//  //**********Testing***************
 
   val neigbour_local_advance_senstivity = array._2.map(p => {
     val max = p.max
     val min = p.min
+    if(max > max_bound)
+      max_bound = max
+    if(min < min_bound)
+      min_bound = min
     scala.math.max(scala.math.abs(max - array._3),scala.math.abs(min - array._3))
   })
+
+
 
     var max_nls = 0.0
   for (i <- 0 until neigbour_local_senstivity.length) {
@@ -231,6 +209,10 @@ val array = reduceDP(f).asInstanceOf[(Array[RDD[Double]],Array[RDD[Double]],Doub
     if(neigbour_local_advance_senstivity(i) > max_nls)
       max_nls = neigbour_local_advance_senstivity(i)
   }
+
+  val all_rdd = (array._1 ++ array._2).toList.reduce((a,b) => a.union(b))
+  mean = all_rdd.mean
+  sd = all_rdd.stdev
 
   println("sensitivity is: " + max_nls)
   array._3.asInstanceOf[T] //sensitivity

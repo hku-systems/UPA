@@ -1,22 +1,23 @@
 #!/usr/bin/env bash
 
-ssh john@10.22.1.12 "rm -rf /home/john/tpch-spark" &
-ssh john@10.22.1.13 "rm -rf /home/john/tpch-spark" &
-ssh john@10.22.1.14 "rm -rf /home/john/tpch-spark" &
-ssh john@10.22.1.15 "rm -rf /home/john/tpch-spark" &
-ssh john@10.22.1.16 "rm -rf /home/john/tpch-spark" &
-ssh john@10.22.1.18 "rm -rf /home/john/tpch-spark" &
-ssh john@10.22.1.19 "rm -rf /home/john/tpch-spark" &
-ssh john@10.22.1.20 "rm -rf /home/john/tpch-spark" &
-ssh john@10.22.1.21 "rm -rf /home/john/tpch-spark"
+ssh john@10.22.1.1 "rm -rf /home/john/tpch-spark" &
+ssh john@10.22.1.2 "rm -rf /home/john/tpch-spark" &
+#ssh john@10.22.1.3 "rm -rf /home/john/tpch-spark" &
+ssh john@10.22.1.4 "rm -rf /home/john/tpch-spark" &
+ssh john@10.22.1.5 "rm -rf /home/john/tpch-spark"
+#ssh john@10.22.1.6 "rm -rf /home/john/tpch-spark" &
+#ssh john@10.22.1.7 "rm -rf /home/john/tpch-spark" &
+#ssh john@10.22.1.8 "rm -rf /home/john/tpch-spark" &
+#ssh john@10.22.1.9 "rm -rf /home/john/tpch-spark" &
+#ssh john@10.22.1.10 "rm -rf /home/john/tpch-spark"
 
-scp -r /home/john/tpch-spark john@10.22.1.12:/home/john/ & #1
-scp -r /home/john/tpch-spark john@10.22.1.13:/home/john/ & #2
-scp -r /home/john/tpch-spark john@10.22.1.14:/home/john/ & #3
-scp -r /home/john/tpch-spark john@10.22.1.15:/home/john/ & #4
-scp -r /home/john/tpch-spark john@10.22.1.16:/home/john/ & #5
-scp -r /home/john/tpch-spark john@10.22.1.17:/home/john/ & #6
-scp -r /home/john/tpch-spark john@10.22.1.18:/home/john/ & #7
-scp -r /home/john/tpch-spark john@10.22.1.19:/home/john/ & #8
-scp -r /home/john/tpch-spark john@10.22.1.20:/home/john/ & #9
-scp -r /home/john/tpch-spark john@10.22.1.21:/home/john/  #10
+scp -r /home/john/tpch-spark john@10.22.1.1:/home/john/ & #1
+scp -r /home/john/tpch-spark john@10.22.1.2:/home/john/ & #2
+#scp -r /home/john/tpch-spark john@10.22.1.3:/home/john/ & #3
+scp -r /home/john/tpch-spark john@10.22.1.4:/home/john/ & #4
+scp -r /home/john/tpch-spark john@10.22.1.5:/home/john/  #5
+#scp -r /home/john/tpch-spark john@10.22.1.6:/home/john/ & #6
+#scp -r /home/john/tpch-spark john@10.22.1.7:/home/john/ & #7
+#scp -r /home/john/tpch-spark john@10.22.1.8:/home/john/ & #8
+#scp -r /home/john/tpch-spark john@10.22.1.9:/home/john/ & #9
+#scp -r /home/john/tpch-spark john@10.22.1.10:/home/john/  #10

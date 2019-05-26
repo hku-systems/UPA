@@ -29,8 +29,9 @@ object SimpleKDE {
 
     val points = lines
       .map(p => {
-        Kernel2(phi(p.toDouble))
-    }).reduce(_+_)
+        val points = p.split(',').head
+        Kernel2(phi(points.toDouble))
+      }).reduce(_+_)
 
     println(points)
     spark.stop

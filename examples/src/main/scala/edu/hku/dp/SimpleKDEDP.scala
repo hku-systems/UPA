@@ -29,7 +29,8 @@ object SimpleKDEDP {
 
     val points = lines
       .mapDP(p => {
-        Kernel2(phi(p.toDouble))
+        val points = p.split(',').head
+        Kernel2(phi(points.toDouble))
     }).reduce_and_add_noise_KDE(_+_)
 
     println("Result: " + points)
