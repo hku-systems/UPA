@@ -18,13 +18,13 @@ object TPCH4DP {
       .getOrCreate()
     val inputDir = "/home/john/tpch-spark/dbgen"
 
-    val order_filtered = new dpread(spark.sparkContext.textFile(inputDir + "/orders.tbl*"),spark.sparkContext.textFile(inputDir + "/orders.tbl*"))
+    val order_filtered = new dpread(spark.sparkContext.textFile(args(0)),spark.sparkContext.textFile(args(1)))
       .mapDP(_.split('|'))
       .mapDPKV(p =>
       (p(0).trim.toLong, (p(4).trim, p(5).trim)))
       .filterDPKV(p => p._2._1 >= "1993-07-01" && p._2._1 < "1993-10-01")
 
-    val lineitem_filtered = new dpread(spark.sparkContext.textFile(inputDir + "/lineitem.tbl*"),spark.sparkContext.textFile(inputDir + "/orders.tbl*"))
+    val lineitem_filtered = new dpread(spark.sparkContext.textFile(args(2)),spark.sparkContext.textFile(args(3)))
       .mapDP(_.split('|'))
       .mapDP(p =>
       (p(0).trim.toLong, (p(11).trim, p(12).trim)))
@@ -34,8 +34,8 @@ object TPCH4DP {
     val result = lineitem_filtered
       .joinDP(order_filtered)
       .mapDPKV(p => (p._2._2,p._2._1))
-      .reduceByKeyDP_Int((a,b)=> a + b, "TPCH4DP")
+      .reduceByKeyDP_Int((a,b)=> a + b, "TPCH4DP", args(4).toInt)
 
-    result.collect().foreach(p => print(p._1._1 + "," + p._1._2 + ":" + p._2 + "\n"))
+//    result.collect().foreach(p => print(p._1._1 + "," + p._1._2 + ":" + p._2 + "\n"))
   }
 }

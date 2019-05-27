@@ -15,7 +15,7 @@ object reduceDP {
       .mapDP { i =>
       i*1.0
     }
-      .reduce_and_add_noise_KDE(_ + _, "reduceDP")
+      .reduce_and_add_noise_KDE(_ + _, "reduceDP",1)
     println("Output is: " + count)
     spark.stop()
   }

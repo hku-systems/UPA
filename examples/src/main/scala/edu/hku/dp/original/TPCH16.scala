@@ -32,16 +32,16 @@ object TPCH16 {
       .getOrCreate()
     val inputDir = "/home/john/tpch-spark/dbgen/ground-truth"
 
-    val part_input = spark.sparkContext.textFile(inputDir + "/part"+ args(0) +".ftbl*").map(_.split('|')).map(p =>
+    val part_input = spark.sparkContext.textFile(args(0)).map(_.split('|')).map(p =>
       (p(0).trim.toLong, (p(3).trim, p(4).trim, p(5).trim.toLong)))
       .filter(p => p._2._1 != "Brand#45" && !polished(p._2._2) && numbers(p._2._3)).map(p => p)
 
 
-    val supplier_input = spark.sparkContext.textFile(inputDir + "/supplier"+ args(0) +".ftbl*").map(_.split('|')).map(p =>
+    val supplier_input = spark.sparkContext.textFile(args(1)).map(_.split('|')).map(p =>
       (p(0).trim.toLong, p(6).trim))
       .filter(p => !complains(p._2))
 
-    val partsupp_input = spark.sparkContext.textFile(inputDir + "/partsupp"+ args(0) +".ftbl*").map(_.split('|')).map(p =>
+    val partsupp_input = spark.sparkContext.textFile(args(2)).map(_.split('|')).map(p =>
       ( p(1).trim.toLong,p(0).trim.toLong))
 
     val final_result = supplier_input.join(partsupp_input)

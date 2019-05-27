@@ -84,20 +84,17 @@ class dpobject[T: ClassTag](
       while(i  > 0) {
           val up_to_index = (sample_count - i).toInt
         if(i == outer_num) {
-//          println("sample_count: " + sample_count)
-//          println("outer-most loop: " + up_to_index)
-
+          val b_i = original.sparkContext.broadcast(i)
           val inner_array = original.sparkContext.parallelize(0 to up_to_index - 1) //(0,1,2,3,4,5,6,7)
             .map(p => {
-            val inside_array = broadcast_sample.value.patch(p, Nil, i)
-            f(inside_array.reduce(f),broadcast_result.value) //(0 -> 7, 8 -> 15, 16, 24, 32, 40, 48, 56)
+            f(broadcast_sample.value.patch(p, Nil, b_i.value).reduce(f),broadcast_result.value) //(0 -> 7, 8 -> 15, 16, 24, 32, 40, 48, 56)
           })
 //          println("i is " + i)
           array(i - 1) = inner_array
         } else {
           val array_collected = array(i).collect()
           val upper_array = original.sparkContext.broadcast(array_collected)
-
+          val b_i = original.sparkContext.broadcast(i)
           val array_length = array_collected.length
           val array_length_broadcast = original.sparkContext.broadcast(array_length)
           val up_to_index = (sample_count - i).toInt
@@ -111,12 +108,12 @@ class dpobject[T: ClassTag](
           val inner_array = original.sparkContext.parallelize(0 to up_to_index - 1) //(0,1,2,3,4,5,6,7)
             .map(p => {
             if(p < array_length_broadcast.value) {
-              f(upper_array.value(p), broadcast_sample.value(p + i + 1))//no need to include result, as it is included //no need to plus one?
+              f(upper_array.value(p), broadcast_sample.value(p + b_i.value + 1))//no need to include result, as it is included //no need to plus one?
             }
 //            else if(p == array_length_broadcast.value)
 //              f(upper_array.value(p - 1),broadcast_sample.value(p))//redundant, use upper_array.value(p) twice, means doing the same thing
             else {
-              val inside_array = broadcast_sample.value.patch(p, Nil, i)
+              val inside_array = broadcast_sample.value.patch(p, Nil, b_i.value)
               f(inside_array.reduce(f),broadcast_result.value)
             }
           })
@@ -167,21 +164,78 @@ class dpobject[T: ClassTag](
     (array,array_advance,aggregatedResult)
   }
 
-def reduce_and_add_noise_KDE(f: (T, T) => T, app_name: String): T = {
+def reduce_and_add_noise_KDE(f: (T, T) => T, app_name: String, k_dist: Int): T = {
   //computin candidates of smooth sensitivity
+var array = reduceDP(f).asInstanceOf[(Array[RDD[Double]],Array[RDD[Double]],Double)]
 
-val array = reduceDP(f).asInstanceOf[(Array[RDD[Double]],Array[RDD[Double]],Double)]
-  val neigbour_local_senstivity = array._1.map(p => {
+  //    //**********Testing***************
+  //    println("Verifying correctness")
+  //    for(i <- 0 until array._1.length)
+  //    {
+  //      println("distance is: " + (i+1))
+  //      var min = (i+1).toDouble
+  //      val array_collect = array._1(i).sortBy(p => p).collect()
+  //      for(ii <- 0 until array_collect.length-1)
+  //        {
+  //          val diff = array_collect(ii+1) - array_collect(ii)
+  //          if(diff < min)
+  //            {
+  //              println("array_collect(ii+1): " + array_collect(ii+1))
+  //              println("array_collect(ii): " + array_collect(ii))
+  //              min = diff
+  //            }
+  //        }
+  //      println("min distance is: " + min)
+  //    }
+  //
+  //    println("Verifying correctness")
+  //    for(i <- 0 until array._2.length)
+  //    {
+  //      println("distance is: " + (i+1))
+  //      var min = (i+1).toDouble
+  //      val array_collect = array._1(i).sortBy(p => p).collect()
+  //      for(ii <- 0 until array_collect.length-1)
+  //      {
+  //        val diff = array_collect(ii+1) - array_collect(ii)
+  //        if(diff < min)
+  //          {
+  //            println("array_collect(ii+1): " + array_collect(ii+1))
+  //            println("array_collect(ii): " + array_collect(ii))
+  //            min = diff
+  //          }
+  //      }
+  //      println("min distance is: " + min)
+  //    }
+  //    //**********Testing***************
+
+  var a1_length = array._1.length
+  var neigbour_local_senstivity = new Array[Double](a1_length)
+  for(a1 <- 0 until array._1.length)
+    {
+      val p = array._1(a1)
+      val max = p.max
+      val min = p.min
+      val mean = p.mean
+      val sd = p.stdev
+      val counting = p.count()
+      println(app_name + "," + k_dist +"," + ((a1+1)*(-1)) + "," + mean + "," + sd + "," + counting)
+      neigbour_local_senstivity(a1) = scala.math.max(scala.math.abs(max - array._3),scala.math.abs(min - array._3))
+    }
+
+  var a2_length = array._2.length
+  var neigbour_local_advance_senstivity = new Array[Double](a2_length)
+  for(a2 <- 0 until a2_length)
+  {
+    val p = array._2(a2)
     val max = p.max
     val min = p.min
-    scala.math.max(scala.math.abs(max - array._3),scala.math.abs(min - array._3))
-  })
+    val mean = p.mean
+    val sd = p.stdev
+    val counting = p.count()
+    println(app_name + "," + k_dist +"," + (a2+1) + "," + mean + "," + sd + "," + counting)
+    neigbour_local_advance_senstivity(a2) = scala.math.max(scala.math.abs(max - array._3),scala.math.abs(min - array._3))
+  }
 
-  val neigbour_local_advance_senstivity = array._2.map(p => {
-    val max = p.max
-    val min = p.min
-    scala.math.max(scala.math.abs(max - array._3),scala.math.abs(min - array._3))
-  })
 
     var max_nls = 0.0
   for (i <- 0 until neigbour_local_senstivity.length) {
@@ -196,19 +250,10 @@ val array = reduceDP(f).asInstanceOf[(Array[RDD[Double]],Array[RDD[Double]],Doub
       max_nls = neigbour_local_advance_senstivity(i)
   }
 
-  val all_rdd = (array._1 ++ array._2).toList.reduce((a,b) => a.union(b))
-  val mean = all_rdd.mean
-  val sd = all_rdd.stdev
-  val counting = all_rdd.count()
-
-
-  val upperbound = array._3 + max_nls
-  val lowerbound = array._3 - max_nls
-  println("[" + app_name + "] meta data: " + mean + "," + sd + "," + counting + "," + max_nls + "," + upperbound + "," + lowerbound)
   array._3.asInstanceOf[T] //sensitivity
 }
 
-  def reduce_and_add_noise_LR(f: (T, T) => T, app_name: String): T = {
+  def reduce_and_add_noise_LR(f: (T, T) => T, app_name: String, k_dis: Int): T = {
     //computin candidates of smooth sensitivity
 
     val array = reduceDP(f).asInstanceOf[(Array[RDD[Vector[Double]]],Array[RDD[Vector[Double]]],Vector[Double])]

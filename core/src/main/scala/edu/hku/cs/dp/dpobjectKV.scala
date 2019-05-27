@@ -44,7 +44,8 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
           //Indeed it is like reduceDP if we order the sample based on the keys,
           //just we do not consider inter-keys sampling
         //******************Sample************
-        val nighnouring_output = sample.groupByKey.collect().map(p => {
+        val nighnouring_output = sample.groupByKey.join(originalresult).collect().map(p1 => {
+            val p = (p1._1,p1._2._1)
             var inner_num = 0
             var outer_num = k_distance
             val sample_count = p._2.size //e.g., 64
@@ -67,15 +68,20 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
               while(i  > 0) {
                 val up_to_index = (sample_count - i).toInt
                 if(i == outer_num) {
+                  val b_i = original.sparkContext.broadcast(i)
                   //          println("sample_count: " + sample_count)
                   //          println("outer-most loop: " + up_to_index)
                   val inner_array = original.sparkContext.parallelize(0 to up_to_index - 1) //(0,1,2,3,4,5,6,7)
                     .map(q => {
-                    val inside_array = broadcast_sample.value.patch(q, Nil, i)
-                    func(inside_array.reduce(func),Seq(broadcast_result.value.get(p._1)).flatMap(l => l).head) //(0 -> 7, 8 -> 15, 16, 24, 32, 40, 48, 56)
+                    val inside_array = broadcast_sample.value.patch(q, Nil, b_i.value)
+                    broadcast_result.value.get(p._1) match {
+                      case Some(answer) => func(inside_array.reduce(func),answer)
+                      case None => inside_array.reduce(func)
+                    }
                   })
                   array(i - 1) = inner_array
                 } else {
+                  val b_i = original.sparkContext.broadcast(i)
                   val array_collected = array(i).collect()
                   val upper_array = original.sparkContext.broadcast(array_collected)
 
@@ -92,13 +98,16 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
                   val inner_array = original.sparkContext.parallelize(0 to up_to_index - 1) //(0,1,2,3,4,5,6,7)
                     .map(q => {
                     if(q < array_length_broadcast.value) {
-                      func(upper_array.value(q), broadcast_sample.value(q + i + 1))//no need to include result, as it is included
+                      func(upper_array.value(q), broadcast_sample.value(q + b_i.value + 1))//no need to include result, as it is included
                     }
 //                    else if(p == array_length_broadcast)
 //                      func(upper_array.value(q - 1),broadcast_sample.value(q))
                     else {
-                      val inside_array = broadcast_sample.value.patch(q, Nil, i)
-                      func(inside_array.reduce(func),Seq(broadcast_result.value.get(p._1)).flatMap(l => l).head)
+                      val inside_array = broadcast_sample.value.patch(q, Nil, b_i.value)
+                      broadcast_result.value.get(p._1) match {
+                        case Some(answer) => func(inside_array.reduce(func),answer)
+                        case None => inside_array.reduce(func)
+                      }
                     }
                   })
                   array(i - 1) = inner_array
@@ -110,7 +119,8 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
           })
 
         //******************Sample advance************
-        val nighnouring_advance_output = sample_advance.groupByKey.collect().map(p => {
+        val nighnouring_advance_output = sample_advance.groupByKey.join(originalresult).collect().map(p1 => {
+          val p = (p1._1,p1._2._1)
           var inner_num = 0
           val aggresult_key = aggregatedResult.lookup(p._1)
           val b_aggresult_key = sample_advance.sparkContext.broadcast(aggresult_key)
@@ -164,167 +174,159 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
           (nighnouring_output,nighnouring_advance_output,aggregatedResult)
         }
 
-      def reduceByKeyDP_Int(func: (V, V) => V, app_name: String): RDD[(K,V)] = {
+      def reduceByKeyDP_Int(func: (V, V) => V, app_name: String, k_dist: Int): RDD[(K,V)] = {
         val array = reduceByKeyDP_deep(func)
-//          .asInstanceOf[(Array[(K,Array[RDD[Int]])],Array[(K,Array[RDD[Int]])],RDD[(K,Int)])]
+        var meta_minus_outer = new Array[(K,Array[String])](array._1.length)
+        var minus_outer_count = 0
         val ls = array._1.map(p => {//each key
-          val lls = p._2.map(q => {
-            val qint = q.asInstanceOf[RDD[Int]]
-            val max = qint.max
-            val min = qint.min
-            val value_of_key = array._3.asInstanceOf[RDD[(K,Int)]].lookup(p._1)(0)
-            val sensitivity = scala.math.max(scala.math.abs(max - value_of_key),scala.math.abs(min - value_of_key))
-            sensitivity //all candidates of local sensitivity
-          })
-
-          val intArray_in = lls
-          var max_nls = 0
-          for (i <- 0 until intArray_in.length) {
-            intArray_in(i) = intArray_in(i) * exp(-beta * (i + 1)).toInt
-            if (intArray_in(i) > max_nls)
-              max_nls = intArray_in(i)
+          val value_of_key = array._3.asInstanceOf[RDD[(K,Int)]].lookup(p._1)(0)
+          var a1_length = p._2.length
+          var meta_minus_inner = new Array[String](a1_length)
+          var neigbour_local_senstivity = new Array[Double](a1_length)
+          for(a1 <- 0 until a1_length)
+          {
+            val q = p._2(a1).asInstanceOf[RDD[Int]]
+            val max = q.max
+            val min = q.min
+            val mean = q.mean
+            val sd = q.stdev
+            val counting = q.count()
+            meta_minus_inner(a1) = app_name + "," + k_dist +"," + ((a1+1)*(-1)) + "," + mean + "," + sd + "," + counting
+            neigbour_local_senstivity(a1) = scala.math.max(scala.math.abs(max - value_of_key),scala.math.abs(min - value_of_key))
           }
-          (p._1,max_nls)// Key, sensitivity of the key
-          })
+          meta_minus_outer(minus_outer_count) = (p._1, meta_minus_inner)
+          minus_outer_count = minus_outer_count + 1
 
+          var max_nls = 0.0
+          for (i <- 0 until neigbour_local_senstivity.length) {
+            neigbour_local_senstivity(i) = neigbour_local_senstivity(i)*exp(-beta*(i+1))
+            if(neigbour_local_senstivity(i) > max_nls)
+              max_nls = neigbour_local_senstivity(i)
+          }
+          (p._1,max_nls)
+        })
+
+        var meta_positive_outer = new Array[(K,Array[String])](array._2.length)
+        var positive_outer_count = 0
         val ls_advance = array._2.map(p => {//each key
-          val lls = p._2.map(q => {
-            val qint = q.asInstanceOf[RDD[Int]]
-            val max = qint.max
-            val min = qint.min
-            val value_of_key = array._3.asInstanceOf[RDD[(K,Int)]].lookup(p._1)(0)
-            val sensitivity = scala.math.max(scala.math.abs(max - value_of_key),scala.math.abs(min - value_of_key))
-            sensitivity //all candidates of local sensitivity
-          })
-
-          val intArray_in = lls
-          var max_nls = 0
-          for (i <- 0 until intArray_in.length) {
-            intArray_in(i) = intArray_in(i) * exp(-beta * (i + 1)).toInt
-            if (intArray_in(i) > max_nls)
-              max_nls = intArray_in(i)
+          val value_of_key = array._3.asInstanceOf[RDD[(K,Int)]].lookup(p._1)(0)
+          val a1_length = p._2.length
+          var meta_positive_inner = new Array[String](a1_length)
+          var neigbour_local_senstivity = new Array[Double](a1_length)
+          for(a1 <- 0 until a1_length)
+          {
+            val q = p._2(a1).asInstanceOf[RDD[Int]]
+            val max = q.max
+            val min = q.min
+            val mean = q.mean
+            val sd = q.stdev
+            val counting = q.count()
+            meta_positive_inner(a1) = app_name + "," + k_dist +"," + (a1+1) + "," + mean + "," + sd + "," + counting
+            neigbour_local_senstivity(a1) = scala.math.max(scala.math.abs(max - value_of_key),scala.math.abs(min - value_of_key))
           }
-          (p._1,max_nls)// Key, sensitivity of the key
+          meta_positive_outer(positive_outer_count) = (p._1, meta_positive_inner)
+          positive_outer_count = positive_outer_count + 1
+
+          var max_nls = 0.0
+          for (i <- 0 until neigbour_local_senstivity.length) {
+            neigbour_local_senstivity(i) = neigbour_local_senstivity(i)*exp(-beta*(i+1))
+            if(neigbour_local_senstivity(i) > max_nls)
+              max_nls = neigbour_local_senstivity(i)
+          }
+          (p._1,max_nls)
+        })
+
+        val all_meta = (meta_minus_outer ++ meta_positive_outer).groupBy(_._1).map(p => {
+          p._2.foreach(q => {
+            q._2.foreach(println)
+          })
         })
 
         val sensitivity_array = ls ++ ls_advance
         val sensitivity = array._2.head._2.head.sparkContext.parallelize(sensitivity_array)
           .reduceByKey((a,b) => scala.math.max(a,b))
 
-
-        val entire_array = (array._1 ++ array._2).groupBy(_._1).toList.map(p =>{
-          val array_int = p._2.map(_._2).flatMap(l => l).toList.reduce((a,b) => a.union(b)).asInstanceOf[RDD[Int]]
-          val sensitivity_k = sensitivity.lookup(p._1).head
-          val result = array._3.lookup(p._1).head.asInstanceOf[Int]
-          val upperbound = result + sensitivity_k
-          val lowerbound = result - sensitivity_k
-          println("[" + app_name + "] meta data: " + array_int.mean + "," + array_int.stdev + "," + array_int.count + "," + sensitivity_k + "," + upperbound + "," + lowerbound)
-        })
-
         array._3
       }
 
-        def reduceByKeyDP_Double(func: (V, V) => V, app_name: String): RDD[(K,V)] = {
+        def reduceByKeyDP_Double(func: (V, V) => V, app_name: String, k_dist: Int): RDD[(K,V)] = {
 
           val array = reduceByKeyDP_deep(func)
 
-//          //**********Testing***************
-//          println("Verifying correctness")
-//          for(i <- 0 until array._1.length)
-//          {
-//            println("this key is: " + array._1(i)._1)
-//            for(j <- 0 until array._1(i)._2.length)
-//            {
-//              println("distance is: " + (j+1))
-//              var min = (j+1).toDouble
-//              val array_collect = array._1(i)._2(j).asInstanceOf[RDD[Double]].sortBy(p => p).collect()
-//              for(jj <- 0 until array_collect.length-1)
-//              {
-//                val diff = array_collect(jj+1) - array_collect(jj)
-//                if(diff < min)
-//                  min = diff
-//              }
-//              println("min distance is: " + min)
-//            }
-//          }
-//
-//          println("Verifying correctness")
-//          for(i <- 0 until array._2.length)
-//          {
-//            println("this key is: " + array._1(i)._1)
-//            for(j <- 0 until array._2(i)._2.length)
-//            {
-//              println("distance is: " + (j+1))
-//              var min = (j+1).toDouble
-//              val array_collect = array._2(i)._2(j).asInstanceOf[RDD[Double]].sortBy(p => p).collect()
-//              for(jj <- 0 until array_collect.length-1)
-//              {
-//                val diff = array_collect(jj+1) - array_collect(jj)
-//                if(diff < min)
-//                  min = diff
-//              }
-//              println("min distance is: " + min)
-//            }
-//          }
-//          //**********Testing***************
-
+          var meta_minus_outer = new Array[(K,Array[String])](array._1.length)
+          var minus_outer_count = 0
           val ls = array._1.map(p => {//each key
-            val lls = p._2.map(q => {
-              val qdouble = q.asInstanceOf[RDD[Double]]
-              val max = qdouble.max
-              val min = qdouble.min
-              val value_of_key = array._3.asInstanceOf[RDD[(K,Double)]].lookup(p._1)(0)
-              val sensitivity = scala.math.max(scala.math.abs(max - value_of_key),scala.math.abs(min - value_of_key))
-              sensitivity
-            })
+            val value_of_key = array._3.asInstanceOf[RDD[(K,Double)]].lookup(p._1)(0)
+            var a1_length = p._2.length
+            var meta_minus_inner = new Array[String](a1_length)
+            var neigbour_local_senstivity = new Array[Double](a1_length)
+            for(a1 <- 0 until a1_length)
+              {
+                val q = p._2(a1).asInstanceOf[RDD[Double]]
+                val max = q.max
+                val min = q.min
+                val mean = q.mean
+                val sd = q.stdev
+                val counting = q.count()
+                meta_minus_inner(a1) = app_name + "," + k_dist +"," + ((a1+1)*(-1)) + "," + mean + "," + sd + "," + counting
+                neigbour_local_senstivity(a1) = scala.math.max(scala.math.abs(max - value_of_key),scala.math.abs(min - value_of_key))
+              }
+            meta_minus_outer(minus_outer_count) = (p._1, meta_minus_inner)
+            minus_outer_count = minus_outer_count + 1
 
-            val doubleArray_in = lls
             var max_nls = 0.0
-            for (i <- 0 until doubleArray_in.length) {
-              doubleArray_in(i) = doubleArray_in(i)*exp(-beta*(i+1))
-              if(doubleArray_in(i) > max_nls)
-                max_nls = doubleArray_in(i)
+            for (i <- 0 until neigbour_local_senstivity.length) {
+              neigbour_local_senstivity(i) = neigbour_local_senstivity(i)*exp(-beta*(i+1))
+              if(neigbour_local_senstivity(i) > max_nls)
+                max_nls = neigbour_local_senstivity(i)
             }
               (p._1,max_nls)
             })
 
+          var meta_positive_outer = new Array[(K,Array[String])](array._2.length)
+          var positive_outer_count = 0
           val ls_advance = array._2.map(p => {//each key
-            val lls = p._2.map(q => {
-              val qint = q.asInstanceOf[RDD[Double]]
-              val max = qint.max
-              val min = qint.min
-              val value_of_key = array._3.asInstanceOf[RDD[(K,Double)]].lookup(p._1)(0)
-              val sensitivity = scala.math.max(scala.math.abs(max - value_of_key),scala.math.abs(min - value_of_key))
-              sensitivity //all candidates of local sensitivity
-            })
-
-            val intArray_in = lls
-            var max_nls = 0.0
-            for (i <- 0 until intArray_in.length) {
-              intArray_in(i) = intArray_in(i) * exp(-beta * (i + 1)).toDouble
-              if (intArray_in(i) > max_nls)
-                max_nls = intArray_in(i)
+            val value_of_key = array._3.asInstanceOf[RDD[(K,Double)]].lookup(p._1)(0)
+            val a1_length = p._2.length
+            var meta_positive_inner = new Array[String](a1_length)
+            var neigbour_local_senstivity = new Array[Double](a1_length)
+            for(a1 <- 0 until a1_length)
+            {
+              val q = p._2(a1).asInstanceOf[RDD[Double]]
+              val max = q.max
+              val min = q.min
+              val mean = q.mean
+              val sd = q.stdev
+              val counting = q.count()
+              meta_positive_inner(a1) = app_name + "," + k_dist +"," + (a1+1) + "," + mean + "," + sd + "," + counting
+              neigbour_local_senstivity(a1) = scala.math.max(scala.math.abs(max - value_of_key),scala.math.abs(min - value_of_key))
             }
-            (p._1,max_nls.toDouble)// Key, sensitivity of the key
+            meta_positive_outer(positive_outer_count) = (p._1, meta_positive_inner)
+            positive_outer_count = positive_outer_count + 1
+
+            var max_nls = 0.0
+            for (i <- 0 until neigbour_local_senstivity.length) {
+              neigbour_local_senstivity(i) = neigbour_local_senstivity(i)*exp(-beta*(i+1))
+              if(neigbour_local_senstivity(i) > max_nls)
+                max_nls = neigbour_local_senstivity(i)
+            }
+            (p._1,max_nls)
+          })
+
+          val all_meta = (meta_minus_outer ++ meta_positive_outer).groupBy(_._1).map(p => {
+            p._2.foreach(q => {
+              q._2.foreach(println)
+            })
           })
 
           val sensitivity_array = ls ++ ls_advance
           val sensitivity = array._2.head._2.head.sparkContext.parallelize(sensitivity_array)
             .reduceByKey((a,b) => scala.math.max(a,b))
 
-          val entire_array = (array._1 ++ array._2).groupBy(_._1).toList.map(p =>{
-            val array_int = p._2.map(_._2).flatMap(l => l).toList.reduce((a,b) => a.union(b)).asInstanceOf[RDD[Double]]
-            val sensitivity_k = sensitivity.lookup(p._1).head
-            val result = array._3.lookup(p._1).head.asInstanceOf[Double]
-            val upperbound = result + sensitivity_k
-            val lowerbound = result - sensitivity_k
-            println("[" + app_name + "] meta data: " + array_int.mean + "," + array_int.stdev + "," + array_int.count + "," + sensitivity_k + "," + upperbound + "," + lowerbound)
-          })
-
           array._3
-          }
+        }
 
-      def reduceByKeyDP_Tuple(func: (V, V) => V, app_name: String): RDD[(K,V)] = {
+      def reduceByKeyDP_Tuple(func: (V, V) => V, app_name: String, k_dist: Int): RDD[(K,V)] = {
         val array = reduceByKeyDP_deep(func)
         val ls = array._1.map(p => {
           val lls = p._2.map(q => {

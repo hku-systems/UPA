@@ -5,6 +5,12 @@ scp -r /home/john/AutoDP john@10.22.1.2:/home/john/ & #2
 #scp -r /home/john/tpch-spark john@10.22.1.3:/home/john/ & #3
 scp -r /home/john/AutoDP john@10.22.1.4:/home/john/ & #4
 scp -r /home/john/AutoDP john@10.22.1.5:/home/john/  #5
+
+ssh john@10.22.1.1 "cd /home/john/AutoDP; ./build.sh" &
+ssh john@10.22.1.2 "cd /home/john/AutoDP; ./build.sh" &
+ssh john@10.22.1.4 "cd /home/john/AutoDP; ./build.sh" &
+ssh john@10.22.1.5 "cd /home/john/AutoDP; ./build.sh"
+
 #scp -r /home/john/tpch-spark john@10.22.1.6:/home/john/ & #6
 #scp -r /home/john/tpch-spark john@10.22.1.7:/home/john/ & #7
 #scp -r /home/john/tpch-spark john@10.22.1.8:/home/john/ & #8

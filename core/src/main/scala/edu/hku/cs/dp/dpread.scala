@@ -38,8 +38,8 @@ class dpread[T: ClassTag](
   }
 
   def mapDPKV[K: ClassTag,V: ClassTag](f: T => (K,V)): dpobjectKV[K,V]= {
-    val sampling = main.sparkContext.parallelize(main.takeSample(false, 111))
-    val advance_sampling = advance.sparkContext.parallelize(advance.takeSample(false, 111))
+    val sampling = main.sparkContext.parallelize(main.takeSample(false, 56))
+    val advance_sampling = advance.sparkContext.parallelize(advance.takeSample(false, 56))
     new dpobjectKV(sampling.map(f).asInstanceOf[RDD[(K,V)]],advance_sampling.map(f).asInstanceOf[RDD[(K,V)]],main.subtract(sampling).map(f).asInstanceOf[RDD[(K,V)]])
   }
 }

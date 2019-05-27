@@ -21,10 +21,10 @@ object TPCH13 {
       .getOrCreate()
     val inputDir = "/home/john/tpch-spark/dbgen/ground-truth"
 
-    val customer_input = spark.sparkContext.textFile(inputDir + "/customer"+ args(0) +".ftbl*").map(_.split('|')).map(p =>
+    val customer_input = spark.sparkContext.textFile(args(0)).map(_.split('|')).map(p =>
       (p(0).trim.toLong,1))
 
-    val order_input = spark.sparkContext.textFile(inputDir + "/orders"+ args(0) +".ftbl*").map(_.split('|')).map(p =>
+    val order_input = spark.sparkContext.textFile(args(1)).map(_.split('|')).map(p =>
       (p(1).trim.toLong, p(0).trim.toLong))
 
     val final_result = customer_input
