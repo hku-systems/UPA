@@ -41,18 +41,18 @@ object TPCH1DP {
       (p(0).trim.toLong, p(1).trim.toLong, p(2).trim.toLong, p(3).trim.toLong, p(4).trim.toDouble, p(5).trim.toDouble, p(6).trim.toDouble, p(7).trim.toDouble, p(8).trim, p(9).trim, p(10).trim, p(11).trim, p(12).trim, p(13).trim, p(14).trim, p(15).trim))
 //      .map(case (l_orderkey: Long, l_partkey: Long, l_suppkey: Long, l_linenumber: Long, l_quantity: Double, l_extendedprice: Double, l_discount:Double, l_tax:Double, l_returnflag:String, l_linestatus:String, l_shipdate:String, l_commitdate:String, l_receiptdate:String, l_shipinstruct:String, l_shipmode:String, l_comment:String))
       .filterDP(_._11 < "1998-09-02")
-      .mapDPKV(p => {
+      .mapDP(p => {
         val inter = decrease(p._6,p._7)
-        ((p._9,p._10),(p._5,p._6, p._7, inter,increase(inter,p._8),1))
+        inter
       })
 
 //    println("filtered_result original")
 //    filtered_result.original.collect().foreach(println)
 
-    val final_result = filtered_result.reduceByKeyDP_Tuple((a,b) => {
-      val x = decrease(a._2,a._3)
-      val y = decrease(b._2,b._3)
-      (a._1 + b._1, a._2 + b._2, a._3 + b._3 , a._4 + b._4, a._5 + b._5, a._6 + b._6)
+    val final_result = filtered_result.reduce_and_add_noise_KDE((a,b) => {
+      a + b
+//      val y = decrease(b._2,b._3)
+//      (a._1 + b._1, a._2 + b._2, a._3 + b._3 , a._4 + b._4, a._5 + b._5, a._6 + b._6)
     }, "TPCH1DP", args(2).toInt)
 
 //    final_result.collect().foreach(p => print(p._1._1 + "," + p._1._2 + ":" + p._2._1 + "," + p._2._2 + "," + p._2._3 + "," + p._2._4 + "," + p._2._5 + "," + p._2._6 + "\n"))

@@ -59,13 +59,13 @@ object SimpleSVMDP {
     var dual_coef = DenseVector(0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0)
 //    println("Initial w: " + w)
     //      println("On iteration " + i)
-      val dual_coef_error = points.mapDPKV{ p =>
+      val dual_coef_error = points.mapDP{ p =>
         val classifier = p.x * (1 / (1 + exp(-p.y * (dual_coef.dot(p.x)))) - 1) * p.y
-        (p.y, p.y - classifier.dot(p.x))
+        p.y - classifier.dot(p.x)
       }
-      val margin_norm = dual_coef_error.reduceByKeyDP_Double((a,b) => scala.math.min(a,b),"SimpleSVMDP", args(2).toInt)
+      val margin_norm = dual_coef_error.reduce_and_add_noise_KDE((a,b) => a + b,"SimpleSVMDP", args(2).toInt)
 
-    margin_norm.collect().foreach(p => p._1 + ":" + p._2)
+    println("dual_coef_error: " + margin_norm)
     spark.stop()
   }
 }

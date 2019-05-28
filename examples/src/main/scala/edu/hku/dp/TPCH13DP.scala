@@ -34,8 +34,11 @@ object TPCH13DP {
 
     val final_result = customer_input
       .joinDP(order_input)
-      .mapDPKV(p => ((p._1,p._2._2),p._2._1))
-      .reduceByKeyDP_Int((a,b) => a + b,"TPCH13DP", args(4).toInt)
+      .mapDP(p => 1.0)
+      .reduce_and_add_noise_KDE(_+_,"TPCH13DP", args(4).toInt)
+
+    println("Output: " + final_result)
+//      .reduceByKeyDP_Int((a,b) => a + b,"TPCH13DP", args(4).toInt)
 //      .map(p => (p._2,1))
 //      .reduceByKey((a,b) => a + b)
 

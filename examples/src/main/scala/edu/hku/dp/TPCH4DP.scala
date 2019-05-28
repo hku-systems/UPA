@@ -27,15 +27,15 @@ object TPCH4DP {
     val lineitem_filtered = new dpread(spark.sparkContext.textFile(args(2)),spark.sparkContext.textFile(args(3)))
       .mapDP(_.split('|'))
       .mapDP(p =>
-      (p(0).trim.toLong, (p(11).trim, p(12).trim)))
+      (p(0).trim.toLong, (p(11).trim, p(12).trim,p(4).trim.toDouble)))
       .filterDP(p => p._2._1 < p._2._2)
-      .mapDPKV(p => (p._1,1))
+      .mapDPKV(p => (p._1,p._2._3))
 
     val result = lineitem_filtered
       .joinDP(order_filtered)
-      .mapDPKV(p => (p._2._2,p._2._1))
-      .reduceByKeyDP_Int((a,b)=> a + b, "TPCH4DP", args(4).toInt)
-
+      .mapDP(p => 1.0).reduce_and_add_noise_KDE(_+_, "TPCH4DP", args(4).toInt)
+//      .reduceByKeyDP_Int((a,b)=> a + b)
+    println("Output: " + result)
 //    result.collect().foreach(p => print(p._1._1 + "," + p._1._2 + ":" + p._2 + "\n"))
   }
 }

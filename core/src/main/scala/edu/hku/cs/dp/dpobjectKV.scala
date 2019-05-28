@@ -33,6 +33,7 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
         val originalresult = inputoriginal.reduceByKey(func)//Reduce original first
         val aggregatedResult = originalresult.union(sample).reduceByKey(func)
         val broadcast_result = original.sparkContext.broadcast(originalresult.collect().toMap)
+
 //        val broadcast_aggregatedResult = original.sparkContext.broadcast(aggregatedResult.collect())
 //        val sample_advance_count = sample_advance.count
 //        val sample_advance_collect = sample_advance.collect()
@@ -44,11 +45,11 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
           //Indeed it is like reduceDP if we order the sample based on the keys,
           //just we do not consider inter-keys sampling
         //******************Sample************
-        val nighnouring_output = sample.groupByKey.join(originalresult).collect().map(p1 => {
-            val p = (p1._1,p1._2._1)
+        val nighnouring_output = originalresult.join(sample).map(p => (p._1,p._2._2)).groupByKey().collect().map(p => {
             var inner_num = 0
             var outer_num = k_distance
             val sample_count = p._2.size //e.g., 64
+            println("sample count: " + sample_count)
             val broadcast_sample = original.sparkContext.broadcast(p._2.toArray)
             if (sample_count <= 1) {
               val inner = new Array[RDD[V]](1) //directly return
@@ -74,11 +75,9 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
                   val inner_array = original.sparkContext.parallelize(0 to up_to_index - 1) //(0,1,2,3,4,5,6,7)
                     .map(q => {
                     val inside_array = broadcast_sample.value.patch(q, Nil, b_i.value)
-                    broadcast_result.value.get(p._1) match {
-                      case Some(answer) => func(inside_array.reduce(func),answer)
-                      case None => inside_array.reduce(func)
-                    }
+                      func(inside_array.reduce(func),Seq(broadcast_result.value.get(p._1)).flatMap(l => l).head)
                   })
+                  inner_array.collect().foreach(println)
                   array(i - 1) = inner_array
                 } else {
                   val b_i = original.sparkContext.broadcast(i)
@@ -89,25 +88,14 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
                   val array_length_broadcast = original.sparkContext.broadcast(array_length)
                   val up_to_index = (sample_count - i).toInt
 
-                  //          println("sample_count: " + sample_count)
-                  //          println("array_length: " + array_length)
-                  //          println("current i: " + i)
-                  //          println("outer_num: " + outer_num)
-                  //          println("up_to_index: " + up_to_index)
-
                   val inner_array = original.sparkContext.parallelize(0 to up_to_index - 1) //(0,1,2,3,4,5,6,7)
                     .map(q => {
                     if(q < array_length_broadcast.value) {
                       func(upper_array.value(q), broadcast_sample.value(q + b_i.value + 1))//no need to include result, as it is included
                     }
-//                    else if(p == array_length_broadcast)
-//                      func(upper_array.value(q - 1),broadcast_sample.value(q))
                     else {
                       val inside_array = broadcast_sample.value.patch(q, Nil, b_i.value)
-                      broadcast_result.value.get(p._1) match {
-                        case Some(answer) => func(inside_array.reduce(func),answer)
-                        case None => inside_array.reduce(func)
-                      }
+                      func(inside_array.reduce(func),Seq(broadcast_result.value.get(p._1)).flatMap(l => l).head)
                     }
                   })
                   array(i - 1) = inner_array
@@ -119,8 +107,7 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
           })
 
         //******************Sample advance************
-        val nighnouring_advance_output = sample_advance.groupByKey.join(originalresult).collect().map(p1 => {
-          val p = (p1._1,p1._2._1)
+        val nighnouring_advance_output = aggregatedResult.join(sample_advance).map(p => (p._1,p._2._2)).groupByKey().collect().map(p => {
           var inner_num = 0
           val aggresult_key = aggregatedResult.lookup(p._1)
           val b_aggresult_key = sample_advance.sparkContext.broadcast(aggresult_key)
@@ -186,13 +173,20 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
           for(a1 <- 0 until a1_length)
           {
             val q = p._2(a1).asInstanceOf[RDD[Int]]
-            val max = q.max
-            val min = q.min
-            val mean = q.mean
-            val sd = q.stdev
-            val counting = q.count()
-            meta_minus_inner(a1) = app_name + "," + k_dist +"," + ((a1+1)*(-1)) + "," + mean + "," + sd + "," + counting
-            neigbour_local_senstivity(a1) = scala.math.max(scala.math.abs(max - value_of_key),scala.math.abs(min - value_of_key))
+            if(!q.isEmpty) {
+              val max = q.max
+              val min = q.min
+              val mean = q.mean
+              val sd = q.stdev
+              val counting = q.count()
+              meta_minus_inner(a1) = app_name + "," + k_dist + "," + ((a1 + 1) * (-1)) + "," + mean + "," + sd + "," + counting
+              neigbour_local_senstivity(a1) = scala.math.max(scala.math.abs(max - value_of_key), scala.math.abs(min - value_of_key))
+            }
+            else
+              {
+                meta_minus_inner(a1) = app_name + "," + k_dist + "," + ((a1 + 1) * (-1)) + "," + value_of_key + "," + 0 + "," + 0
+                neigbour_local_senstivity(a1) = 0
+              }
           }
           meta_minus_outer(minus_outer_count) = (p._1, meta_minus_inner)
           minus_outer_count = minus_outer_count + 1
@@ -216,13 +210,20 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
           for(a1 <- 0 until a1_length)
           {
             val q = p._2(a1).asInstanceOf[RDD[Int]]
-            val max = q.max
-            val min = q.min
-            val mean = q.mean
-            val sd = q.stdev
-            val counting = q.count()
-            meta_positive_inner(a1) = app_name + "," + k_dist +"," + (a1+1) + "," + mean + "," + sd + "," + counting
-            neigbour_local_senstivity(a1) = scala.math.max(scala.math.abs(max - value_of_key),scala.math.abs(min - value_of_key))
+            if(!q.isEmpty) {
+              val max = q.max
+              val min = q.min
+              val mean = q.mean
+              val sd = q.stdev
+              val counting = q.count()
+              meta_positive_inner(a1) = app_name + "," + k_dist + "," + (a1 + 1) + "," + mean + "," + sd + "," + counting
+              neigbour_local_senstivity(a1) = scala.math.max(scala.math.abs(max - value_of_key), scala.math.abs(min - value_of_key))
+            }
+            else
+            {
+              meta_positive_inner(a1) = app_name + "," + k_dist + "," + (a1 + 1) + "," + value_of_key + "," + 0 + "," + 0
+              neigbour_local_senstivity(a1) = 0
+            }
           }
           meta_positive_outer(positive_outer_count) = (p._1, meta_positive_inner)
           positive_outer_count = positive_outer_count + 1
@@ -518,9 +519,34 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
         new dpobjectKV(inputsample.filter(f),inputsample_advance.filter(f),inputoriginal.filter(f))
       }
       //********************Join****************************
+      def joinDP[W](otherDP: RDD[(K, W)]): dpobjectArray[(K, (W, V))] = {
 
+        //No need to care about sample2 join sample1
 
-      def joinDP[W](otherDP: dpobjectKV[K, W]): dpobject[(K, (V, W))] = {
+        val joinresult = original.join(otherDP).map(q => (q._1,(q._2._2,q._2._1)))
+
+        val advance_original = sample_advance
+          .zipWithIndex()
+          .map(p => (p._1._1,(p._1._2,p._2)))
+          .join(otherDP)
+          .map(p => (p._2._1._2,(p._1,(p._2._2,p._2._1._1))))
+          .groupByKey()
+          .collect()
+          .map(p => original.sparkContext.parallelize(p._2.toSeq))
+
+        val with_sample = sample
+          .zipWithIndex()
+          .map(p => (p._1._1,(p._1._2,p._2)))
+          .join(otherDP)
+          .map(p => (p._2._1._2,(p._1,(p._2._2,p._2._1._1))))
+          .groupByKey()
+          .collect()
+          .map(p => original.sparkContext.parallelize(p._2.toSeq))
+
+        new dpobjectArray(with_sample,advance_original,joinresult)
+      }
+
+      def joinDP[W](otherDP: dpobjectKV[K, W]): dpobjectArray[(K, (V, W))] = {
 
         //No need to care about sample2 join sample1
 
@@ -528,19 +554,56 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
         val input2_sample = otherDP.original
         val joinresult = original.join(otherDP.original)
 
-        val original_advance = original.join(otherDP.sample_advance)
-        val advance_original = sample_advance.join(otherDP.original)
-        val advance_advance = sample_advance.join(otherDP.sample_advance)
+        val zipin_advance = otherDP.sample_advance
+          .zipWithIndex()
+          .map(p => (p._1._1,(p._1._2,p._2)))
+        val original_advance = original
+          .join(zipin_advance)
+          .map(p => (p._2._2._2,(p._1,(p._2._1,p._2._2._1))))
+          .groupByKey()
+          .collect()
+          .map(p => original.sparkContext.parallelize(p._2.toSeq))
+
+        val advance_original = sample_advance
+          .zipWithIndex()
+          .map(p => (p._1._1,(p._1._2,p._2)))
+          .join(otherDP.original)
+          .map(p => (p._2._1._2,(p._1,(p._2._1._1,p._2._2))))
+          .groupByKey()
+          .collect()
+          .map(p => original.sparkContext.parallelize(p._2.toSeq))
+
+//        val advance_advance = sample_advance.join(otherDP.sample_advance)
 
 
-        val with_sample = sample.join(input2)
-        val with_input2_sample = original.join(otherDP.sample)
-        val samples_join = sample.join(input2_sample)
+        val with_sample = sample
+          .zipWithIndex()
+          .map(p => (p._1._1,(p._1._2,p._2)))
+          .join(input2)
+          .map(p => (p._2._1._2,(p._1,(p._2._1._1,p._2._2))))
+          .groupByKey()
+          .collect()
+          .map(p => original.sparkContext.parallelize(p._2.toSeq))
+        val zipin = otherDP.sample
+          .zipWithIndex()
+          .map(p => (p._1._1,(p._1._2,p._2)))
+        val with_input2_sample = original
+          .join(zipin)
+          .map(p => (p._2._2._2,(p._1,(p._2._1,p._2._2._1))))
+          .groupByKey()
+          .collect()
+          .map(p => original.sparkContext.parallelize(p._2.toSeq))
+//        val samples_join = sample.join(input2_sample)
+
+//        print("array1: ")
+//        with_sample.union(with_input2_sample).union(samples_join).groupByKey.collect().foreach(println)
+//        print("array2: ")
+//          original_advance.union(advance_original).union(advance_advance).groupByKey.collect().foreach(println)
 
         //This is final original result because there is no inter key
         //or intra key combination for join i.e., no over lapping scenario
         //within or between keys
-        new dpobject(with_sample.union(with_input2_sample).union(samples_join),original_advance.union(advance_original).union(advance_advance),joinresult)
+        new dpobjectArray(with_sample ++ with_input2_sample,original_advance ++ advance_original,joinresult)
 
       }
 

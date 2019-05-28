@@ -16,7 +16,7 @@
  */
 
 // scalastyle:off println
-package edu.hku.dp.original
+package edu.hku.dp
 
 import org.apache.spark.{SparkConf, SparkContext}
 import edu.hku.cs.dp.dpread
@@ -49,14 +49,14 @@ object AOLQueryDP {
 
     val dataSet = new dpread(sc.textFile(args(0)),sc.textFile(args(1)))
       .mapDP(p => p.split(' '))
-      .mapDPKV(line => {
+      .mapDP(line => {
       if(line.size <= 3)
-        ((line(0).trim,line(1).trim,line(2).trim),0)
+        0.0
       else
-        ((line(0).trim,line(1).trim,line(2).trim),line(3).trim.toInt)
+        line(3).trim.toDouble
     })
-      .reduceByKeyDP_Int((a, b) => a + b,"AOLQueryDP", args(2).toInt)
-      .collect().foreach(p => println(p._1._1 + "," + p._1._2 + "," + p._1._3 + ":" + p._2))
+      .reduce_and_add_noise_KDE((a, b) => a + b,"AOLQueryDP", args(2).toInt)
+    println("Output: " + dataSet)
     sc.stop()
   }
 }

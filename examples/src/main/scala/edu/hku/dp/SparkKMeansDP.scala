@@ -16,7 +16,7 @@
  */
 
 // scalastyle:off println
-package edu.hku.dp.original
+package edu.hku.dp
 
 import breeze.linalg.{DenseVector, Vector, squaredDistance}
 import edu.hku.cs.dp.dpread
@@ -49,22 +49,12 @@ object SparkKMeansDP {
     bestIndex
   }
 
-  def showWarning() {
-    System.err.println(
-      """WARN: This is a naive implementation of KMeans Clustering and is given as an example!
-        |Please use org.apache.spark.ml.clustering.KMeans
-        |for more conventional use.
-      """.stripMargin)
-  }
-
   def main(args: Array[String]) {
 
     if (args.length < 3) {
       System.err.println("Usage: SparkKMeans <file> <k> <convergeDist>")
       System.exit(1)
     }
-
-    showWarning()
 
     val spark = SparkSession
       .builder
@@ -82,9 +72,10 @@ object SparkKMeansDP {
       Vector(0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5))
 
     //    while(tempDist > convergeDist) {
-    val closest = data.mapDP(p => closestPoint(p, kPoints))
+    val closest = data.mapDPKV(p => (closestPoint(p, kPoints),1.0))
+    val pointStats = closest.reduceByKeyDP_Double((a,b) => a + b)
 
-    closest.collect().foreach(println)
+    println("closest: " + pointStats)
     spark.stop()
   }
 }

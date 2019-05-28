@@ -16,7 +16,7 @@
  */
 
 // scalastyle:off println
-package edu.hku.dp.original
+package edu.hku.dp
 
 import java.util.Random
 
@@ -85,7 +85,7 @@ object SparkHdfsLRDP {
       val gradient = points.mapDP { p =>
         p.x * (1 / (1 + exp(-p.y * (w.dot(p.x)))) - 1) * p.y
       }.reduce_and_add_noise_LR((a,b) => a + b, "SparkHdfsLRDP", args(2).toInt)
-      w -= gradient
+//      w -= gradient
       println("Result: " + gradient)
     }
 

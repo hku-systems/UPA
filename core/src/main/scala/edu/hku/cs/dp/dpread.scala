@@ -31,15 +31,26 @@ class dpread[T: ClassTag](
 //      case a: RDD[Int] =>
     //Normal Sample is ok e.g., tuple
 //        val sample_rate = 1111/main.count()
-        val sampling = main.sparkContext.parallelize(main.takeSample(false, 111))
-        val advance_sampling = advance.sparkContext.parallelize(advance.takeSample(false, 111))
+        val sampling = main.sparkContext.parallelize(main.takeSample(false, 1111))
+        val advance_sampling = advance.sparkContext.parallelize(advance.takeSample(false, 1111))
         new dpobject(sampling.map(f),advance_sampling.map(f),main.subtract(sampling).map(f))
 //    }
   }
 
+  def mapDP[U: ClassTag](f: T => U, rate: Int): dpobject[U]= {
+    //    main match {
+    //      case a: RDD[Int] =>
+    //Normal Sample is ok e.g., tuple
+    //        val sample_rate = 1111/main.count()
+    val sampling = main.sparkContext.parallelize(main.takeSample(false, rate))
+    val advance_sampling = advance.sparkContext.parallelize(advance.takeSample(false, rate))
+    new dpobject(sampling.map(f),advance_sampling.map(f),main.subtract(sampling).map(f))
+    //    }
+  }
+
   def mapDPKV[K: ClassTag,V: ClassTag](f: T => (K,V)): dpobjectKV[K,V]= {
-    val sampling = main.sparkContext.parallelize(main.takeSample(false, 56))
-    val advance_sampling = advance.sparkContext.parallelize(advance.takeSample(false, 56))
+    val sampling = main.sparkContext.parallelize(main.takeSample(false, 1111))
+    val advance_sampling = advance.sparkContext.parallelize(advance.takeSample(false, 1111))
     new dpobjectKV(sampling.map(f).asInstanceOf[RDD[(K,V)]],advance_sampling.map(f).asInstanceOf[RDD[(K,V)]],main.subtract(sampling).map(f).asInstanceOf[RDD[(K,V)]])
   }
 }
