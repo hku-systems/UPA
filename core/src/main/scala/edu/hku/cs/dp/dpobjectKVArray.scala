@@ -87,7 +87,6 @@ class dpobjectKVArray[K, V](var inputsample: Array[RDD[(K, V)]], var inputsample
         new dpobjectArray(with_input2_sample ++ with_sample,original_advance ++ advance_original,joinresult)
       }
 
-
       def joinDP[W](otherDP: dpobjectKVArray[K, W]): dpobjectArray[(K, (V, W))] = {
 
         //No need to care about sample2 join sample1

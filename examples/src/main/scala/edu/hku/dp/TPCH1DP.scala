@@ -54,6 +54,7 @@ object TPCH1DP {
 //      val y = decrease(b._2,b._3)
 //      (a._1 + b._1, a._2 + b._2, a._3 + b._3 , a._4 + b._4, a._5 + b._5, a._6 + b._6)
     }, "TPCH1DP", args(2).toInt)
+    println("Output: " + final_result)
 
 //    final_result.collect().foreach(p => print(p._1._1 + "," + p._1._2 + ":" + p._2._1 + "," + p._2._2 + "," + p._2._3 + "," + p._2._4 + "," + p._2._5 + "," + p._2._6 + "\n"))
 

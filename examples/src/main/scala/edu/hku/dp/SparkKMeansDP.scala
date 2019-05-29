@@ -63,19 +63,39 @@ object SparkKMeansDP {
 
     val lines = new dpread(spark.sparkContext.textFile(args(0)),spark.sparkContext.textFile(args(1)))
     val data = lines.mapDP(parseVector _)
-    val K = 5
+    val convergeDist = args(2).toDouble
+    val K = 2
 
     val kPoints = Array(Vector(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1),
       Vector(0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2),
-      Vector(0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3),
-      Vector(0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4),
-      Vector(0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5))
+      Vector(0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3))
+//      Vector(0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4),
+//      Vector(0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5))
 
     //    while(tempDist > convergeDist) {
-    val closest = data.mapDPKV(p => (closestPoint(p, kPoints),1.0))
-    val pointStats = closest.reduceByKeyDP_Double((a,b) => a + b)
+    var tempDist = 1.0
 
-    println("closest: " + pointStats)
+//    while(tempDist > convergeDist) {
+      val closest = data.mapDPKV(p => (closestPoint(p, kPoints), (p, 1)))
+
+      val pointStats = closest.reduceByKeyDP_KM((a,b) => (a._1 + b._1,a._2 + b._2),"Kmeans",1)
+
+      val newPoints = pointStats.map {pair =>
+        (pair._1, pair._2._1 * (1.0 / pair._2._2))}.collectAsMap()
+
+      tempDist = 0.0
+      for (i <- 0 until K) {
+        tempDist += squaredDistance(kPoints(i), newPoints(i))
+      }
+
+      for (newP <- newPoints) {
+        kPoints(newP._1) = newP._2
+      }
+      println(s"Finished iteration (delta = $tempDist)")
+//    }
+
+    println("Final centers:")
+    kPoints.foreach(println)
     spark.stop()
   }
 }

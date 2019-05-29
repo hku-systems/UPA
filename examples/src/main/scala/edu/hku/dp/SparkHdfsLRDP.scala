@@ -74,7 +74,7 @@ object SparkHdfsLRDP {
     val lines = new dpread(spark.sparkContext.textFile(args(0)),spark.sparkContext.textFile(args(1)))
 
     val points = lines.mapDP(parsePoint)
-    val ITERATIONS = args(1).toInt
+    val ITERATIONS = args(2).toInt
 
     // Initialize w to a random value
     var w = DenseVector(0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0)
@@ -84,9 +84,9 @@ object SparkHdfsLRDP {
       //      println("On iteration " + i)
       val gradient = points.mapDP { p =>
         p.x * (1 / (1 + exp(-p.y * (w.dot(p.x)))) - 1) * p.y
-      }.reduce_and_add_noise_LR((a,b) => a + b, "SparkHdfsLRDP", args(2).toInt)
-//      w -= gradient
-      println("Result: " + gradient)
+      }.reduce_and_add_noise_LR((a,b) => a + b, "SparkHdfsLRDP", args(3).toInt)
+
+      w -= gradient
     }
 
     w.foreach(p => print(p + ","))

@@ -1,7 +1,7 @@
 package edu.hku.cs.dp
 
 import java.util.Random
-
+import breeze.linalg.{DenseVector, Vector}
 import org.apache.spark.SparkContext
 import org.apache.spark.internal.Logging
 import org.apache.spark.rdd.{MapPartitionsRDD, RDD}
@@ -12,7 +12,7 @@ import scala.collection.{Map, mutable}
 import scala.collection.immutable.HashSet
 import scala.reflect.ClassTag
 import scala.collection.mutable.ArrayBuffer
-import scala.math.{pow,log,exp}
+import scala.math.{exp, log, pow}
 
 /**
   * Created by lionon on 10/22/18.
@@ -265,85 +265,67 @@ var array = reduceDP(f).asInstanceOf[(Array[RDD[Double]],Array[RDD[Double]],Doub
   array._3.asInstanceOf[T] //sensitivity
 }
 
-  def reduce_and_add_noise_LR(f: (T, T) => T, app_name: String, k_dis: Int): T = {
+  def reduce_and_add_noise_LR(f: (T, T) => T, app_name: String, k_dist: Int): T = {
     //computin candidates of smooth sensitivity
 
-    val array = reduceDP(f)
-//    val b_result = array._1.head.sparkContext.broadcast(array._3)
-//    var a1_length = array._1.length
-//    array._3.asInstanceOf[T] //sensitivity
+    val array = reduceDP(f).asInstanceOf[(Array[RDD[Vector[Double]]], Array[RDD[Vector[Double]]], Vector[Double])]
+    var a1_length = array._1.length
+    var a2_length = array._2.length
+    val result_length = array._3.length
+    //    array._3.asInstanceOf[T] //sensitivity
 
-//    var neigbour_local_senstivity = new Array[Vector[Double]](a1_length)
-//    for(a1 <- 0 until a1_length) {
-//      val p = array._1(a1)
-//      val max = p.reduce((a, b) => {
-//        val zip = a.zip(b)
-//        val ar_size = zip.size
-//        val return_ar_max = new Vector[Double]()
-//        for (j <- 0 until zip.size) {
-//          return_ar_max :+ scala.math.max(scala.math.abs(zip(j) - b_result.value(j)), scala.math.abs(zip(j) - b_result.value(j)))
-//        }
-//        return_ar_max
-//      })
-//
-//      val min = p.reduce((a, b) => {
-//        val zip = a.zip(b)
-//        val ar_size = zip.size
-//        val return_ar_min = new Vector[Double]()
-//        for (j <- 0 until zip.size) {
-//          return_ar_min :+ scala.math.min(scala.math.abs(zip(j) - b_result.value(j)), scala.math.abs(zip(j) - b_result.value(j)))
-//        }
-//        return_ar_min
-//      })
-//
-//      val mean =
-//
-//
-//        val mean = p.mean
-//        val sd = p.stdev
-//        val counting = p.count()
-//        println(app_name + "," + k_dist + "," + ((a1 + 1) * (-1)) + "," + mean + "," + sd + "," + counting)
-//        neigbour_local_senstivity(a1) = scala.math.max(scala.math.abs(max - array._3), scala.math.abs(min - array._3))
-//      }
-//      else {
-//        println(app_name + "," + k_dist + "," + ((a1 + 1) * (-1)) + "," + array._3 + "," + 0 + "," + 0)
-//        neigbour_local_senstivity(a1) = 0.0
-//      }
-//    }
-//
-//    var a2_length = array._2.length
-//    var neigbour_local_advance_senstivity = new Array[Double](a2_length)
-//    for(a2 <- 0 until a2_length)
-//    {
-//      val p = array._2(a2)
-//      if(!p.isEmpty) {
-//        val max = p.max
-//        val min = p.min
-//        val mean = p.mean
-//        val sd = p.stdev
-//        val counting = p.count()
-//        println(app_name + "," + k_dist + "," + (a2 + 1) + "," + mean + "," + sd + "," + counting)
-//        neigbour_local_advance_senstivity(a2) = scala.math.max(scala.math.abs(max - array._3), scala.math.abs(min - array._3))
-//      }
-//      else {
-//        println(app_name + "," + k_dist + "," + (a2 + 1) + "," + array._3 + "," + 0 + "," + 0)
-//        neigbour_local_advance_senstivity(a2) = 0.0
-//      }
-//    }
-//
-//
-//    var max_nls = 0.0
-//    for (i <- 0 until neigbour_local_senstivity.length) {
-//      neigbour_local_senstivity(i) = neigbour_local_senstivity(i)*exp(-beta*(i+1))
-//      if(neigbour_local_senstivity(i) > max_nls)
-//        max_nls = neigbour_local_senstivity(i)
-//    }
-//
-//    for (i <- 0 until neigbour_local_advance_senstivity.length) {
-//      neigbour_local_advance_senstivity(i) = neigbour_local_advance_senstivity(i)*exp(-beta*(i+1))
-//      if(neigbour_local_advance_senstivity(i) > max_nls)
-//        max_nls = neigbour_local_advance_senstivity(i)
-//    }
+    var neigbour_local_senstivity = new Array[Array[Double]](a1_length)
+    var neigbour_local_advance_senstivity = new Array[Array[Double]](a2_length)
+
+    for(vc <- 0 until a1_length){
+      neigbour_local_senstivity(vc) = new Array[Double](result_length)
+      neigbour_local_advance_senstivity(vc) = new Array[Double](result_length)
+    }
+
+    for (v1 <- 0 until result_length) {
+      val b_v1 = original.sparkContext.broadcast(v1)
+      for (a1 <- 0 until a1_length) {
+        val p = array._1(a1).map(q => q(b_v1.value))
+        val max = p.max
+        val min = p.min
+        val mean = p.mean
+        val sd = p.stdev
+        val counting = p.count()
+        println(app_name + "," + k_dist + "," + ((a1 + 1) * (-1)) + "," + mean + "," + sd + "," + counting)
+        neigbour_local_senstivity(a1)(v1) = scala.math.max(scala.math.abs(max - array._3(v1)), scala.math.abs(min - array._3(v1)))
+      }
+
+      var a2_length = array._2.length
+      for(a2 <- 0 until a2_length)
+      {
+        val p = array._2(a2).map(q => q(b_v1.value))
+          val max = p.max
+          val min = p.min
+          val mean = p.mean
+          val sd = p.stdev
+          val counting = p.count()
+          println(app_name + "," + k_dist + "," + (a2 + 1) + "," + mean + "," + sd + "," + counting)
+          neigbour_local_advance_senstivity(a2)(v1) =  scala.math.max(scala.math.abs(max - array._3(v1)), scala.math.abs(min - array._3(v1)))
+      }
+    }
+
+    for (i <- 0 until neigbour_local_senstivity.length) {
+      neigbour_local_senstivity(i) = neigbour_local_senstivity(i).map(p => p*exp(-beta*(i+1)))
+    }
+
+    for (i <- 0 until neigbour_local_advance_senstivity.length) {
+      neigbour_local_advance_senstivity(i) = neigbour_local_advance_senstivity(i).map(p => p*exp(-beta*(i+1)))
+    }
+    val final_sensitivity = (neigbour_local_senstivity ++ neigbour_local_advance_senstivity).reduce((a,b) => {
+      val v_length = a.length
+      val new_v = new Array[Double](v_length)
+      for(v2 <- 0 until v_length)
+        {
+          new_v(v2) = scala.math.max(a(v2),b(v2))
+        }
+      new_v
+    })
+    array._3.asInstanceOf[T]
   }
 
 def filterDP(f: T => Boolean) : dpobject[T] = {
