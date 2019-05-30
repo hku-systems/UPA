@@ -51,8 +51,10 @@ class dpobjectArray[T: ClassTag](
 
     val result = original.reduce(f)
     val filtered_sample = sample.filter(p => !p.isEmpty)
+    var aggregatedResult = reduce(f),result
+    if(filtered_sample.length > 0)
+       aggregatedResult = f(filtered_sample.map(p => p.reduce(f)).reduce(f),result)//get the aggregated result
     val filtered_sample_advance = sample_advance.filter(p => !p.isEmpty)
-    val aggregatedResult = f(filtered_sample.map(p => p.reduce(f)).reduce(f),result)//get the aggregated result
     val broadcast_result = original.sparkContext.broadcast(result)
     val broadcast_aggregatedResult = original.sparkContext.broadcast(aggregatedResult)
 
