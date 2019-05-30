@@ -270,7 +270,10 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
 
             for(vc <- 0 until a1_length){
               neigbour_local_senstivity(vc) = new Array[Double](result_length)
-              neigbour_local_advance_senstivity(vc) = new Array[Double](result_length)
+            }
+
+            for(vca <- 0 until a2_length) {
+              neigbour_local_advance_senstivity(vca) = new Array[Double](result_length)
             }
 
             for (v1 <- 0 until result_length) {
