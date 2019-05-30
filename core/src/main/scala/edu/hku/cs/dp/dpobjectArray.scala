@@ -127,7 +127,10 @@ class dpobjectArray[T: ClassTag](
       if(sample_advance_count == 0)
         array_advance(0) = original.sparkContext.parallelize(Seq(aggregatedResult))
       else
+        if(!sample_advance.head.isEmpty())
         array_advance(0) = original.sparkContext.parallelize(Seq(f(aggregatedResult,sample_advance.head.reduce(f))))
+        else
+        array_advance(0) = original.sparkContext.parallelize(Seq(aggregatedResult))
     }
     else {
       if(sample_advance_count <= k_distance - 1)

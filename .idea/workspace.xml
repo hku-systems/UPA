@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b6c26e8f-5fd4-49bb-a67f-abef29b066ee" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/examples/src/main/scala/edu/hku/dp/TPCH21DP.scala" beforeDir="false" afterPath="$PROJECT_DIR$/examples/src/main/scala/edu/hku/dp/TPCH21DP.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/scala/edu/hku/cs/dp/dpobjectArray.scala" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/scala/edu/hku/cs/dp/dpobjectArray.scala" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/target/" />
@@ -58,73 +58,10 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/core/src/main/scala/edu/hku/cs/dp/dpobjectKV.scala">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="307">
-              <caret line="584" selection-start-line="584" selection-end-line="584" />
-              <folding>
-                <element signature="e#23#63#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/core/src/main/scala/edu/hku/cs/dp/dpobjectArray.scala">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="193">
-              <caret line="54" column="34" lean-forward="true" selection-start-line="54" selection-start-column="34" selection-end-line="54" selection-end-column="34" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/core/src/main/scala/edu/hku/cs/dp/dpobject.scala">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-120">
-              <caret line="64" selection-start-line="64" selection-end-line="64" />
-              <folding>
-                <element signature="e#23#46#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/examples/src/main/scala/edu/hku/dp/TPCH21DP.scala">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="420">
-              <caret line="46" column="33" selection-start-line="46" selection-start-column="33" selection-end-line="46" selection-end-column="33" />
-              <folding>
-                <element signature="e#20#47#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/send_data6.sh">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="210">
-              <caret line="14" column="61" lean-forward="true" selection-start-line="14" selection-start-column="61" selection-end-line="14" selection-end-column="61" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/gen_data.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="90">
-              <caret line="10" column="23" lean-forward="true" selection-start-line="10" selection-start-column="23" selection-end-line="10" selection-end-column="23" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/examples/src/main/scala/edu/hku/dp/SparkHdfsLRDP.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="266">
-              <caret line="83" column="36" lean-forward="true" selection-start-line="83" selection-start-column="36" selection-end-line="83" selection-end-column="36" />
+            <state relative-caret-position="346">
+              <caret line="91" selection-start-line="91" selection-start-column="33" selection-end-line="92" selection-end-column="16" />
               <folding>
                 <element signature="e#848#871#0" expanded="true" />
               </folding>
@@ -133,29 +70,33 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/examples/src/main/scala/edu/hku/dp/SparkKMeansDP.scala">
+        <entry file="file://$PROJECT_DIR$/examples/src/main/scala/edu/hku/dp/original/TPCH16.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="120">
-              <caret line="64" column="40" selection-start-line="64" selection-start-column="40" selection-end-line="64" selection-end-column="40" />
+            <state relative-caret-position="346">
+              <caret line="60" column="38" lean-forward="true" selection-start-line="60" selection-start-column="38" selection-end-line="60" selection-end-column="38" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/core/src/main/scala/edu/hku/cs/dp/dpobjectArray.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="216">
+              <caret line="132" column="83" lean-forward="true" selection-start-line="132" selection-start-column="83" selection-end-line="132" selection-end-column="83" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/examples/src/main/scala/edu/hku/dp/original/TPCH21.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="391">
+              <caret line="82" column="44" selection-start-line="82" selection-start-column="44" selection-end-line="82" selection-end-column="44" />
               <folding>
-                <element signature="e#848#907#0" expanded="true" />
+                <element signature="e#20#47#0" expanded="true" />
               </folding>
             </state>
           </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/sync.sh">
-          <provider selected="true" editor-type-id="text-editor">
-            <state>
-              <caret line="9" column="130" lean-forward="true" selection-start-line="9" selection-start-column="130" selection-end-line="9" selection-end-column="130" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/send_data.sh">
-          <provider selected="true" editor-type-id="text-editor" />
         </entry>
       </file>
     </leaf>
@@ -261,8 +202,8 @@
         <option value="$PROJECT_DIR$/gen_data.py" />
         <option value="$PROJECT_DIR$/core/src/main/scala/edu/hku/cs/dp/dpobject.scala" />
         <option value="$PROJECT_DIR$/core/src/main/scala/edu/hku/cs/dp/dpobjectKV.scala" />
-        <option value="$PROJECT_DIR$/core/src/main/scala/edu/hku/cs/dp/dpobjectArray.scala" />
         <option value="$PROJECT_DIR$/examples/src/main/scala/edu/hku/dp/TPCH21DP.scala" />
+        <option value="$PROJECT_DIR$/core/src/main/scala/edu/hku/cs/dp/dpobjectArray.scala" />
       </list>
     </option>
   </component>
@@ -482,7 +423,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="337168000" />
+    <option name="totallyTimeSpent" value="337352000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -495,8 +436,9 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="139" y="23" width="1191" height="773" extended-state="0" />
+    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.20974761" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.19060053" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Designer" order="2" />
       <window_info id="Image Layers" order="3" />
@@ -510,7 +452,7 @@
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32599118" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="7" visible="true" weight="0.20264317" />
+      <window_info anchor="bottom" id="Terminal" order="7" visible="true" weight="0.20264317" />
       <window_info anchor="bottom" id="Docker" order="8" show_stripe_button="false" />
       <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.50489235" side_tool="true" weight="0.20264317" />
       <window_info anchor="bottom" id="Messages" order="10" weight="0.32892805" />
@@ -651,8 +593,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/examples/src/main/scala/edu/hku/dp/original/TPCH16.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="275">
-          <caret line="49" selection-start-line="49" selection-end-line="53" />
+        <state relative-caret-position="346">
+          <caret line="60" column="38" lean-forward="true" selection-start-line="60" selection-start-column="38" selection-end-line="60" selection-end-column="38" />
         </state>
       </provider>
     </entry>
@@ -688,9 +630,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="379">
           <caret line="50" column="37" selection-start-line="50" selection-start-column="37" selection-end-line="50" selection-end-column="37" />
-          <folding>
-            <marker date="1559110593000" expanded="true" signature="446:447" ph="..." />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -724,8 +663,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/examples/src/main/scala/edu/hku/dp/original/TPCH21.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="23" column="23" selection-start-line="23" selection-start-column="23" selection-end-line="23" selection-end-column="23" />
+        <state relative-caret-position="391">
+          <caret line="82" column="44" selection-start-line="82" selection-start-column="44" selection-end-line="82" selection-end-column="44" />
           <folding>
             <element signature="e#20#47#0" expanded="true" />
           </folding>
@@ -824,8 +763,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/examples/src/main/scala/edu/hku/dp/SparkHdfsLRDP.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="266">
-          <caret line="83" column="36" lean-forward="true" selection-start-line="83" selection-start-column="36" selection-end-line="83" selection-end-column="36" />
+        <state relative-caret-position="346">
+          <caret line="91" selection-start-line="91" selection-start-column="33" selection-end-line="92" selection-end-column="16" />
           <folding>
             <element signature="e#848#871#0" expanded="true" />
           </folding>
@@ -876,13 +815,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/main/scala/edu/hku/cs/dp/dpobjectArray.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="193">
-          <caret line="54" column="34" lean-forward="true" selection-start-line="54" selection-start-column="34" selection-end-line="54" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/examples/src/main/scala/edu/hku/dp/TPCH21DP.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="420">
@@ -890,6 +822,13 @@
           <folding>
             <element signature="e#20#47#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/main/scala/edu/hku/cs/dp/dpobjectArray.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="216">
+          <caret line="132" column="83" lean-forward="true" selection-start-line="132" selection-start-column="83" selection-end-line="132" selection-end-column="83" />
         </state>
       </provider>
     </entry>
