@@ -20,15 +20,15 @@ object ttest {
       .builder
       .appName("Ttest")
       .getOrCreate()
-    val p_values = spark.sparkContext.textFile(args(0))
-      .map(_.split(','))
-      .map(p =>
-        (p(0).trim, p(1).trim.toInt, p(2).trim.toInt, p(3).trim.toDouble, p(4).trim.toDouble, p(5).trim.toInt))
-      //query name, dataset distance, self distance, mean, sd, count
-      .filter(_._11 < "1998-09-02")
-      .map(p => {
-        val inter = decrease(p._6,p._7)
-        inter
-      })
+//    val p_values = spark.sparkContext.textFile(args(0))
+//      .map(_.split(','))
+//      .map(p =>
+//        (p(0).trim, p(1).trim.toInt, p(2).trim.toInt, p(3).trim.toDouble, p(4).trim.toDouble, p(5).trim.toInt))
+//      //query name, dataset distance, self distance, mean, sd, count
+//      .filter(_._11 < "1998-09-02")
+//      .map(p => {
+//        val inter = decrease(p._6,p._7)
+//        inter
+//      })
   }
 }
