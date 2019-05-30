@@ -47,12 +47,8 @@ class dpobject[T: ClassTag](
     val t1 = System.nanoTime
     //original
     val r1 = inputsample.map(f)
-    val r3 = inputoriginal.map(f)
-
-    val d2 = (System.nanoTime - t1) / 1e9d
-    print("map-Original: " + d2)
-
     val r2 = sample_advance.map(f)
+    val r3 = inputoriginal.map(f)
     val d1 = (System.nanoTime - t1) / 1e9d
         print("mapDP: " + d1)
     new dpobject(r1,r2,r3)
@@ -62,14 +58,10 @@ class dpobject[T: ClassTag](
     val t1 = System.nanoTime
     //original
     val r1 = inputsample.map(f).asInstanceOf[RDD[(K,V)]]
-    val r3 = inputoriginal.map(f).asInstanceOf[RDD[(K,V)]]
-
-    val d2 = (System.nanoTime - t1) / 1e9d
-    print("map-Original: " + d2)
-
     val r2 = sample_advance.map(f).asInstanceOf[RDD[(K,V)]]
+    val r3 = inputoriginal.map(f).asInstanceOf[RDD[(K,V)]]
     val d1 = (System.nanoTime - t1) / 1e9d
-    print("mapDPKV: " + d1)
+    print("mapDP: " + d1)
     new dpobjectKV(r1,r2,r3)
   }
 
@@ -78,13 +70,8 @@ class dpobject[T: ClassTag](
     val t1 = System.nanoTime
 
     val result = original.reduce(f)
-
-    //original
-    val aggregatedResult = f(sample.reduce(f),result)//get the aggregated result
-    val d2 = (System.nanoTime - t1) / 1e9d
-    print("reduce-Original: " + d2)
-
     val broadcast_result = original.sparkContext.broadcast(result)
+    val aggregatedResult = f(sample.reduce(f),result)//get the aggregated result
     val broadcast_aggregatedResult = original.sparkContext.broadcast(aggregatedResult)
 
     //    val inner = new ArrayBuffer[V]
@@ -198,45 +185,6 @@ def reduce_and_add_noise_KDE(f: (T, T) => T, app_name: String, k_dist: Int): T =
   //computin candidates of smooth sensitivity
 var array = reduceDP(f).asInstanceOf[(Array[RDD[Double]],Array[RDD[Double]],Double)]
 
-  //    //**********Testing***************
-  //    println("Verifying correctness")
-  //    for(i <- 0 until array._1.length)
-  //    {
-  //      println("distance is: " + (i+1))
-  //      var min = (i+1).toDouble
-  //      val array_collect = array._1(i).sortBy(p => p).collect()
-  //      for(ii <- 0 until array_collect.length-1)
-  //        {
-  //          val diff = array_collect(ii+1) - array_collect(ii)
-  //          if(diff < min)
-  //            {
-  //              println("array_collect(ii+1): " + array_collect(ii+1))
-  //              println("array_collect(ii): " + array_collect(ii))
-  //              min = diff
-  //            }
-  //        }
-  //      println("min distance is: " + min)
-  //    }
-  //
-  //    println("Verifying correctness")
-  //    for(i <- 0 until array._2.length)
-  //    {
-  //      println("distance is: " + (i+1))
-  //      var min = (i+1).toDouble
-  //      val array_collect = array._1(i).sortBy(p => p).collect()
-  //      for(ii <- 0 until array_collect.length-1)
-  //      {
-  //        val diff = array_collect(ii+1) - array_collect(ii)
-  //        if(diff < min)
-  //          {
-  //            println("array_collect(ii+1): " + array_collect(ii+1))
-  //            println("array_collect(ii): " + array_collect(ii))
-  //            min = diff
-  //          }
-  //      }
-  //      println("min distance is: " + min)
-  //    }
-  //    //**********Testing***************
   val t1 = System.nanoTime
   var a1_length = array._1.length
   var neigbour_local_senstivity = new Array[Double](a1_length)
@@ -292,7 +240,7 @@ var array = reduceDP(f).asInstanceOf[(Array[RDD[Double]],Array[RDD[Double]],Doub
       max_nls = neigbour_local_advance_senstivity(i)
   }
   val d1 = (System.nanoTime - t1) / 1e9d
-  print("smooth sensitivity: " + d1)
+  print("Calsensitivity: " + d1)
   array._3.asInstanceOf[T] //sensitivity
 }
 
@@ -358,7 +306,7 @@ var array = reduceDP(f).asInstanceOf[(Array[RDD[Double]],Array[RDD[Double]],Doub
       new_v
     })
     val d1 = (System.nanoTime - t1) / 1e9d
-    print("smooth sensitivity: " + d1)
+    print("Calsensitivity: " + d1)
     array._3.asInstanceOf[T]
   }
 
@@ -367,12 +315,8 @@ def filterDP(f: T => Boolean) : dpobject[T] = {
   val t1 = System.nanoTime
   //original
   val r1 = inputsample.filter(f)
-  val r3 = inputoriginal.filter(f)
-
-  val d1 = (System.nanoTime - t1) / 1e9d
-  print("filter_Original: " + d1)
-
   val r2 = inputsample_advance.filter(f)
+  val r3 = inputoriginal.filter(f)
 
   val d2 = (System.nanoTime - t2) / 1e9d
   print("filterDP: " + d2)

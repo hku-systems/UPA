@@ -240,7 +240,7 @@ var array = reduceDP(f).asInstanceOf[(Array[RDD[Double]],Array[RDD[Double]],Doub
       max_nls = neigbour_local_advance_senstivity(i)
   }
   val duration = (System.nanoTime - t1) / 1e9d
-  print("smooth sensitivity: " + duration)
+  print("Calsensitivity: " + duration)
   array._3.asInstanceOf[T] //sensitivity
 }
 
