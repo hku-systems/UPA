@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="b6c26e8f-5fd4-49bb-a67f-abef29b066ee" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/src/main/scala/edu/hku/dp/ttest.scala" beforeDir="false" afterPath="$PROJECT_DIR$/examples/src/main/scala/edu/hku/dp/ttest.scala" afterDir="false" />
-    </list>
+    <list default="true" id="b6c26e8f-5fd4-49bb-a67f-abef29b066ee" name="Default Changelist" comment="" />
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/target/" />
     <ignored path="$PROJECT_DIR$/common/sketch/target/" />
@@ -133,8 +130,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/examples/src/main/scala/edu/hku/dp/ttest.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="285">
-              <caret line="22" selection-start-line="22" selection-start-column="2" selection-end-line="31" selection-end-column="10" />
+            <state relative-caret-position="225">
+              <caret line="18" column="28" lean-forward="true" selection-start-line="18" selection-start-column="28" selection-end-line="18" selection-end-column="28" />
             </state>
           </provider>
         </entry>
@@ -272,9 +269,9 @@
     </treeState>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="89" />
+    <option name="x" value="204" />
     <option name="y" value="23" />
-    <option name="width" value="1191" />
+    <option name="width" value="1076" />
     <option name="height" value="773" />
   </component>
   <component name="ProjectView">
@@ -484,7 +481,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="340895000" />
+    <option name="totallyTimeSpent" value="341547000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -496,10 +493,10 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="89" y="23" width="1191" height="773" extended-state="0" />
+    <frame x="204" y="23" width="1076" height="773" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.24020888" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.15860735" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Designer" order="2" />
       <window_info id="Image Layers" order="3" />
@@ -508,14 +505,14 @@
       <window_info id="Favorites" order="6" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" sideWeight="0.49919224" weight="0.32892805" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49510762" visible="true" weight="0.15418503" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49510762" weight="0.15418503" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32599118" />
-      <window_info anchor="bottom" id="Terminal" order="7" weight="0.20264317" />
+      <window_info anchor="bottom" id="Terminal" order="7" sideWeight="0.49613154" visible="true" weight="0.20264317" />
       <window_info anchor="bottom" id="Docker" order="8" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.50489235" side_tool="true" weight="0.20264317" />
+      <window_info active="true" anchor="bottom" id="Event Log" order="9" sideWeight="0.50386846" side_tool="true" visible="true" weight="0.20264317" />
       <window_info anchor="bottom" id="Messages" order="10" weight="0.32892805" />
       <window_info anchor="bottom" id="Java Enterprise" order="11" weight="0.32822084" />
       <window_info anchor="bottom" id="Database Changes" order="12" />
@@ -526,7 +523,7 @@
       <window_info anchor="right" id="Maven" order="3" weight="0.32956383" />
       <window_info anchor="right" id="Palette" order="4" />
       <window_info anchor="right" id="Capture Analysis" order="5" />
-      <window_info anchor="right" id="Database" order="6" visible="true" weight="0.06266318" />
+      <window_info anchor="right" id="Database" order="6" visible="true" weight="0.06963249" />
       <window_info anchor="right" id="Palette&#9;" order="7" />
       <window_info anchor="right" id="Theme Preview" order="8" />
       <window_info anchor="right" id="Bean Validation" order="9" />
@@ -894,8 +891,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/examples/src/main/scala/edu/hku/dp/ttest.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="285">
-          <caret line="22" selection-start-line="22" selection-start-column="2" selection-end-line="31" selection-end-column="10" />
+        <state relative-caret-position="225">
+          <caret line="18" column="28" lean-forward="true" selection-start-line="18" selection-start-column="28" selection-end-line="18" selection-end-column="28" />
         </state>
       </provider>
     </entry>
