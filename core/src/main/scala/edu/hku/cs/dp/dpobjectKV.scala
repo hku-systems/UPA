@@ -264,6 +264,8 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
             val a1_length = sample_l.length
             val a2_length = sample_a.length
             val result_length = result.take(1).head._2._1.length
+            println("a1_length is : " + a1_length)
+            println("a2_length is : " + a2_length)
 
             var neigbour_local_senstivity = new Array[Array[Double]](a1_length)
             var neigbour_local_advance_senstivity = new Array[Array[Double]](a2_length)
@@ -282,25 +284,37 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
               val b_v1 = original.sparkContext.broadcast(v1)
               for (a1 <- 0 until a1_length) {
                 val p = sample_l(a1).map(x => x._1(b_v1.value)/x._2)
-                val max = p.max
-                val min = p.min
-                val mean = p.mean
-                val sd = p.stdev
-                val counting = p.count()
-                println(app_name + "," + k_dist + "," + ((a1 + 1) * (-1)) + "," + mean + "," + sd + "," + counting)
-                neigbour_local_senstivity(a1)(v1) = scala.math.max(scala.math.abs(max - value_of_key(v1)), scala.math.abs(min - value_of_key(v1)))
+                if(!p.isEmpty()) {
+                  val max = p.max
+                  val min = p.min
+                  val mean = p.mean
+                  val sd = p.stdev
+                  val counting = p.count()
+                  println(app_name + "," + k_dist + "," + ((a1 + 1) * (-1)) + "," + mean + "," + sd + "," + counting)
+                  neigbour_local_senstivity(a1)(v1) = scala.math.max(scala.math.abs(max - value_of_key(v1)), scala.math.abs(min - value_of_key(v1)))
+                }
+                else {
+                    println(app_name + "," + k_dist + "," + ((a1 + 1) * (-1)) + "," + 0.0 + "," + 0.0 + "," + 0)
+                    neigbour_local_senstivity(a1)(v1) = 0.0
+                  }
               }
 
               for(a2 <- 0 until a2_length)
               {
                 val p = sample_a(a2).map(x => x._1(b_v1.value)/x._2)
+                if(!p.isEmpty()) {
                   val max = p.max
                   val min = p.min
                   val mean = p.mean
                   val sd = p.stdev
                   val counting = p.count()
                   println(app_name + "," + k_dist + "," + (a2 + 1) + "," + mean + "," + sd + "," + counting)
-                  neigbour_local_advance_senstivity(a2)(v1) =  scala.math.max(scala.math.abs(max - value_of_key(v1)), scala.math.abs(min - value_of_key(v1)))
+                  neigbour_local_advance_senstivity(a2)(v1) = scala.math.max(scala.math.abs(max - value_of_key(v1)), scala.math.abs(min - value_of_key(v1)))
+                }
+                else {
+                  println(app_name + "," + k_dist + "," + (a2 + 1) + "," + 0.0 + "," + 0.0 + "," + 0)
+                  neigbour_local_advance_senstivity(a2)(v1) = 0.0
+                }
               }
             }
 
@@ -571,20 +585,4 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
         new dpobjectArray(with_sample ++ with_input2_sample,original_advance ++ advance_original,joinresult)
 
       }
-
-//      def joinDP[W](otherDP: RDD[K, W]): dpobject[(K, (V, W))] = {
-//
-//        val input2 = otherDP
-//        val joinresult = original.join(input2)
-//
-//
-//        val with_sample = sample.join(input2)
-//        //This is final original result because there is no inter key
-//        //or intra key combination for join i.e., no over lapping scenario
-//        //within or between keys
-//        new dpobject(with_sample,joinresult)
-//
-//      }
-
-
 }
