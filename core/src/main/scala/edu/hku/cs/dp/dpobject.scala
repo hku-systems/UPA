@@ -44,7 +44,13 @@ class dpobject[T: ClassTag](
     inputsample.partitions
 
   def mapDP[U: ClassTag](f: T => U): dpobject[U]= {
-    new dpobject(inputsample.map(f),sample_advance.map(f),inputoriginal.map(f))
+//    val t1 = System.nanoTime
+    val r1 = inputsample.map(f)
+    val r2 = sample_advance.map(f)
+//    val duration = (System.nanoTime - t1) / 1e9d
+//    print("Sample: " + duration)
+    val r3 = inputoriginal.map(f)
+    new dpobject(r1,r2,r3)
   }
 
   def mapDPKV[K: ClassTag,V: ClassTag](f: T => (K,V)): dpobjectKV[K,V]= {

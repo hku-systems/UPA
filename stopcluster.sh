@@ -1,5 +1,6 @@
 #!/bin/bash
 
+./sbin/stop-master.sh
 ssh john@10.22.1.1 "./AutoDP/sbin/stop-slave.sh spark://10.22.1.3:$c"
 ssh john@10.22.1.2 "./AutoDP/sbin/stop-slave.sh spark://10.22.1.3:$c"
 #ssh john@10.22.1.3 "./AutoDP/sbin/stop-slave.sh spark://10.22.1.3:$c"
