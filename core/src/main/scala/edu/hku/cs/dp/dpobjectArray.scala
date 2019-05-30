@@ -35,20 +35,38 @@ class dpobjectArray[T: ClassTag](
     inputoriginal.partitions
 
   def mapDP[U: ClassTag](f: T => U): dpobjectArray[U]= {
-    new dpobjectArray(inputsample.map(p => p.map(f)),sample_advance.map(p => p.map(f)),inputoriginal.map(f))
+    val t1 = System.nanoTime
+    val r1 = inputsample.map(p => p.map(f))
+    val r2 = sample_advance.map(p => p.map(f))
+    val r3 = inputoriginal.map(f)
+    val duration = (System.nanoTime - t1) / 1e9d
+    print("mapDP: " + duration)
+    new dpobjectArray(r1,r2,r3)
   }
 
   def mapDPKV[K: ClassTag,V: ClassTag](f: T => (K,V)): dpobjectKVArray[K,V]= {
-    new dpobjectKVArray(inputsample.map(p => p.map(f)).asInstanceOf[Array[RDD[(K,V)]]],sample_advance.map(p => p.map(f)).asInstanceOf[Array[RDD[(K,V)]]],inputoriginal.map(f).asInstanceOf[RDD[(K,V)]])
+    val t1 = System.nanoTime
+    val r1 = inputsample.map(p => p.map(f)).asInstanceOf[Array[RDD[(K,V)]]]
+    val r2 = sample_advance.map(p => p.map(f)).asInstanceOf[Array[RDD[(K,V)]]]
+    val r3 = inputoriginal.map(f).asInstanceOf[RDD[(K,V)]]
+    val duration = (System.nanoTime - t1) / 1e9d
+    print("mapDP: " + duration)
+    new dpobjectKVArray(r1,r2,r3)
   }
 
   def filterDP(f: T => Boolean) : dpobjectArray[T] = {
-    new dpobjectArray(inputsample.map(p => p.filter(f)),inputsample_advance.map(p => p.filter(f)),inputoriginal.filter(f))
+    val t1 = System.nanoTime
+    val r1 = inputsample.map(p => p.filter(f))
+    val r2 = inputsample_advance.map(p => p.filter(f))
+    val r3 = inputoriginal.filter(f)
+    val duration = (System.nanoTime - t1) / 1e9d
+    print("filterDP: " + duration)
+    new dpobjectArray(r1,r2,r3)
   }
 
   def reduceDP(f: (T, T) => T) : (Array[RDD[T]],Array[RDD[T]],T) = {
     //The "sample" field carries the aggregated result already
-
+    val t1 = System.nanoTime
     val result = original.reduce(f)
     val filtered_sample = sample.filter(p => !p.isEmpty)
     val filtered_sample_advance = sample_advance.filter(p => !p.isEmpty)
@@ -158,12 +176,15 @@ class dpobjectArray[T: ClassTag](
         i = i + 1
       }
     }
+    val duration = (System.nanoTime - t1) / 1e9d
+    print("reduceDP: " + duration)
     (array,array_advance,aggregatedResult)
   }
 
 def reduce_and_add_noise_KDE(f: (T, T) => T, app_name: String, k_dist: Int): T = {
   //computin candidates of smooth sensitivity
 var array = reduceDP(f).asInstanceOf[(Array[RDD[Double]],Array[RDD[Double]],Double)]
+  val t1 = System.nanoTime
 
   var a1_length = array._1.length
   var neigbour_local_senstivity = new Array[Double](a1_length)
@@ -218,7 +239,8 @@ var array = reduceDP(f).asInstanceOf[(Array[RDD[Double]],Array[RDD[Double]],Doub
     if(neigbour_local_advance_senstivity(i) > max_nls)
       max_nls = neigbour_local_advance_senstivity(i)
   }
-
+  val duration = (System.nanoTime - t1) / 1e9d
+  print("smooth sensitivity: " + duration)
   array._3.asInstanceOf[T] //sensitivity
 }
 

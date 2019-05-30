@@ -30,8 +30,13 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
       //because collect then parallelise requires more rtt and sorting
       def reduceByKeyDP_deep(func: (V, V) => V): (Array[(K,Array[RDD[V]])],Array[(K,Array[RDD[V]])],RDD[(K,V)]) = {
 //reduce shuffle, use map rather than reduce/reduceByKey
+        val t1 = System.nanoTime
         val originalresult = inputoriginal.reduceByKey(func)//Reduce original first
         val aggregatedResult = originalresult.union(sample).reduceByKey(func)
+
+        val d2 = (System.nanoTime - t1) / 1e9d
+        print("reduceByKey-Original: " + d2)
+
         val broadcast_result = original.sparkContext.broadcast(originalresult.collect().toMap)
 
 //        val broadcast_aggregatedResult = original.sparkContext.broadcast(aggregatedResult.collect())
@@ -157,12 +162,14 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
             (p._1,array_advance)
           }
         })
-
+        val d1 = (System.nanoTime - t1) / 1e9d
+        print("reduceByKeyDP: " + d1)
           (nighnouring_output,nighnouring_advance_output,aggregatedResult)
         }
 
       def reduceByKeyDP_Int(func: (V, V) => V, app_name: String, k_dist: Int): RDD[(K,V)] = {
         val array = reduceByKeyDP_deep(func)
+        val t1 = System.nanoTime
         var meta_minus_outer = new Array[(K,Array[String])](array._1.length)
         var minus_outer_count = 0
         val ls = array._1.map(p => {//each key
@@ -246,14 +253,15 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
         val sensitivity_array = ls ++ ls_advance
         val sensitivity = array._2.head._2.head.sparkContext.parallelize(sensitivity_array)
           .reduceByKey((a,b) => scala.math.max(a,b))
-
+        val d1 = (System.nanoTime - t1) / 1e9d
+        print("smooth sensitivity: " + d1)
         array._3
       }
 
       def reduceByKeyDP_KM(func: (V, V) => V, app_name: String, k_dist: Int): RDD[(K,V)] = {
 
         val array = reduceByKeyDP_deep(func)
-
+        val t1 = System.nanoTime
           val entire = (array._1 ++ array._2).groupBy(_._1)
           val pairing = entire.map(q => {//for each k
             println("How many array are there: " + q._2.length)
@@ -320,12 +328,15 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
             (q._1,final_sensitivity)
             println("Sensitivity key is: " + q._1 + " and final sensitivity is: " + final_sensitivity)
           })
+        val d1 = (System.nanoTime - t1) / 1e9d
+        print("smooth sensitivity: " + d1)
         array._3
       }
 
         def reduceByKeyDP_Double(func: (V, V) => V, app_name: String, k_dist: Int): RDD[(K,V)] = {
 
           val array = reduceByKeyDP_deep(func)
+          val t1 = System.nanoTime
           val entire = (array._1 ++ array._2).groupBy(_._1)
 
           val pairing = entire.map(q => { //for each k
@@ -375,126 +386,128 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
             }
             (q._1,max_nls)
           })
-
+          val d1 = (System.nanoTime - t1) / 1e9d
+          print("smooth sensitivity: " + d1)
          array._3
         }
-
-      def reduceByKeyDP_Tuple(func: (V, V) => V, app_name: String, k_dist: Int): RDD[(K,V)] = {
-        val array = reduceByKeyDP_deep(func)
-        val ls = array._1.map(p => {
-          val lls = p._2.map(q => {
-            val qtuples = q.asInstanceOf[RDD[(Double, Double, Double, Double, Double, Int)]]
-            val result = array._3.asInstanceOf[RDD[(K, (Double, Double, Double, Double, Double, Int))]]
-            val this_key = result.lookup(p._1)(0)
-            val result_broadcast = result.sparkContext.broadcast(this_key)
-            val max = qtuples
-              .asInstanceOf[RDD[(Double, Double, Double, Double, Double, Int)]]
-              .reduce((a, b) => {
-                val b_result = result_broadcast.value
-                val first = scala.math.max(scala.math.abs(a._1 - b_result._1), scala.math.abs(b._1 - b_result._1))
-                val second = scala.math.max(scala.math.abs(a._2 - b_result._2), scala.math.abs(b._2 - b_result._2))
-                val third = scala.math.max(scala.math.abs(a._3 - b_result._3), scala.math.abs(b._3 - b_result._3))
-                val forth = scala.math.max(scala.math.abs(a._4 - b_result._4), scala.math.abs(b._4 - b_result._4))
-                val fifth = scala.math.max(scala.math.abs(a._5 - b_result._5), scala.math.abs(b._5 - b_result._5))
-                val sixth = scala.math.max(scala.math.abs(a._6 - b_result._6), scala.math.abs(b._6 - b_result._6))
-                (first, second, third, forth, fifth, sixth)
-              })
-            max
-          })
-            val tupleArray_in = lls
-            var max_nls_1 = 0.0
-            var max_nls_2 = 0.0
-            var max_nls_3 = 0.0
-            var max_nls_4 = 0.0
-            var max_nls_5 = 0.0
-            var max_nls_6 = 0
-            for (i <- 0 until tupleArray_in.length) {
-              if(tupleArray_in(i)._1*exp(-beta*(i+1)) > max_nls_1)
-                max_nls_1 = tupleArray_in(i)._1
-              if(tupleArray_in(i)._2*exp(-beta*(i+1)) > max_nls_2)
-                max_nls_2 = tupleArray_in(i)._2
-              if(tupleArray_in(i)._3*exp(-beta*(i+1)) > max_nls_3)
-                max_nls_3 = tupleArray_in(i)._3
-              if(tupleArray_in(i)._4*exp(-beta*(i+1)) > max_nls_4)
-                max_nls_4 = tupleArray_in(i)._4
-              if(tupleArray_in(i)._5*exp(-beta*(i+1)) > max_nls_5)
-                max_nls_5 = tupleArray_in(i)._5
-              if(tupleArray_in(i)._6*exp(-beta*(i+1)).toInt > max_nls_6)
-                max_nls_6 = tupleArray_in(i)._6
-            }
-          (p._1,(max_nls_1,max_nls_2,max_nls_3,max_nls_4,max_nls_5,max_nls_6))
-        })
-
-        val ls_advance = array._2.map(p => {//each key
-          val lls = p._2.map(q => {
-            val qtuples = q.asInstanceOf[RDD[(Double, Double, Double, Double, Double, Int)]]
-            val result = array._3.asInstanceOf[RDD[(K, (Double, Double, Double, Double, Double, Int))]]
-            val this_key = result.lookup(p._1)(0)
-            val result_broadcast = result.sparkContext.broadcast(this_key)
-            val max = qtuples
-              .asInstanceOf[RDD[(Double, Double, Double, Double, Double, Int)]]
-              .reduce((a, b) => {
-                val b_result = result_broadcast.value
-                val first = scala.math.max(scala.math.abs(a._1 - b_result._1), scala.math.abs(b._1 - b_result._1))
-                val second = scala.math.max(scala.math.abs(a._2 - b_result._2), scala.math.abs(b._2 - b_result._2))
-                val third = scala.math.max(scala.math.abs(a._3 - b_result._3), scala.math.abs(b._3 - b_result._3))
-                val forth = scala.math.max(scala.math.abs(a._4 - b_result._4), scala.math.abs(b._4 - b_result._4))
-                val fifth = scala.math.max(scala.math.abs(a._5 - b_result._5), scala.math.abs(b._5 - b_result._5))
-                val sixth = scala.math.max(scala.math.abs(a._6 - b_result._6), scala.math.abs(b._6 - b_result._6))
-                (first, second, third, forth, fifth, sixth)
-              })
-            max
-          })
-          val tupleArray_in = lls
-          var max_nls_1 = 0.0
-          var max_nls_2 = 0.0
-          var max_nls_3 = 0.0
-          var max_nls_4 = 0.0
-          var max_nls_5 = 0.0
-          var max_nls_6 = 0
-          for (i <- 0 until tupleArray_in.length) {
-            if(tupleArray_in(i)._1*exp(-beta*(i+1)) > max_nls_1)
-              max_nls_1 = tupleArray_in(i)._1
-            if(tupleArray_in(i)._2*exp(-beta*(i+1)) > max_nls_2)
-              max_nls_2 = tupleArray_in(i)._2
-            if(tupleArray_in(i)._3*exp(-beta*(i+1)) > max_nls_3)
-              max_nls_3 = tupleArray_in(i)._3
-            if(tupleArray_in(i)._4*exp(-beta*(i+1)) > max_nls_4)
-              max_nls_4 = tupleArray_in(i)._4
-            if(tupleArray_in(i)._5*exp(-beta*(i+1)) > max_nls_5)
-              max_nls_5 = tupleArray_in(i)._5
-            if(tupleArray_in(i)._6*exp(-beta*(i+1)).toInt > max_nls_6)
-              max_nls_6 = tupleArray_in(i)._6
-          }
-          (p._1,(max_nls_1,max_nls_2,max_nls_3,max_nls_4,max_nls_5,max_nls_6))
-        })
-
-        val sensitivity_array = ls ++ ls_advance
-        val sensitivity = array._2.head._2.head.sparkContext.parallelize(sensitivity_array)
-          .reduceByKey((a,b) => (scala.math.max(a._1,b._1),scala.math.max(a._2,b._2),scala.math.max(a._3,b._3),scala.math.max(a._4,b._4),scala.math.max(a._5,b._5),scala.math.max(a._6,b._6)))
-          .collect()
-
-        array._3
-      }
+//
+//      def reduceByKeyDP_Tuple(func: (V, V) => V, app_name: String, k_dist: Int): RDD[(K,V)] = {
+//        val array = reduceByKeyDP_deep(func)
+//        val ls = array._1.map(p => {
+//          val lls = p._2.map(q => {
+//            val qtuples = q.asInstanceOf[RDD[(Double, Double, Double, Double, Double, Int)]]
+//            val result = array._3.asInstanceOf[RDD[(K, (Double, Double, Double, Double, Double, Int))]]
+//            val this_key = result.lookup(p._1)(0)
+//            val result_broadcast = result.sparkContext.broadcast(this_key)
+//            val max = qtuples
+//              .asInstanceOf[RDD[(Double, Double, Double, Double, Double, Int)]]
+//              .reduce((a, b) => {
+//                val b_result = result_broadcast.value
+//                val first = scala.math.max(scala.math.abs(a._1 - b_result._1), scala.math.abs(b._1 - b_result._1))
+//                val second = scala.math.max(scala.math.abs(a._2 - b_result._2), scala.math.abs(b._2 - b_result._2))
+//                val third = scala.math.max(scala.math.abs(a._3 - b_result._3), scala.math.abs(b._3 - b_result._3))
+//                val forth = scala.math.max(scala.math.abs(a._4 - b_result._4), scala.math.abs(b._4 - b_result._4))
+//                val fifth = scala.math.max(scala.math.abs(a._5 - b_result._5), scala.math.abs(b._5 - b_result._5))
+//                val sixth = scala.math.max(scala.math.abs(a._6 - b_result._6), scala.math.abs(b._6 - b_result._6))
+//                (first, second, third, forth, fifth, sixth)
+//              })
+//            max
+//          })
+//            val tupleArray_in = lls
+//            var max_nls_1 = 0.0
+//            var max_nls_2 = 0.0
+//            var max_nls_3 = 0.0
+//            var max_nls_4 = 0.0
+//            var max_nls_5 = 0.0
+//            var max_nls_6 = 0
+//            for (i <- 0 until tupleArray_in.length) {
+//              if(tupleArray_in(i)._1*exp(-beta*(i+1)) > max_nls_1)
+//                max_nls_1 = tupleArray_in(i)._1
+//              if(tupleArray_in(i)._2*exp(-beta*(i+1)) > max_nls_2)
+//                max_nls_2 = tupleArray_in(i)._2
+//              if(tupleArray_in(i)._3*exp(-beta*(i+1)) > max_nls_3)
+//                max_nls_3 = tupleArray_in(i)._3
+//              if(tupleArray_in(i)._4*exp(-beta*(i+1)) > max_nls_4)
+//                max_nls_4 = tupleArray_in(i)._4
+//              if(tupleArray_in(i)._5*exp(-beta*(i+1)) > max_nls_5)
+//                max_nls_5 = tupleArray_in(i)._5
+//              if(tupleArray_in(i)._6*exp(-beta*(i+1)).toInt > max_nls_6)
+//                max_nls_6 = tupleArray_in(i)._6
+//            }
+//          (p._1,(max_nls_1,max_nls_2,max_nls_3,max_nls_4,max_nls_5,max_nls_6))
+//        })
+//
+//        val ls_advance = array._2.map(p => {//each key
+//          val lls = p._2.map(q => {
+//            val qtuples = q.asInstanceOf[RDD[(Double, Double, Double, Double, Double, Int)]]
+//            val result = array._3.asInstanceOf[RDD[(K, (Double, Double, Double, Double, Double, Int))]]
+//            val this_key = result.lookup(p._1)(0)
+//            val result_broadcast = result.sparkContext.broadcast(this_key)
+//            val max = qtuples
+//              .asInstanceOf[RDD[(Double, Double, Double, Double, Double, Int)]]
+//              .reduce((a, b) => {
+//                val b_result = result_broadcast.value
+//                val first = scala.math.max(scala.math.abs(a._1 - b_result._1), scala.math.abs(b._1 - b_result._1))
+//                val second = scala.math.max(scala.math.abs(a._2 - b_result._2), scala.math.abs(b._2 - b_result._2))
+//                val third = scala.math.max(scala.math.abs(a._3 - b_result._3), scala.math.abs(b._3 - b_result._3))
+//                val forth = scala.math.max(scala.math.abs(a._4 - b_result._4), scala.math.abs(b._4 - b_result._4))
+//                val fifth = scala.math.max(scala.math.abs(a._5 - b_result._5), scala.math.abs(b._5 - b_result._5))
+//                val sixth = scala.math.max(scala.math.abs(a._6 - b_result._6), scala.math.abs(b._6 - b_result._6))
+//                (first, second, third, forth, fifth, sixth)
+//              })
+//            max
+//          })
+//          val tupleArray_in = lls
+//          var max_nls_1 = 0.0
+//          var max_nls_2 = 0.0
+//          var max_nls_3 = 0.0
+//          var max_nls_4 = 0.0
+//          var max_nls_5 = 0.0
+//          var max_nls_6 = 0
+//          for (i <- 0 until tupleArray_in.length) {
+//            if(tupleArray_in(i)._1*exp(-beta*(i+1)) > max_nls_1)
+//              max_nls_1 = tupleArray_in(i)._1
+//            if(tupleArray_in(i)._2*exp(-beta*(i+1)) > max_nls_2)
+//              max_nls_2 = tupleArray_in(i)._2
+//            if(tupleArray_in(i)._3*exp(-beta*(i+1)) > max_nls_3)
+//              max_nls_3 = tupleArray_in(i)._3
+//            if(tupleArray_in(i)._4*exp(-beta*(i+1)) > max_nls_4)
+//              max_nls_4 = tupleArray_in(i)._4
+//            if(tupleArray_in(i)._5*exp(-beta*(i+1)) > max_nls_5)
+//              max_nls_5 = tupleArray_in(i)._5
+//            if(tupleArray_in(i)._6*exp(-beta*(i+1)).toInt > max_nls_6)
+//              max_nls_6 = tupleArray_in(i)._6
+//          }
+//          (p._1,(max_nls_1,max_nls_2,max_nls_3,max_nls_4,max_nls_5,max_nls_6))
+//        })
+//
+//        val sensitivity_array = ls ++ ls_advance
+//        val sensitivity = array._2.head._2.head.sparkContext.parallelize(sensitivity_array)
+//          .reduceByKey((a,b) => (scala.math.max(a._1,b._1),scala.math.max(a._2,b._2),scala.math.max(a._3,b._3),scala.math.max(a._4,b._4),scala.math.max(a._5,b._5),scala.math.max(a._6,b._6)))
+//          .collect()
+//
+//        array._3
+//      }
 
       def filterDPKV(f: ((K,V)) => Boolean) : dpobjectKV[K, V] = {
-        new dpobjectKV(inputsample.filter(f),inputsample_advance.filter(f),inputoriginal.filter(f))
+        val t1 = System.nanoTime
+        val r1 = inputsample.filter(f)
+        val r3 = inputoriginal.filter(f)
+        val d1 = (System.nanoTime - t1) / 1e9d
+        print("filter-Original: " + d1)
+
+        val r2 = inputsample_advance.filter(f)
+        val d2 = (System.nanoTime - t1) / 1e9d
+        print("filterDP: " + d2)
+
+        new dpobjectKV(r1,r2,r3)
       }
       //********************Join****************************
       def joinDP[W](otherDP: RDD[(K, W)]): dpobjectArray[(K, (W, V))] = {
 
         //No need to care about sample2 join sample1
-
+        val t1 = System.nanoTime
         val joinresult = original.join(otherDP).map(q => (q._1,(q._2._2,q._2._1)))
-
-        val advance_original = sample_advance
-          .zipWithIndex()
-          .map(p => (p._1._1,(p._1._2,p._2)))
-          .join(otherDP)
-          .map(p => (p._2._1._2,(p._1,(p._2._2,p._2._1._1))))
-          .groupByKey()
-          .collect()
-          .map(p => original.sparkContext.parallelize(p._2.toSeq))
 
         val with_sample = sample
           .zipWithIndex()
@@ -505,13 +518,28 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
           .collect()
           .map(p => original.sparkContext.parallelize(p._2.toSeq))
 
+        val d2 = (System.nanoTime - t1) / 1e9d
+        print("Join-Original: " + d2)
+
+        val advance_original = sample_advance
+          .zipWithIndex()
+          .map(p => (p._1._1,(p._1._2,p._2)))
+          .join(otherDP)
+          .map(p => (p._2._1._2,(p._1,(p._2._2,p._2._1._1))))
+          .groupByKey()
+          .collect()
+          .map(p => original.sparkContext.parallelize(p._2.toSeq))
+
+        val d2 = (System.nanoTime - t1) / 1e9d
+        print("JoinDP: " + d2)
+
         new dpobjectArray(with_sample,advance_original,joinresult)
       }
 
       def joinDP[W](otherDP: dpobjectKV[K, W]): dpobjectArray[(K, (V, W))] = {
 
         //No need to care about sample2 join sample1
-
+        val t1 = System.nanoTime
         val input2 = otherDP.original
         val input2_sample = otherDP.original
         val joinresult = original.join(otherDP.original)
@@ -565,6 +593,9 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
         //This is final original result because there is no inter key
         //or intra key combination for join i.e., no over lapping scenario
         //within or between keys
+        val d2 = (System.nanoTime - t1) / 1e9d
+        print("JoinDP: " + d2)
+
         new dpobjectArray(with_sample ++ with_input2_sample,original_advance ++ advance_original,joinresult)
 
       }
