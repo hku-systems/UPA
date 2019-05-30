@@ -50,7 +50,7 @@ class dpobject[T: ClassTag](
     val r2 = sample_advance.map(f)
     val r3 = inputoriginal.map(f)
     val d1 = (System.nanoTime - t1) / 1e9d
-        print("mapDP: " + d1)
+        println("mapDP: " + d1)
     new dpobject(r1,r2,r3)
   }
 
@@ -61,7 +61,7 @@ class dpobject[T: ClassTag](
     val r2 = sample_advance.map(f).asInstanceOf[RDD[(K,V)]]
     val r3 = inputoriginal.map(f).asInstanceOf[RDD[(K,V)]]
     val d1 = (System.nanoTime - t1) / 1e9d
-    print("mapDP: " + d1)
+    println("mapDP: " + d1)
     new dpobjectKV(r1,r2,r3)
   }
 
@@ -177,7 +177,7 @@ class dpobject[T: ClassTag](
       }
     }
     val d1 = (System.nanoTime - t1) / 1e9d
-    print("reduceDP: " + d1)
+    println("reduceDP: " + d1)
     (array,array_advance,aggregatedResult)
   }
 
@@ -240,7 +240,7 @@ var array = reduceDP(f).asInstanceOf[(Array[RDD[Double]],Array[RDD[Double]],Doub
       max_nls = neigbour_local_advance_senstivity(i)
   }
   val d1 = (System.nanoTime - t1) / 1e9d
-  print("Calsensitivity: " + d1)
+  println("Calsensitivity: " + d1)
   array._3.asInstanceOf[T] //sensitivity
 }
 
@@ -306,7 +306,7 @@ var array = reduceDP(f).asInstanceOf[(Array[RDD[Double]],Array[RDD[Double]],Doub
       new_v
     })
     val d1 = (System.nanoTime - t1) / 1e9d
-    print("Calsensitivity: " + d1)
+    println("Calsensitivity: " + d1)
     array._3.asInstanceOf[T]
   }
 
@@ -319,7 +319,7 @@ def filterDP(f: T => Boolean) : dpobject[T] = {
   val r3 = inputoriginal.filter(f)
 
   val d2 = (System.nanoTime - t2) / 1e9d
-  print("filterDP: " + d2)
+  println("filterDP: " + d2)
 
   new dpobject(r1,r2,r3)
 }

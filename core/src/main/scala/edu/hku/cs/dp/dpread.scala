@@ -35,7 +35,7 @@ class dpread[T: ClassTag](
         val sampling = main.sparkContext.parallelize(main.takeSample(false, 1111))
         val advance_sampling = advance.sparkContext.parallelize(advance.takeSample(false, 1111))
         val duration = (System.nanoTime - t1) / 1e9d
-        print("SampleDP: " + duration)
+        println("SampleDP: " + duration)
         new dpobject(sampling.map(f),advance_sampling.map(f),main.subtract(sampling).map(f))
 //    }
   }
@@ -50,7 +50,7 @@ class dpread[T: ClassTag](
     val sampling = main.sparkContext.parallelize(main.takeSample(false, rate))
     val advance_sampling = advance.sparkContext.parallelize(advance.takeSample(false, rate))
     val duration = (System.nanoTime - t1) / 1e9d
-    print("SampleDP: " + duration)
+    println("SampleDP: " + duration)
 //    val duration = (System.nanoTime - t1) / 1e9d
 //    print("Sample: " + duration)
     new dpobject(sampling.map(f),advance_sampling.map(f),main.subtract(sampling).map(f))
@@ -63,7 +63,7 @@ class dpread[T: ClassTag](
     val sampling = main.sparkContext.parallelize(main.takeSample(false, 1111))
     val advance_sampling = advance.sparkContext.parallelize(advance.takeSample(false, 1111))
     val duration = (System.nanoTime - t1) / 1e9d
-    print("SampleDP: " + duration)
+    println("SampleDP: " + duration)
 //    val duration = (System.nanoTime - t1) / 1e9d
 //    print("Sample: " + duration)
     new dpobjectKV(sampling.map(f).asInstanceOf[RDD[(K,V)]],advance_sampling.map(f).asInstanceOf[RDD[(K,V)]],main.subtract(sampling).map(f).asInstanceOf[RDD[(K,V)]])

@@ -29,7 +29,7 @@ class dpobjectKVArray[K, V](var inputsample: Array[RDD[(K, V)]], var inputsample
         val r2 = inputsample_advance.map(p => p.filter(f))
         val r3 = inputoriginal.filter(f)
       val duration = (System.nanoTime - t1) / 1e9d
-      print("filterDP: " + duration)
+      println("filterDP: " + duration)
         new dpobjectKVArray(r1,r2,r3)
       }
       //********************Join****************************
@@ -49,7 +49,7 @@ class dpobjectKVArray[K, V](var inputsample: Array[RDD[(K, V)]], var inputsample
           q.join(otherDP)
         })
   val duration = (System.nanoTime - t1) / 1e9d
-  print("JoinDP: " + duration)
+  println("JoinDP: " + duration)
         new dpobjectArray(with_sample,advance_original,joinresult)
       }
 
@@ -92,7 +92,7 @@ class dpobjectKVArray[K, V](var inputsample: Array[RDD[(K, V)]], var inputsample
           q.join(otherDP.original)
         })
   val duration = (System.nanoTime - t1) / 1e9d
-  print("JoinDP: " + duration)
+  println("JoinDP: " + duration)
         new dpobjectArray(with_input2_sample ++ with_sample,original_advance ++ advance_original,joinresult)
       }
 
@@ -122,7 +122,7 @@ class dpobjectKVArray[K, V](var inputsample: Array[RDD[(K, V)]], var inputsample
           q.join(otherDP.original)
         })
   val duration = (System.nanoTime - t1) / 1e9d
-  print("JoinDP: " + duration)
+  println("JoinDP: " + duration)
         new dpobjectArray(with_input2_sample ++ with_sample,original_advance ++ advance_original,joinresult)
       }
 

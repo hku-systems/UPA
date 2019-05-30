@@ -40,7 +40,7 @@ class dpobjectArray[T: ClassTag](
     val r2 = sample_advance.map(p => p.map(f))
     val r3 = inputoriginal.map(f)
     val duration = (System.nanoTime - t1) / 1e9d
-    print("mapDP: " + duration)
+    println("mapDP: " + duration)
     new dpobjectArray(r1,r2,r3)
   }
 
@@ -50,7 +50,7 @@ class dpobjectArray[T: ClassTag](
     val r2 = sample_advance.map(p => p.map(f)).asInstanceOf[Array[RDD[(K,V)]]]
     val r3 = inputoriginal.map(f).asInstanceOf[RDD[(K,V)]]
     val duration = (System.nanoTime - t1) / 1e9d
-    print("mapDP: " + duration)
+    println("mapDP: " + duration)
     new dpobjectKVArray(r1,r2,r3)
   }
 
@@ -60,7 +60,7 @@ class dpobjectArray[T: ClassTag](
     val r2 = inputsample_advance.map(p => p.filter(f))
     val r3 = inputoriginal.filter(f)
     val duration = (System.nanoTime - t1) / 1e9d
-    print("filterDP: " + duration)
+    println("filterDP: " + duration)
     new dpobjectArray(r1,r2,r3)
   }
 
@@ -177,7 +177,7 @@ class dpobjectArray[T: ClassTag](
       }
     }
     val duration = (System.nanoTime - t1) / 1e9d
-    print("reduceDP: " + duration)
+    println("reduceDP: " + duration)
     (array,array_advance,aggregatedResult)
   }
 
@@ -197,11 +197,11 @@ var array = reduceDP(f).asInstanceOf[(Array[RDD[Double]],Array[RDD[Double]],Doub
         val mean = p.mean
         val sd = p.stdev
         val counting = p.count()
-        println(app_name + "," + k_dist + "," + ((a1 + 1) * (-1)) + "," + mean + "," + sd + "," + counting)
+//        println(app_name + "," + k_dist + "," + ((a1 + 1) * (-1)) + "," + mean + "," + sd + "," + counting)
         neigbour_local_senstivity(a1) = scala.math.max(scala.math.abs(max - array._3), scala.math.abs(min - array._3))
       }
       else {
-        println(app_name + "," + k_dist + "," + ((a1 + 1) * (-1)) + "," + array._3 + "," + 0 + "," + 0)
+//        println(app_name + "," + k_dist + "," + ((a1 + 1) * (-1)) + "," + array._3 + "," + 0 + "," + 0)
         neigbour_local_senstivity(a1) = 0.0
       }
     }
@@ -217,11 +217,11 @@ var array = reduceDP(f).asInstanceOf[(Array[RDD[Double]],Array[RDD[Double]],Doub
       val mean = p.mean
       val sd = p.stdev
       val counting = p.count()
-      println(app_name + "," + k_dist + "," + (a2 + 1) + "," + mean + "," + sd + "," + counting)
+//      println(app_name + "," + k_dist + "," + (a2 + 1) + "," + mean + "," + sd + "," + counting)
       neigbour_local_advance_senstivity(a2) = scala.math.max(scala.math.abs(max - array._3), scala.math.abs(min - array._3))
     }
     else {
-      println(app_name + "," + k_dist + "," + (a2 + 1) + "," + array._3 + "," + 0 + "," + 0)
+//      println(app_name + "," + k_dist + "," + (a2 + 1) + "," + array._3 + "," + 0 + "," + 0)
       neigbour_local_advance_senstivity(a2) = 0.0
     }
   }
@@ -240,7 +240,7 @@ var array = reduceDP(f).asInstanceOf[(Array[RDD[Double]],Array[RDD[Double]],Doub
       max_nls = neigbour_local_advance_senstivity(i)
   }
   val duration = (System.nanoTime - t1) / 1e9d
-  print("Calsensitivity: " + duration)
+  println("Calsensitivity: " + duration)
   array._3.asInstanceOf[T] //sensitivity
 }
 

@@ -159,7 +159,7 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
           }
         })
         val d1 = (System.nanoTime - t1) / 1e9d
-        print("reduceByKeyDP: " + d1)
+        println("reduceByKeyDP: " + d1)
           (nighnouring_output,nighnouring_advance_output,aggregatedResult)
         }
 
@@ -240,17 +240,17 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
           (p._1,max_nls)
         })
 
-        val all_meta = (meta_minus_outer ++ meta_positive_outer).groupBy(_._1).map(p => {
-          p._2.foreach(q => {
-            q._2.foreach(println)
-          })
-        })
+//        val all_meta = (meta_minus_outer ++ meta_positive_outer).groupBy(_._1).map(p => {
+//          p._2.foreach(q => {
+//            q._2.foreach(println)
+//          })
+//        })
 
         val sensitivity_array = ls ++ ls_advance
         val sensitivity = array._2.head._2.head.sparkContext.parallelize(sensitivity_array)
           .reduceByKey((a,b) => scala.math.max(a,b))
         val d1 = (System.nanoTime - t1) / 1e9d
-        print("Calsensitivity: " + d1)
+        println("Calsensitivity: " + d1)
         array._3
       }
 
@@ -287,7 +287,7 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
                 val mean = p.mean
                 val sd = p.stdev
                 val counting = p.count()
-                println(app_name + "," + k_dist + "," + ((a1 + 1) * (-1)) + "," + mean + "," + sd + "," + counting)
+//                println(app_name + "," + k_dist + "," + ((a1 + 1) * (-1)) + "," + mean + "," + sd + "," + counting)
                 neigbour_local_senstivity(a1)(v1) = scala.math.max(scala.math.abs(max - value_of_key(v1)), scala.math.abs(min - value_of_key(v1)))
               }
 
@@ -299,7 +299,7 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
                   val mean = p.mean
                   val sd = p.stdev
                   val counting = p.count()
-                  println(app_name + "," + k_dist + "," + (a2 + 1) + "," + mean + "," + sd + "," + counting)
+//                  println(app_name + "," + k_dist + "," + (a2 + 1) + "," + mean + "," + sd + "," + counting)
                   neigbour_local_advance_senstivity(a2)(v1) =  scala.math.max(scala.math.abs(max - value_of_key(v1)), scala.math.abs(min - value_of_key(v1)))
               }
             }
@@ -323,7 +323,7 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
             (q._1,final_sensitivity)
           })
         val d1 = (System.nanoTime - t1) / 1e9d
-        print("Calsensitivity: " + d1)
+        println("Calsensitivity: " + d1)
         array._3
       }
 
@@ -350,7 +350,7 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
                 val mean = p.mean
                 val sd = p.stdev
                 val counting = p.count()
-                println(app_name + "," + k_dist + "," + ((a1 + 1) * (-1)) + "," + mean + "," + sd + "," + counting)
+//                println(app_name + "," + k_dist + "," + ((a1 + 1) * (-1)) + "," + mean + "," + sd + "," + counting)
                 neigbour_local_senstivity(a1) = scala.math.max(scala.math.abs(max - value_of_key), scala.math.abs(min - value_of_key))
               }
 
@@ -362,7 +362,7 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
                 val mean = p.mean
                 val sd = p.stdev
                 val counting = p.count()
-                println(app_name + "," + k_dist + "," + (a2 + 1) + "," + mean + "," + sd + "," + counting)
+//                println(app_name + "," + k_dist + "," + (a2 + 1) + "," + mean + "," + sd + "," + counting)
                 neigbour_local_advance_senstivity(a2) = scala.math.max(scala.math.abs(max - value_of_key), scala.math.abs(min - value_of_key))
             }
 
@@ -381,7 +381,7 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
             (q._1,max_nls)
           })
           val d1 = (System.nanoTime - t1) / 1e9d
-          print("Calsensitivity: " + d1)
+          println("Calsensitivity: " + d1)
          array._3
         }
 
@@ -391,7 +391,7 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
         val r2 = inputsample_advance.filter(f)
         val r3 = inputoriginal.filter(f)
         val d2 = (System.nanoTime - t1) / 1e9d
-        print("filterDP: " + d2)
+        println("filterDP: " + d2)
 
         new dpobjectKV(r1,r2,r3)
       }
@@ -421,7 +421,7 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
           .map(p => original.sparkContext.parallelize(p._2.toSeq))
 
         val d2 = (System.nanoTime - t1) / 1e9d
-        print("JoinDP: " + d2)
+        println("JoinDP: " + d2)
 
         new dpobjectArray(with_sample,advance_original,joinresult)
       }
@@ -484,7 +484,7 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
         //or intra key combination for join i.e., no over lapping scenario
         //within or between keys
         val d2 = (System.nanoTime - t1) / 1e9d
-        print("JoinDP: " + d2)
+        println("JoinDP: " + d2)
 
         new dpobjectArray(with_sample ++ with_input2_sample,original_advance ++ advance_original,joinresult)
 
