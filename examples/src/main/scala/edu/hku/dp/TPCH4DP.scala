@@ -17,6 +17,7 @@ object TPCH4DP {
       .appName("TpchQuery1")
       .getOrCreate()
     val inputDir = "/home/john/tpch-spark/dbgen"
+    val t1 = System.nanoTime
 
     val order_filtered = new dpread(spark.sparkContext.textFile(args(0)),spark.sparkContext.textFile(args(1)))
       .mapDP(_.split('|'))
@@ -35,7 +36,10 @@ object TPCH4DP {
       .joinDP(order_filtered)
       .mapDP(p => 1.0).reduce_and_add_noise_KDE(_+_, "TPCH4DP", args(4).toInt)
 //      .reduceByKeyDP_Int((a,b)=> a + b)
-    println("Output: " + result)
-//    result.collect().foreach(p => print(p._1._1 + "," + p._1._2 + ":" + p._2 + "\n"))
+val duration = (System.nanoTime - t1) / 1e9d
+    println("Execution time: " + duration)
+    spark.stop()
+
+    //    result.collect().foreach(p => print(p._1._1 + "," + p._1._2 + ":" + p._2 + "\n"))
   }
 }

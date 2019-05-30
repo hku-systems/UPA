@@ -71,6 +71,7 @@ object SparkHdfsLRDP {
       .appName("SparkHdfsLR")
       .getOrCreate()
 
+    val t1 = System.nanoTime
     val lines = new dpread(spark.sparkContext.textFile(args(0)),spark.sparkContext.textFile(args(1)))
 
     val points = lines.mapDP(parsePoint)
@@ -89,7 +90,8 @@ object SparkHdfsLRDP {
       w -= gradient
     }
 
-    w.foreach(p => print(p + ","))
+    val duration = (System.nanoTime - t1) / 1e9d
+    println("Execution time: " + duration)
     spark.stop()
   }
 }

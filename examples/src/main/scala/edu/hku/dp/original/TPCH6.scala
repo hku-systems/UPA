@@ -18,6 +18,7 @@ object TPCH6 {
     //        sum(increase(decrease($"l_extendedprice", $"l_discount"), $"l_tax")),
     //        avg($"l_quantity"), avg($"l_extendedprice"), avg($"l_discount"), count($"l_quantity"))
     //      .sort($"l_returnflag", $"l_linestatus")
+    val t1 = System.nanoTime
 
     val filtered_result = spark.sparkContext.textFile(args(0))
       .map(_.split('|'))
@@ -30,8 +31,9 @@ object TPCH6 {
     //    println("filtered_result original")
     //    filtered_result.original.collect().foreach(println)
 
-    println("Output: " + filtered_result)
-
+    val duration = (System.nanoTime - t1) / 1e9d
+    println("Execution time: " + duration)
+    spark.stop()
     //    final_result.collect().foreach(p => print(p._1._1 + "," + p._1._2 + ":" + p._2._1 + "," + p._2._2 + "," + p._2._3 + "," + p._2._4 + "," + p._2._5 + "," + p._2._6 + "\n"))
 
   }

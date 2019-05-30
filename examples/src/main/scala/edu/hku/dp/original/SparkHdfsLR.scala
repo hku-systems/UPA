@@ -69,6 +69,7 @@ object SparkHdfsLR {
       .builder
       .appName("SparkHdfsLR")
       .getOrCreate()
+    val t1 = System.nanoTime
 
     val inputPath = args(0)
     val lines = spark.read.textFile(inputPath).rdd
@@ -88,7 +89,8 @@ object SparkHdfsLR {
       w -= gradient
     }
 
-    w.foreach(p => print(p + ","))
+    val duration = (System.nanoTime - t1) / 1e9d
+    println("Execution time: " + duration)
     spark.stop()
   }
 }

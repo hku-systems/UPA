@@ -27,7 +27,8 @@ object TPCH1DP {
       .appName("TpchQuery1")
       .getOrCreate()
     val inputDir = "/home/john/tpch-spark/dbgen"
-//    schemaProvider.lineitem.filter($"l_shipdate" <= "1998-09-02")
+    val t1 = System.nanoTime
+    //    schemaProvider.lineitem.filter($"l_shipdate" <= "1998-09-02")
 //      .groupBy($"l_returnflag", $"l_linestatus")
 //      .agg(sum($"l_quantity"), sum($"l_extendedprice"),
 //        sum(decrease($"l_extendedprice", $"l_discount")),
@@ -54,8 +55,9 @@ object TPCH1DP {
 //      val y = decrease(b._2,b._3)
 //      (a._1 + b._1, a._2 + b._2, a._3 + b._3 , a._4 + b._4, a._5 + b._5, a._6 + b._6)
     }, "TPCH1DP", args(2).toInt)
-    println("Output: " + final_result)
-
+    val duration = (System.nanoTime - t1) / 1e9d
+    println("Execution time: " + duration)
+    spark.stop()
 //    final_result.collect().foreach(p => print(p._1._1 + "," + p._1._2 + ":" + p._2._1 + "," + p._2._2 + "," + p._2._3 + "," + p._2._4 + "," + p._2._5 + "," + p._2._6 + "\n"))
 
   }

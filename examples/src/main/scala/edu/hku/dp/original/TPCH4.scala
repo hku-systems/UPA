@@ -18,6 +18,8 @@ object TPCH4 {
       .getOrCreate()
     val inputDir = "/home/john/tpch-spark/dbgen"
 
+    val t1 = System.nanoTime
+
     val order_filtered = spark.sparkContext.textFile(args(0))
       .map(_.split('|'))
       .map(p =>
@@ -35,7 +37,8 @@ object TPCH4 {
       .join(order_filtered)
       .map(p => 1.0).reduce(_+_)
     //      .reduceByKeyDP_Int((a,b)=> a + b)
-    println("Output: " + result)
-    //    result.collect().foreach(p => print(p._1._1 + "," + p._1._2 + ":" + p._2 + "\n"))
+    val duration = (System.nanoTime - t1) / 1e9d
+    println("Execution time: " + duration)
+    spark.stop()    //    result.collect().foreach(p => print(p._1._1 + "," + p._1._2 + ":" + p._2 + "\n"))
   }
 }

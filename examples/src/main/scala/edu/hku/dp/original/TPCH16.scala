@@ -32,6 +32,7 @@ object TPCH16 {
       .appName("TpchQuery1")
       .getOrCreate()
     val inputDir = "/home/john/tpch-spark/dbgen"
+    val t1 = System.nanoTime
 
     val part_input = spark.sparkContext.textFile(args(0))
       .map(_.split('|'))
@@ -58,7 +59,8 @@ object TPCH16 {
       .map(p => 1.0)
       .reduce((a,b) => a + b)
     //      .reduceByKeyDP_Int((a,b) => a + b,"TPCH16DP", args(6).toInt)
-    println("Output: " + final_result)
-    //    final_result.collect().foreach(p => print(p._1._1 + "," + p._1._2 + p._1._3 +  ":" + p._2 + "\n"))
+    val duration = (System.nanoTime - t1) / 1e9d
+    println("Execution time: " + duration)
+    spark.stop()    //    final_result.collect().foreach(p => print(p._1._1 + "," + p._1._2 + p._1._3 +  ":" + p._2 + "\n"))
   }
 }

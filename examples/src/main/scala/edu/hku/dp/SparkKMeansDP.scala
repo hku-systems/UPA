@@ -61,10 +61,12 @@ object SparkKMeansDP {
       .appName("SparkKMeans")
       .getOrCreate()
 
+    val t1 = System.nanoTime
+
     val lines = new dpread(spark.sparkContext.textFile(args(0)),spark.sparkContext.textFile(args(1)))
     val data = lines.mapDP(parseVector _)
     val ITERATIONS = args(2).toInt
-    val K = 2
+    val K = 3
 
     val kPoints = Array(Vector(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1),
       Vector(0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2),
@@ -94,8 +96,8 @@ object SparkKMeansDP {
 //      println(s"Finished iteration (delta = $tempDist)")
     }
 
-    println("Final centers:")
-    kPoints.foreach(println)
+    val duration = (System.nanoTime - t1) / 1e9d
+    println("Execution time: " + duration)
     spark.stop()
   }
 }

@@ -19,6 +19,8 @@ object TPCH11 {
       .getOrCreate()
     val inputDir = "/home/john/tpch-spark/dbgen"
 
+    val t1 = System.nanoTime
+
     val supplier_input = spark.sparkContext.textFile(args(0))
       .map(_.split('|'))
       .map(p =>
@@ -48,7 +50,9 @@ object TPCH11 {
 
     val final_result = join_partsupp.map(p => p._2._2).reduce((a,b) => a + b)
 
-    println("Output: " + final_result)
+    val duration = (System.nanoTime - t1) / 1e9d
+    println("Execution time: " + duration)
+    spark.stop()
 
   }
 }
