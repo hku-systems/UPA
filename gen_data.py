@@ -14,16 +14,26 @@ import string
 #-4.9134 to 0.00013785
 #-0.00012418 to -5.12
 #-7.1765e-05 to 0.0001489
-
+#python gen_data.py 5000000 --delimiter "," int -------> 1G
 
 def integer_csv(rows, schema, delimiter):
     generators = []
 
     generators.append(lambda: random.uniform(-9.9993, -0.010748))
+    generators.append(lambda: random.uniform(-7.6604e-05, 0.00011779))
+    generators.append(lambda: random.uniform(-7.5628, 0.00010547))
+    generators.append(lambda: random.uniform(0.00010656, 5.3849))
+    generators.append(lambda: random.uniform(-6.9696,-0.00011706))
+    generators.append(lambda: random.uniform(7.8542e-05, -0.00015647))
+    generators.append(lambda: random.uniform(-0.00026223, 6.3295))
+    generators.append(lambda: random.uniform(-4.9134, 0.00013785))
+    generators.append(lambda: random.uniform(-0.00012418, -5.12))
+    generators.append(lambda: random.uniform(-7.1765e-05, 0.0001489))
+    generators.append(lambda: random.uniform(0, 1))
 
-    ofile = open('ds1.10_en.csv', "wb")
+    ofile = open('../tpch-spark/dataset/ds/ds1.10_gen.csv', "w")
     writer = csv.writer(ofile, delimiter=",")
-    for x in xrange(rows):
+    for x in range(rows):
         writer.writerow([g() for g in generators])
 
 if __name__ == '__main__':
