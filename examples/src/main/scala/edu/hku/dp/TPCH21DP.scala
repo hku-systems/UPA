@@ -21,13 +21,13 @@ object TPCH21DP {
     val inputDir = "/home/john/tpch-spark/dbgen"
 
     val supplier_input = new dpread(spark.sparkContext.textFile(args(0)),spark.sparkContext.textFile(args(1)))
-      .mapDP(_.split('|'),1111)
+      .mapDP(_.split('|'),111)
       .mapDPKV(p =>
         (p(3).trim.toLong, (p(0).trim.toLong, p(1).trim)))
     //(s_nationkey, (s_suppkey, s_name))
 
         val lineitem_input = new dpread(spark.sparkContext.textFile(args(2)),spark.sparkContext.textFile(args(3)))
-          .mapDP(_.split('|'),1111)
+          .mapDP(_.split('|'),111)
           .mapDP(p =>
           ( p(0).trim.toLong, (p(2).trim.toLong,  p(12).trim, p(11).trim, 1)))
         //(l_orderkey, (l_suppkey, l_receiptdate, l_commitdate, 1))
@@ -44,7 +44,7 @@ object TPCH21DP {
           .map(p => (p._1,(p._2._4,p._2._1)))
 
         val order_input = new dpread(spark.sparkContext.textFile(args(4)),spark.sparkContext.textFile(args(5)))
-          .mapDP(_.split('|'),1111)
+          .mapDP(_.split('|'),111)
           .mapDP(p =>
           (p(0).trim.toLong, p(2).trim))
           .filterDP(p => p._2 == "F")
