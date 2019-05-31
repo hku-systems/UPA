@@ -498,7 +498,7 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
         new dpobjectKV(inputsample.filter(f),inputsample_advance.filter(f),inputoriginal.filter(f))
       }
       //********************Join****************************
-      def joinDP[W](otherDP: RDD[(K, W)]): dpobjectArray[(K, (W, V))] = {
+      def joinDP[W](otherDP: RDD[(K, W)]): dpobjectArray[((K, (W, V)))] = {
 
         //No need to care about sample2 join sample1
 
@@ -508,24 +508,18 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
           .zipWithIndex()
           .map(p => (p._1._1,(p._1._2,p._2)))
           .join(otherDP)
-          .map(p => (p._2._1._2,(p._1,(p._2._2,p._2._1._1))))
-          .groupByKey()
-          .collect()
-          .map(p => original.sparkContext.parallelize(p._2.toSeq))
+          .map(p => ((p._1,(p._2._2,p._2._1._1)),p._2._1._2))
 
         val with_sample = sample
           .zipWithIndex()
           .map(p => (p._1._1,(p._1._2,p._2)))
           .join(otherDP)
-          .map(p => (p._2._1._2,(p._1,(p._2._2,p._2._1._1))))
-          .groupByKey()
-          .collect()
-          .map(p => original.sparkContext.parallelize(p._2.toSeq))
+          .map(p => ((p._1,(p._2._2,p._2._1._1)),p._2._1._2))
 
         new dpobjectArray(with_sample,advance_original,joinresult)
       }
 
-      def joinDP[W](otherDP: dpobjectKV[K, W]): dpobjectArray[(K, (V, W))] = {
+      def joinDP[W](otherDP: dpobjectKV[K, W]): dpobjectArray[((K, (V, W)))] = {
 
         //No need to care about sample2 join sample1
 
@@ -538,20 +532,13 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
           .map(p => (p._1._1,(p._1._2,p._2)))
         val original_advance = original
           .join(zipin_advance)
-          .map(p => (p._2._2._2,(p._1,(p._2._1,p._2._2._1))))
-          .groupByKey()
-          .collect()
-          .map(p => original.sparkContext.parallelize(p._2.toSeq))
+          .map(p => ((p._1,(p._2._1,p._2._2._1)),p._2._2._2))
 
         val advance_original = sample_advance
           .zipWithIndex()
           .map(p => (p._1._1,(p._1._2,p._2)))
           .join(otherDP.original)
-          .map(p => (p._2._1._2,(p._1,(p._2._1._1,p._2._2))))
-          .groupByKey()
-          .collect()
-          .map(p => original.sparkContext.parallelize(p._2.toSeq))
-
+          .map(p => ((p._1,(p._2._1._1,p._2._2)),p._2._1._2))
 //        val advance_advance = sample_advance.join(otherDP.sample_advance)
 
 
@@ -559,19 +546,15 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
           .zipWithIndex()
           .map(p => (p._1._1,(p._1._2,p._2)))
           .join(input2)
-          .map(p => (p._2._1._2,(p._1,(p._2._1._1,p._2._2))))
-          .groupByKey()
-          .collect()
-          .map(p => original.sparkContext.parallelize(p._2.toSeq))
+          .map(p => ((p._1,(p._2._1._1,p._2._2)),p._2._1._2))
+
         val zipin = otherDP.sample
           .zipWithIndex()
           .map(p => (p._1._1,(p._1._2,p._2)))
         val with_input2_sample = original
           .join(zipin)
-          .map(p => (p._2._2._2,(p._1,(p._2._1,p._2._2._1))))
-          .groupByKey()
-          .collect()
-          .map(p => original.sparkContext.parallelize(p._2.toSeq))
+          .map(p => ((p._1,(p._2._1,p._2._2._1)),p._2._2._2))
+
 //        val samples_join = sample.join(input2_sample)
 
 //        print("array1: ")

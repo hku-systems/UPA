@@ -70,8 +70,10 @@ var sample_advance = inputsample_advance
     var outer_num = k_distance
     val sample_count = sample.count //e.g., 64
     val sample_advance_count = sample_advance.count
-    val broadcast_sample = original.sparkContext.broadcast(sample.collect())
-    val broadcast_sample_advance = original.sparkContext.broadcast(sample_advance.collect())
+    val s_collect = sample.collect()
+    val a_collect = sample_advance.collect()
+    val broadcast_sample = original.sparkContext.broadcast(s_collect)
+    val broadcast_sample_advance = original.sparkContext.broadcast(a_collect)
     //***********samples*********************
 
     val sample_array = sample_count match {
@@ -81,7 +83,7 @@ var sample_advance = inputsample_advance
         original.sparkContext.parallelize(Seq(only_array))
       case b if b == 1 =>
         val only_array = new Array[T](1)
-        only_array(0) = f(result,sample.collect().head)
+        only_array(0) = f(result,s_collect.head)
         original.sparkContext.parallelize(Seq(only_array)) //without that sample
       case _ =>
         if (sample_count <= k_distance)
@@ -122,7 +124,7 @@ var sample_advance = inputsample_advance
         original.sparkContext.parallelize(Seq(only_array_advance))
       case b if b == 1 =>
         var only_array_advance = new Array[T](1)
-        only_array_advance(0) = f(aggregatedResult,sample_advance.collect().head)
+        only_array_advance(0) = f(aggregatedResult,a_collect.head)
         original.sparkContext.parallelize(Seq(only_array_advance)) //without that sample
       case _ =>
         if (sample_advance_count <= k_distance)
