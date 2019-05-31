@@ -19,13 +19,13 @@ object TPCH4DP {
     val inputDir = "/home/john/tpch-spark/dbgen"
 
     val order_filtered = new dpread(spark.sparkContext.textFile(args(0)),spark.sparkContext.textFile(args(1)))
-      .mapDP(_.split('|'),111)
+      .mapDP(_.split('|'))
       .mapDPKV(p =>
       (p(0).trim.toLong, (p(4).trim, p(5).trim)))
       .filterDPKV(p => p._2._1 >= "1993-07-01" && p._2._1 < "1993-10-01")
 
     val lineitem_filtered = new dpread(spark.sparkContext.textFile(args(2)),spark.sparkContext.textFile(args(3)))
-      .mapDP(_.split('|'),111)
+      .mapDP(_.split('|'))
       .mapDP(p =>
       (p(0).trim.toLong, (p(11).trim, p(12).trim,p(4).trim.toDouble)))
       .filterDP(p => p._2._1 < p._2._2)
