@@ -7,7 +7,7 @@ import org.apache.spark.internal.Logging
 import org.apache.spark.rdd.{MapPartitionsRDD, RDD}
 import org.apache.spark.util.Utils
 import org.apache.spark.util.random.SamplingUtils
-
+import scala.math.pow
 import scala.collection.{Map, mutable}
 import scala.collection.immutable.HashSet
 import scala.reflect.ClassTag
@@ -278,42 +278,119 @@ var sample_advance = inputsample_advance
     var a1_length = array._1.length
     var a2_length = array._2.length
     val result_length = array._3.length
+    val b_a3 = original.sparkContext.broadcast(array._3)
     //    array._3.asInstanceOf[T] //sensitivity
 
-    var neigbour_local_senstivity = new Array[Array[Double]](a1_length)
-    var neigbour_local_advance_senstivity = new Array[Array[Double]](a2_length)
+    var neigbour_local_senstivity = new Array[Vector[Double]](a1_length)
+    var neigbour_local_advance_senstivity = new Array[Vector[Double]](a2_length)
 
-    for(vc <- 0 until a1_length){
-      neigbour_local_senstivity(vc) = new Array[Double](result_length)
-      neigbour_local_advance_senstivity(vc) = new Array[Double](result_length)
+    var meta_sample = new Array[(Vector[Double],Vector[Double],Int)](a1_length)
+    var meta_sample_advance = new Array[(Vector[Double],Vector[Double],Int)](a2_length)
+
+    for (a1 <- 0 until a1_length) {
+      val p = array._1(a1)
+        val stat = p
+          .map(p => {
+            (p,p,1)
+          })
+          .reduce((a,b) => {
+          var sensivitiy = a._1
+          var sum = new DenseVector(a._2.toArray)
+          for(vl <- 0 until a._1.length)
+            {
+              sum(vl) = a._2(vl) + b._2(vl)
+              val a_diff = scala.math.abs(a._1(vl) - b_a3.value(vl))
+              val b_diff = scala.math.abs(b._1(vl) - b_a3.value(vl))
+              if(a_diff >= b_diff)
+                sensivitiy(vl) = a_diff
+              else
+                sensivitiy(vl) = b_diff
+            }
+          (sensivitiy, sum, a._3+b._3)
+        })
+      val sensitivity = stat._1
+      val count = stat._3
+      val mean = stat._2.map(p1 => p1 / count)
+
+      val sum_test = p.map(qq => qq(0)).mean
+      val sum_test2 = stat._2(0)
+
+      println("RDD mean: " + sum_test)
+      println("UPA mean: " + sum_test2/count)
+
+      val b_mean = original.sparkContext.broadcast(mean)
+      val variance_upper = p
+        .map(q => {
+          var vector = q
+          for (q1 <- 0 until q.length)
+            {
+              vector(q1) = pow(q(q1) - b_mean.value(q1),2)
+            }
+          vector
+        })
+        .reduce((a,b) =>  DenseVector(a.toArray.zip(b.toArray).map(ab => ab._1 + ab._2)))
+      val variance = variance_upper.map(p2 => p2 / (count - 1))
+
+      neigbour_local_senstivity(a1) = sensitivity
+      meta_sample(a1) = (mean,variance,count)
     }
 
-    for (v1 <- 0 until result_length) {
-      val b_v1 = original.sparkContext.broadcast(v1)
-      for (a1 <- 0 until a1_length) {
-        val p = array._1(a1).map(q => q(b_v1.value))
-        val max = p.max
-        val min = p.min
-        val mean = p.mean
-        val sd = p.stdev
-        val counting = p.count()
-        println(app_name + "," + k_dist + "," + ((a1 + 1) * (-1)) + "," + mean + "," + sd + "," + counting)
-        neigbour_local_senstivity(a1)(v1) = scala.math.max(scala.math.abs(max - array._3(v1)), scala.math.abs(min - array._3(v1)))
-      }
+    for (a2 <- 0 until a2_length) {
+      val p = array._2(a2)
+      val stat = p
+        .map(p => (p,p,1))
+        .reduce((a,b) => {
+          var sensivitiy = a._2
+          var sum = new Array[Double](a._1.length)
+          for(vl <- 0 until a._1.length)
+          {
+            val a_diff = scala.math.abs(a._2(vl) - b_a3.value(vl))
+            val b_diff = scala.math.abs(b._2(vl) - b_a3.value(vl))
+            if(a_diff >= b_diff)
+              sensivitiy(vl) = a_diff
+            else
+              sensivitiy(vl) = b_diff
+            sum(vl) = a_diff + b_diff
+          }
+          (sensivitiy, DenseVector(sum), a._3+b._3)
+        })
+      val sensitivity = stat._1
+      val count = stat._3
+      val mean = stat._2.map(p1 => p1 / count)
+      val b_mean = original.sparkContext.broadcast(mean)
+      val variance_upper = p
+        .map(q => {
+          var vector = q
+          for (q1 <- 0 until q.length)
+          {
+            vector(q1) = pow(q(q1) - b_mean.value(q1),2)
+          }
+          vector
+        })
+        .reduce((a,b) => DenseVector(a.toArray.zip(b.toArray).map(ab => ab._1 + ab._2)))
+      val variance = variance_upper.map(p2 => p2 / (count - 1))
+      neigbour_local_advance_senstivity(a2) = sensitivity
+      meta_sample_advance(a2) = (mean,variance,count)
+    }
 
-      var a2_length = array._2.length
-      for(a2 <- 0 until a2_length)
+    for(vall <- 0 until result_length)
       {
-        val p = array._2(a2).map(q => q(b_v1.value))
-        val max = p.max
-        val min = p.min
-        val mean = p.mean
-        val sd = p.stdev
-        val counting = p.count()
-        println(app_name + "," + k_dist + "," + (a2 + 1) + "," + mean + "," + sd + "," + counting)
-        neigbour_local_advance_senstivity(a2)(v1) =  scala.math.max(scala.math.abs(max - array._3(v1)), scala.math.abs(min - array._3(v1)))
+        for(va1 <- 0 until a1_length)
+          {
+            val mean = meta_sample(va1)._1(vall)
+            val variance = meta_sample(va1)._2(vall)
+            val count = meta_sample(va1)._3
+            println(app_name + "," + k_dist + "," + ((va1 + 1) * (-1)) + "," + mean + "," + variance + "," + count)
+          }
+
+        for(va2 <- 0 until a2_length)
+        {
+          val mean = meta_sample_advance(va2)._1(vall)
+          val variance = meta_sample_advance(va2)._2(vall)
+          val count = meta_sample_advance(va2)._3
+          println(app_name + "," + k_dist + "," + (va2 + 1) + "," + mean + "," + variance + "," + count)
+        }
       }
-    }
 
     for (i <- 0 until neigbour_local_senstivity.length) {
       neigbour_local_senstivity(i) = neigbour_local_senstivity(i).map(p => p*exp(-beta*(i+1)))
@@ -329,7 +406,7 @@ var sample_advance = inputsample_advance
       {
         new_v(v2) = scala.math.max(a(v2),b(v2))
       }
-      new_v
+      DenseVector(new_v)
     })
     array._3.asInstanceOf[T]
   }
