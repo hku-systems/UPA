@@ -4,7 +4,8 @@ input_KM="../tpch-spark/dataset/ds/ds1.10_a.csv" #Should have 1 million rows
 input_LR="../tpch-spark/dataset/ds/ds1.10_a.csv" #Should have 1 million rows
 path_l="../tpch-spark/dbgen/lineitem.tbl" #Should have 1 million rows
 path_p="../tpch-spark/dbgen/partsupp.tbl" #Should have 1 million rows
-
+echo "10,1" > security.csv #make sure this file is under ~/AutoDP on all servers
+#do some scp here
 #*************Iteration********************
 for iteration in {0..100}
 do
@@ -60,6 +61,25 @@ $input_LR /home/john/tpch-spark/dataset/ds/ds1.10_a.csv \
 1 $dimension 1 > outputKM.txt
 done
 
+#**************Centroid******************
+
+for centroid in {1..10}
+do
+
+#KMean Original
+./bin/spark-submit \
+--class edu.hku.dp.original.SparkKMeans examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar \
+$input_KM \
+1 $centroid 10 > outputOKM.txt
+
+#KMean Ours
+./bin/spark-submit \
+--class edu.hku.dp.SparkKMeansDP examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar \
+$input_KM /home/john/tpch-spark/dataset/ds/ds1.10_a.csv \
+1 $centroid 10 1 > outputKM.txt
+
+done
+
 ##*************epsilon********************
 for dimension in {1..30}
 do
@@ -104,5 +124,4 @@ $path_l /home/john/tpch-spark/dbgen/partsupp.tbl 1 > output16.txt
 $path_l /home/john/tpch-spark/dbgen/lineitem.tbl \
 /home/john/tpch-spark/dbgen/orders.tbl /home/john/tpch-spark/dbgen/orders.tbl \
 /home/john/tpch-spark/dbgen/nation.tbl 1 > output.txt
-
 done
