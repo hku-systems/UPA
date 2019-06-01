@@ -26,12 +26,6 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
       val beta = epsilon / (2*scala.math.log(2/delta))
 
 
-      def reduceByKeyDP_rdd(func: (V, V) => V): (Array[(K,Array[RDD[V]])],Array[(K,Array[RDD[V]])],RDD[(K,V)]) = {
-        val originalresult = inputoriginal.reduceByKey(func)//Reduce original first
-        val aggregatedResult = originalresult.union(sample).reduceByKey(func)
-        val broadcast_result = original.sparkContext.broadcast(originalresult.collect().toMap)
-      }
-
       //parallelise inter key operation or intra key operation
       //seems use less collect is better
       //because collect then parallelise requires more rtt and sorting

@@ -30,8 +30,8 @@ import org.apache.spark.sql.SparkSession
   */
 object SparkKMeansDP {
 
-  def parseVector(line: String): Vector[Double] = {
-    DenseVector(line.split(',').map(_.toDouble))
+  def parseVector(line: String, D: Int): Vector[Double] = {
+    DenseVector(line.split(',').map(_.toDouble).take(D))
   }
 
   def closestPoint(p: Vector[Double], centers: Array[Vector[Double]]): Int = {
@@ -62,14 +62,15 @@ object SparkKMeansDP {
       .getOrCreate()
 
     val lines = new dpread(spark.sparkContext.textFile(args(0)),spark.sparkContext.textFile(args(1)))
-    val data = lines.mapDP(parseVector _)
     val ITERATIONS = args(2).toInt
     val K = args(3).toInt
     val D = args(4).toInt
+    val b_D = spark.sparkContext.broadcast(D)
+    val data = lines.mapDP(p => parseVector(p,b_D.value))
 
     var kPoints = new Array[Vector[Double]](K)
     for (k <- 0 until K) {
-      kPoints += Vector.fill(D)((k+1)*1.0)
+      kPoints(k) += Vector.fill[Double](D)(k*0.1)
     }
 
     for (i <- 1 to ITERATIONS) {
@@ -83,7 +84,7 @@ object SparkKMeansDP {
         val b_k = spark.sparkContext.broadcast(K)
         val reduced_result = closest.filterDP(p => p._1 == b_k.value).mapDP(_._2).reduce_and_add_noise_KDE((a,b) => (a._1 + b._1,a._2 + b._2),"KMeans",args(5).toInt)
         val new_centroid = reduced_result._1.map(p => p/reduced_result._2)
-        newPoints += (K, new_centroid)
+        newPoints += (K -> new_centroid)
       }
 
       for (newP <- newPoints) {
@@ -92,7 +93,7 @@ object SparkKMeansDP {
       //      println(s"Finished iteration (delta = $tempDist)")
     }
 
-    closest.collect().foreach(println)
+//    kPoints.foreach(println)
     spark.stop()
   }
 }
