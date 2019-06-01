@@ -6,6 +6,12 @@ path_l="../tpch-spark/dbgen/lineitem.tbl" #Should have 1 million rows
 path_p="../tpch-spark/dbgen/partsupp.tbl" #Should have 1 million rows
 echo "10,1" > security.csv #make sure this file is under ~/AutoDP on all servers
 #do some scp here
+
+#Evaluation itms:
+#1. Iteration
+#2. Dimension
+#3. Centroid
+#4. Epsilon
 #*************Iteration********************
 for iteration in {0..100}
 do
@@ -80,7 +86,7 @@ $input_KM /home/john/tpch-spark/dataset/ds/ds1.10_a.csv \
 
 done
 
-##*************epsilon********************
+##*************Epsilon********************
 for dimension in {1..30}
 do
 echo "$dimension,1" > security.csv #make sure this file is under ~/AutoDP on all servers
