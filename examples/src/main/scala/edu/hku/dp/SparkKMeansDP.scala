@@ -64,38 +64,35 @@ object SparkKMeansDP {
     val lines = new dpread(spark.sparkContext.textFile(args(0)),spark.sparkContext.textFile(args(1)))
     val data = lines.mapDP(parseVector _)
     val ITERATIONS = args(2).toInt
-    val K = 2
+    val K = args(3).toInt
+    val D = args(4).toInt
 
-    val kPoints = Array(Vector(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1),
-      Vector(0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2),
-      Vector(0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3))
-//      Vector(0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4),
-//      Vector(0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5))
+    var kPoints = new Array[Vector[Double]](K)
+    for (k <- 0 until K) {
+      kPoints += Vector.fill(D)((k+1)*1.0)
+    }
 
     for (i <- 1 to ITERATIONS) {
-    var tempDist = 1.0
+      var tempDist = 1.0
 
-//    while(tempDist > convergeDist) {
-      val closest = data.mapDPKV(p => (closestPoint(p, kPoints), (p, 1)))
+      val closest = data.mapDP(p => (closestPoint(p, kPoints), (p, 1)))
 
-      val pointStats = closest.reduceByKeyDP_KM((a,b) => (a._1 + b._1,a._2 + b._2),"Kmeans",args(3).toInt)
+      var newPoints = scala.collection.mutable.Map[Int,Vector[Double]]()
 
-      val newPoints = pointStats.map {pair =>
-        (pair._1, pair._2._1 * (1.0 / pair._2._2))}.collectAsMap()
-
-      tempDist = 0.0
-      for (i <- 0 until K) {
-        tempDist += squaredDistance(kPoints(i), newPoints(i))
+      for(j <- 0 until K) {
+        val b_k = spark.sparkContext.broadcast(K)
+        val reduced_result = closest.filterDP(p => p._1 == b_k.value).mapDP(_._2).reduce_and_add_noise_KDE((a,b) => (a._1 + b._1,a._2 + b._2),"KMeans",args(5).toInt)
+        val new_centroid = reduced_result._1.map(p => p/reduced_result._2)
+        newPoints += (K, new_centroid)
       }
 
       for (newP <- newPoints) {
         kPoints(newP._1) = newP._2
       }
-//      println(s"Finished iteration (delta = $tempDist)")
+      //      println(s"Finished iteration (delta = $tempDist)")
     }
 
-    println("Final centers:")
-    kPoints.foreach(println)
+    closest.collect().foreach(println)
     spark.stop()
   }
 }

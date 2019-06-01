@@ -25,6 +25,13 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
       val k_distance = k_distance_double.toInt
       val beta = epsilon / (2*scala.math.log(2/delta))
 
+
+      def reduceByKeyDP_rdd(func: (V, V) => V): (Array[(K,Array[RDD[V]])],Array[(K,Array[RDD[V]])],RDD[(K,V)]) = {
+        val originalresult = inputoriginal.reduceByKey(func)//Reduce original first
+        val aggregatedResult = originalresult.union(sample).reduceByKey(func)
+        val broadcast_result = original.sparkContext.broadcast(originalresult.collect().toMap)
+      }
+
       //parallelise inter key operation or intra key operation
       //seems use less collect is better
       //because collect then parallelise requires more rtt and sorting
@@ -34,17 +41,7 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
         val aggregatedResult = originalresult.union(sample).reduceByKey(func)
         val broadcast_result = original.sparkContext.broadcast(originalresult.collect().toMap)
 
-//        val broadcast_aggregatedResult = original.sparkContext.broadcast(aggregatedResult.collect())
-//        val sample_advance_count = sample_advance.count
-//        val sample_advance_collect = sample_advance.collect()
-//        val broadcast_sample_advance = original.sparkContext.broadcast(sample_advance_collect)
-           //should do based on key to reduce shuffling, 1) we assume only few distinct keys
-          //in the output, 2)the total output produced is less than 1111 because
-          //inter keys differing element provides redundant information, so
-          //we do not consider them
-          //Indeed it is like reduceDP if we order the sample based on the keys,
-          //just we do not consider inter-keys sampling
-        //******************Sample************
+
         val nighnouring_output = originalresult.join(sample).map(p => (p._1,p._2._2)).groupByKey().collect().map(p => {
             var inner_num = 0
             var outer_num = k_distance
@@ -162,6 +159,7 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
         }
 
       def reduceByKeyDP_Int(func: (V, V) => V, app_name: String, k_dist: Int): RDD[(K,V)] = {
+
         val array = reduceByKeyDP_deep(func)
         var meta_minus_outer = new Array[(K,Array[String])](array._1.length)
         var minus_outer_count = 0

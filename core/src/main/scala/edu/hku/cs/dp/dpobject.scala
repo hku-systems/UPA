@@ -61,7 +61,9 @@ var sample_advance = inputsample_advance
     //The "sample" field carries the aggregated result already
 
     val result = original.reduce(f)
-    val aggregatedResult = f(sample.reduce(f),result)//get the aggregated result
+    var aggregatedResult = result//get the aggregated result
+    if(!sample.isEmpty())
+       aggregatedResult = f(sample.reduce(f),result)//get the aggregated result
     val broadcast_result = original.sparkContext.broadcast(result)
     val broadcast_aggregatedResult = original.sparkContext.broadcast(aggregatedResult)
 

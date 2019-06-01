@@ -47,11 +47,13 @@ class dpobjectArray[T: ClassTag](
   }
 
   def reduceDP(f: (T, T) => T) : (RDD[Array[T]],RDD[Array[T]],T) = {
-    //The "sample" field carries the aggregated result already
+    //The "sample" field carries the aggregated result already "
 
     val result = original.reduce(f)
       val filtered_sample = sample.map(p => (p._2,p._1)).reduceByKey(f).map(_._2)
-      var aggregatedResult = f(filtered_sample.reduce(f), result) //get the aggregated result
+      var aggregatedResult = result //get the aggregated result
+     if(!filtered_sample.isEmpty())
+         aggregatedResult = f(filtered_sample.reduce(f), result) //get the aggregated result
       val filtered_sample_advance = sample_advance.map(p => (p._2,p._1)).reduceByKey(f).map(_._2)
       val broadcast_result = original.sparkContext.broadcast(result)
       val broadcast_aggregatedResult = original.sparkContext.broadcast(aggregatedResult)

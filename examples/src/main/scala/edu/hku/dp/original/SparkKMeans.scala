@@ -72,17 +72,34 @@ object SparkKMeans {
 
     val lines = spark.read.textFile(args(0)).rdd
     val data = lines.map(parseVector _)
-    val K = 5
+    val ITERATIONS = args(1).toInt
+    val K = args(2).toInt
+    val D = args(3).toInt
 
-    val kPoints = Array(Vector(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1),
-      Vector(0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2),
-      Vector(0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3),
-      Vector(0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4),
-      Vector(0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5))
-    var tempDist = 1.0
+    var kPoints = new Array[Vector[Double]](K)
+    for (k <- 0 until K) {
+      kPoints += Vector.fill(D)((k+1)*1.0)
+    }
 
-//    while(tempDist > convergeDist) {
-    val closest = data.map(p => closestPoint(p, kPoints))
+    for (i <- 1 to ITERATIONS) {
+      var tempDist = 1.0
+
+      val closest = data.map(p => (closestPoint(p, kPoints), (p, 1)))
+
+      var newPoints = scala.collection.mutable.Map[Int,Vector[Double]]()
+
+      for(j <- 0 until K) {
+        val b_k = spark.sparkContext.broadcast(K)
+        val reduced_result = closest.filter(p => p._1 == b_k.value).map(_._2).reduce((a,b) => (a._1 + b._1,a._2 + b._2))
+        val new_centroid = reduced_result._1.map(p => p/reduced_result._2)
+        newPoints += (K, new_centroid)
+      }
+
+      for (newP <- newPoints) {
+        kPoints(newP._1) = newP._2
+      }
+      //      println(s"Finished iteration (delta = $tempDist)")
+    }
 
     closest.collect().foreach(println)
     spark.stop()
