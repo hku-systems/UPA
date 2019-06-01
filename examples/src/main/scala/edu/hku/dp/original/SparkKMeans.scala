@@ -80,10 +80,8 @@ object SparkKMeans {
     val data = lines.map(p => parseVector(p,D))
 
 
-    var kPoints = new Array[Vector[Double]](K)
-    for (k <- 0 until K) {
-      kPoints(k) += Vector.fill[Double](D)(k*0.1)
-    }
+    val r = scala.util.Random
+    var kPoints =  Array.fill(K)(Vector.fill(D)(r.nextDouble))
 
     for (i <- 1 to ITERATIONS) {
       var tempDist = 1.0
@@ -93,10 +91,15 @@ object SparkKMeans {
       var newPoints = scala.collection.mutable.Map[Int,Vector[Double]]()
 
       for(j <- 0 until K) {
-        val b_k = spark.sparkContext.broadcast(K)
-        val reduced_result = closest.filter(p => p._1 == b_k.value).map(_._2).reduce((a,b) => (a._1 + b._1,a._2 + b._2))
-        val new_centroid = reduced_result._1.map(p => p/reduced_result._2)
-        newPoints += (K -> new_centroid)
+        val b_k = spark.sparkContext.broadcast(j)
+        val new_centroid = closest.filter(p => p._1 == b_k.value)
+        if (new_centroid.isEmpty()) {
+          newPoints += (j -> kPoints(j))
+        } else {
+          val value = new_centroid.map(_._2)
+            .reduce((a, b) => (a._1 + b._1, a._2 + b._2))
+          newPoints += (j -> value._1.map(p => p / value._2))
+        }
       }
 
       for (newP <- newPoints) {

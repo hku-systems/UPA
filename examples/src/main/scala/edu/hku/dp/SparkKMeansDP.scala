@@ -68,10 +68,8 @@ object SparkKMeansDP {
     val b_D = spark.sparkContext.broadcast(D)
     val data = lines.mapDP(p => parseVector(p,b_D.value))
 
-    var kPoints = new Array[Vector[Double]](K)
-    for (k <- 0 until K) {
-      kPoints(k) += Vector.fill[Double](D)(k*0.1)
-    }
+    val r = scala.util.Random
+    var kPoints =  Array.fill(K)(Vector.fill(D)(r.nextDouble))
 
     for (i <- 1 to ITERATIONS) {
       var tempDist = 1.0
@@ -81,10 +79,14 @@ object SparkKMeansDP {
       var newPoints = scala.collection.mutable.Map[Int,Vector[Double]]()
 
       for(j <- 0 until K) {
-        val b_k = spark.sparkContext.broadcast(K)
-        val reduced_result = closest.filterDP(p => p._1 == b_k.value).mapDP(_._2).reduce_and_add_noise_KDE((a,b) => (a._1 + b._1,a._2 + b._2),"KMeans",args(5).toInt)
-        val new_centroid = reduced_result._1.map(p => p/reduced_result._2)
-        newPoints += (K -> new_centroid)
+        val b_k = spark.sparkContext.broadcast(j)
+        val new_centroid = closest.filterDP(p => p._1 == b_k.value)
+        if(new_centroid.isEmptyDP()) {
+          newPoints += (j -> kPoints(j))
+        }else {
+          val value = new_centroid.mapDP(_._2).reduce_and_add_noise_KM((a,b) => (a._1 + b._1,a._2 + b._2),"KMeans",args(5).toInt)
+          newPoints += (j -> value)
+        }
       }
 
       for (newP <- newPoints) {

@@ -28,6 +28,7 @@ class dpobject[T: ClassTag](
 var sample_advance = inputsample_advance
   var original = inputoriginal
   var sample_addition = inputsample
+
   val epsilon = 0.1
   val delta = pow(10,-8)
   val k_distance_double = 1/epsilon
@@ -53,13 +54,17 @@ var sample_advance = inputsample_advance
     new dpobject(r1,r2,r3)
   }
 
+  def isEmptyDP(): Boolean = {
+    inputoriginal.isEmpty()
+  }
+
+
   def mapDPKV[K: ClassTag,V: ClassTag](f: T => (K,V)): dpobjectKV[K,V]= {
     new dpobjectKV(inputsample.map(f).asInstanceOf[RDD[(K,V)]],sample_advance.map(f).asInstanceOf[RDD[(K,V)]],inputoriginal.map(f).asInstanceOf[RDD[(K,V)]])
   }
 
   def reduceDP(f: (T, T) => T) : (RDD[Array[T]],RDD[Array[T]],T) = {
     //The "sample" field carries the aggregated result already
-
     val result = original.reduce(f)
     var aggregatedResult = result//get the aggregated result
     if(!sample.isEmpty())
@@ -155,98 +160,102 @@ var sample_advance = inputsample_advance
   }
 
   def reduce_and_add_noise_KDE(f: (T, T) => T, app_name: String, k_dist: Int): T = {
+
+//    val parameters = original.sparkContext.textFile("security.csv")
+
+    //    val src = Source.fromFile("/etc/passwd")
+//    val iter = src.getLines().map(_.split(":"))
+
     //computin candidates of smooth sensitivity
     var array = reduceDP(f).asInstanceOf[(RDD[Array[Double]],RDD[Array[Double]],Double)]
 
-    val stat_sample = array._1
-      .map(p => (p,p,p,1))
-      .reduce((a,b) => {
-        val max = a._1.zip(b._1).map(x => scala.math.max(x._1, x._2))
-        val min = a._2.zip(b._2).map(x => scala.math.min(x._1, x._2))
-        val sum = a._3.zip(b._3).map(x => x._1 + x._2)
-        (max,min,sum,a._4 + b._4)
-      })
-    val sample_count = stat_sample._4
+    if(!array._1.isEmpty && !array._2.isEmpty) {
+      val stat_sample = array._1
+        .map(p => (p, p, p, 1))
+        .reduce((a, b) => {
+          val max = a._1.zip(b._1).map(x => scala.math.max(x._1, x._2))
+          val min = a._2.zip(b._2).map(x => scala.math.min(x._1, x._2))
+          val sum = a._3.zip(b._3).map(x => x._1 + x._2)
+          (max, min, sum, a._4 + b._4)
+        })
+      val sample_count = stat_sample._4
 
-    val sample_mean = stat_sample._3.map(s => s/sample_count)
+      val sample_mean = stat_sample._3.map(s => s / sample_count)
 
-    val b_sample_mean = original.sparkContext.broadcast(sample_mean)
+      val b_sample_mean = original.sparkContext.broadcast(sample_mean)
 
-    val sample_variance = array._1.map(s => {
-      var sd_inner = s
-       for(sa <- 0 until s.length)
-         {
-           sd_inner(sa) = pow(s(sa) - b_sample_mean.value(sa),2)
-         }
-      sd_inner
-    }).reduce((a,b) => {
-      val zipped = a.zip(b)
-      val sum = zipped.map(x => x._1 + x._2)
-      sum
-    }).map(sv => sv/sample_count)
+      val sample_variance = array._1.map(s => {
+        var sd_inner = s
+        for (sa <- 0 until s.length) {
+          sd_inner(sa) = pow(s(sa) - b_sample_mean.value(sa), 2)
+        }
+        sd_inner
+      }).reduce((a, b) => {
+        val zipped = a.zip(b)
+        val sum = zipped.map(x => x._1 + x._2)
+        sum
+      }).map(sv => sv / sample_count)
 
-    val local_sensitivity_sample = stat_sample._1
-      .zip(stat_sample._2)
-      .map(q => {
-      scala.math.max(scala.math.abs(q._1 - array._3),scala.math.abs(q._2 - array._3))
-    })
+      val local_sensitivity_sample = stat_sample._1
+        .zip(stat_sample._2)
+        .map(q => {
+          scala.math.max(scala.math.abs(q._1 - array._3), scala.math.abs(q._2 - array._3))
+        })
 
-    //********sample advance
-   val stat_sample_advance = array._2
-     .map(p => (p,p,p,1))
-     .reduce((a,b) => {
-       val max = a._1.zip(b._1).map(x => scala.math.max(x._1, x._2))
-       val min = a._2.zip(b._2).map(x => scala.math.min(x._1, x._2))
-       val sum = a._3.zip(b._3).map(x => x._1 + x._2)
-       (max,min,sum,a._4 + b._4)
-     })
-    val sample_count_advance = stat_sample_advance._4
+      //********sample advance
+      val stat_sample_advance = array._2
+        .map(p => (p, p, p, 1))
+        .reduce((a, b) => {
+          val max = a._1.zip(b._1).map(x => scala.math.max(x._1, x._2))
+          val min = a._2.zip(b._2).map(x => scala.math.min(x._1, x._2))
+          val sum = a._3.zip(b._3).map(x => x._1 + x._2)
+          (max, min, sum, a._4 + b._4)
+        })
+      val sample_count_advance = stat_sample_advance._4
 
-    val sample_mean_advance = stat_sample_advance._3.map(s => s / sample_count_advance)
+      val sample_mean_advance = stat_sample_advance._3.map(s => s / sample_count_advance)
 
-    val b_sample_mean_advance = original.sparkContext.broadcast(sample_mean_advance)
+      val b_sample_mean_advance = original.sparkContext.broadcast(sample_mean_advance)
 
-    val sample_variance_advance = array._2.map(s => {
-      var sd_inner = s
-      for(sa <- 0 until s.length)
-      {
-        sd_inner(sa) = pow(s(sa) - b_sample_mean_advance.value(sa),2)
-      }
-      sd_inner
-    }).reduce((a,b) => {
-      val zipped = a.zip(b)
-      val sum = zipped.map(x => x._1 + x._2)
-      sum
-    }).map(sv => sv/sample_count_advance)
+      val sample_variance_advance = array._2.map(s => {
+        var sd_inner = s
+        for (sa <- 0 until s.length) {
+          sd_inner(sa) = pow(s(sa) - b_sample_mean_advance.value(sa), 2)
+        }
+        sd_inner
+      }).reduce((a, b) => {
+        val zipped = a.zip(b)
+        val sum = zipped.map(x => x._1 + x._2)
+        sum
+      }).map(sv => sv / sample_count_advance)
 
-    val local_sensitivity_sample_advance = stat_sample_advance._1
-      .zip(stat_sample_advance._2)
-      .map(q => {
-        scala.math.max(scala.math.abs(q._1 - array._3),scala.math.abs(q._2 - array._3))
-      })
-    //End of sample advance
+      val local_sensitivity_sample_advance = stat_sample_advance._1
+        .zip(stat_sample_advance._2)
+        .map(q => {
+          scala.math.max(scala.math.abs(q._1 - array._3), scala.math.abs(q._2 - array._3))
+        })
+      //End of sample advance
 
-    for(m1 <- 0 until sample_mean.length)
-    {
-      println(app_name + "," + k_dist + "," + ((m1 + 1) * (-1)) + "," + sample_mean(m1) + "," + sample_variance(m1) + "," + sample_count)
-    }
-
-      for(m2 <- 0 until sample_mean_advance.length)
-      {
-        println(app_name + "," + k_dist + "," +  (m2 + 1) + "," + sample_mean_advance(m2) + "," + sample_variance_advance(m2) + "," + sample_count_advance)
+      for (m1 <- 0 until sample_mean.length) {
+        println(app_name + "," + k_dist + "," + ((m1 + 1) * (-1)) + "," + sample_mean(m1) + "," + sample_variance(m1) + "," + sample_count)
       }
 
-    var max_nls = 0.0
-    for (i <- 0 until local_sensitivity_sample.length) {
-      local_sensitivity_sample(i) = local_sensitivity_sample(i)*exp(-beta*(i+1))
-      if(local_sensitivity_sample(i) > max_nls)
-        max_nls = local_sensitivity_sample(i)
-    }
+      for (m2 <- 0 until sample_mean_advance.length) {
+        println(app_name + "," + k_dist + "," + (m2 + 1) + "," + sample_mean_advance(m2) + "," + sample_variance_advance(m2) + "," + sample_count_advance)
+      }
 
-    for (i <- 0 until local_sensitivity_sample_advance.length) {
-      local_sensitivity_sample_advance(i) = local_sensitivity_sample_advance(i)*exp(-beta*(i+1))
-      if(local_sensitivity_sample_advance(i) > max_nls)
-        max_nls = local_sensitivity_sample_advance(i)
+      var max_nls = 0.0
+      for (i <- 0 until local_sensitivity_sample.length) {
+        local_sensitivity_sample(i) = local_sensitivity_sample(i) * exp(-beta * (i + 1))
+        if (local_sensitivity_sample(i) > max_nls)
+          max_nls = local_sensitivity_sample(i)
+      }
+
+      for (i <- 0 until local_sensitivity_sample_advance.length) {
+        local_sensitivity_sample_advance(i) = local_sensitivity_sample_advance(i) * exp(-beta * (i + 1))
+        if (local_sensitivity_sample_advance(i) > max_nls)
+          max_nls = local_sensitivity_sample_advance(i)
+      }
     }
 
     array._3.asInstanceOf[T] //sensitivity
@@ -257,115 +266,231 @@ var sample_advance = inputsample_advance
 
     val array = reduceDP(f).asInstanceOf[(RDD[Array[Vector[Double]]], RDD[Array[Vector[Double]]], Vector[Double])]
 
-    val stat_sample = array._1
-      .map(p => (p,p,p,1))
-      .reduce((a,b) => {
+    if(!array._1.isEmpty && !array._2.isEmpty) {
+      val stat_sample = array._1
+        .map(p => (p, p, p, 1))
+        .reduce((a, b) => {
 
-        val max = a._1.zip(b._1).map(x => {
-           Vector(x._1.toArray.zip(x._2.toArray).map(qm => scala.math.max(qm._1,qm._2)))
+          val max = a._1.zip(b._1).map(x => {
+            Vector(x._1.toArray.zip(x._2.toArray).map(qm => scala.math.max(qm._1, qm._2)))
+          })
+
+          val min = a._2.zip(b._2).map(x => {
+            Vector(x._1.toArray.zip(x._2.toArray).map(qm => scala.math.min(qm._1, qm._2)))
+          })
+
+          val sum = a._3.zip(b._3).map(x => {
+            Vector(x._1.toArray.zip(x._2.toArray).map(qm => qm._1 + qm._2))
+          })
+
+          (max, min, sum, a._4 + b._4)
         })
 
-        val min = a._2.zip(b._2).map(x => {
-          Vector(x._1.toArray.zip(x._2.toArray).map(qm => scala.math.min(qm._1,qm._2)))
+      val sample_count = stat_sample._4
+      val sample_mean = stat_sample._3.map(s => s.map(ss => ss / sample_count))
+      val b_sample_mean = original.sparkContext.broadcast(sample_mean)
+      val sample_variance = array._1.map(s => {
+
+        s.zipWithIndex.map(ss => Vector(ss._1.toArray.zipWithIndex.map(sss => pow(sss._1 - b_sample_mean.value(ss._2)(sss._2), 2))))
+
+      }).reduce((a, b) => {
+        val zipped = a.zip(b)
+        val sum = zipped.map(x => Vector(x._1.toArray.zip(x._2.toArray).map(qm => qm._1 + qm._2)))
+        sum
+      }).map(sv => sv.map(svv => svv / sample_count))
+
+      val local_sensitivity_sample = stat_sample._1
+        .zip(stat_sample._2)
+        .map(q => {
+          DenseVector(q._1.toArray.zip(q._2.toArray).zipWithIndex
+            .map(qm => scala.math.max(scala.math.abs(qm._1._1 - array._3(qm._2)), scala.math.abs(qm._1._2 - array._3(qm._2)))))
         })
 
-        val sum = a._3.zip(b._3).map(x => {
-          Vector(x._1.toArray.zip(x._2.toArray).map(qm => qm._1 + qm._2))
+      //****************sample advance
+
+      val stat_sample_advance = array._2
+        .map(p => (p, p, p, 1))
+        .reduce((a, b) => {
+
+          val max = a._1.zip(b._1).map(x => {
+            Vector(x._1.toArray.zip(x._2.toArray).map(qm => scala.math.max(qm._1, qm._2)))
+          })
+
+          val min = a._2.zip(b._2).map(x => {
+            Vector(x._1.toArray.zip(x._2.toArray).map(qm => scala.math.min(qm._1, qm._2)))
+          })
+
+          val sum = a._3.zip(b._3).map(x => {
+            Vector(x._1.toArray.zip(x._2.toArray).map(qm => qm._1 + qm._2))
+          })
+
+          (max, min, sum, a._4 + b._4)
         })
 
-        (max,min,sum,a._4 + b._4)
-      })
+      val sample_count_advance = stat_sample_advance._4
+      val sample_mean_advance = stat_sample_advance._3.map(s => s.map(ss => ss / sample_count_advance))
+      val b_sample_mean_advance = original.sparkContext.broadcast(sample_mean_advance)
+      val sample_variance_advance = array._2.map(s => {
 
-    val sample_count = stat_sample._4
-    val sample_mean = stat_sample._3.map(s => s.map(ss => ss/sample_count))
-    val b_sample_mean = original.sparkContext.broadcast(sample_mean)
-    val sample_variance = array._1.map(s => {
+        s.zipWithIndex.map(ss => Vector(ss._1.toArray.zipWithIndex.map(sss => pow(sss._1 - b_sample_mean_advance.value(ss._2)(sss._2), 2))))
 
-      s.zipWithIndex.map(ss => Vector(ss._1.toArray.zipWithIndex.map(sss => pow(sss._1 - b_sample_mean.value(ss._2)(sss._2),2))))
+      }).reduce((a, b) => {
+        val zipped = a.zip(b)
+        val sum = zipped.map(x => Vector(x._1.toArray.zip(x._2.toArray).map(qm => qm._1 + qm._2)))
+        sum
+      }).map(sv => sv.map(svv => svv / sample_count_advance))
 
-    }).reduce((a,b) => {
-      val zipped = a.zip(b)
-      val sum = zipped.map(x => Vector(x._1.toArray.zip(x._2.toArray).map(qm => qm._1 + qm._2)))
-      sum
-    }).map(sv => sv.map(svv => svv / sample_count))
+      val local_sensitivity_sample_advance = stat_sample_advance._1
+        .zip(stat_sample_advance._2)
+        .map(q => {
+          DenseVector(q._1.toArray.zip(q._2.toArray).zipWithIndex.map(qm => scala.math.max(scala.math.abs(qm._1._1 - array._3(qm._2)), scala.math.abs(qm._1._2 - array._3(qm._2)))))
+        })
 
-    val local_sensitivity_sample = stat_sample._1
-      .zip(stat_sample._2)
-      .map(q => {
-        DenseVector(q._1.toArray.zip(q._2.toArray).zipWithIndex
-          .map(qm => scala.math.max(scala.math.abs(qm._1._1 - array._3(qm._2)),scala.math.abs(qm._1._2 - array._3(qm._2)))))
-      })
-
-  //****************sample advance
-
-  val stat_sample_advance = array._2
-    .map(p => (p,p,p,1))
-    .reduce((a,b) => {
-
-      val max = a._1.zip(b._1).map(x => {
-        Vector(x._1.toArray.zip(x._2.toArray).map(qm => scala.math.max(qm._1,qm._2)))
-      })
-
-      val min = a._2.zip(b._2).map(x => {
-        Vector(x._1.toArray.zip(x._2.toArray).map(qm => scala.math.min(qm._1,qm._2)))
-      })
-
-      val sum = a._3.zip(b._3).map(x => {
-        Vector(x._1.toArray.zip(x._2.toArray).map(qm => qm._1 + qm._2))
-      })
-
-      (max,min,sum,a._4 + b._4)
-    })
-
-  val sample_count_advance = stat_sample_advance._4
-  val sample_mean_advance = stat_sample_advance._3.map(s => s.map(ss => ss/sample_count_advance))
-  val b_sample_mean_advance = original.sparkContext.broadcast(sample_mean_advance)
-  val sample_variance_advance = array._2.map(s => {
-
-    s.zipWithIndex.map(ss => Vector(ss._1.toArray.zipWithIndex.map(sss => pow(sss._1 - b_sample_mean_advance.value(ss._2)(sss._2),2))))
-
-  }).reduce((a,b) => {
-    val zipped = a.zip(b)
-    val sum = zipped.map(x => Vector(x._1.toArray.zip(x._2.toArray).map(qm => qm._1 + qm._2)))
-    sum
-  }).map(sv => sv.map(svv => svv / sample_count_advance))
-
-  val local_sensitivity_sample_advance = stat_sample_advance._1
-    .zip(stat_sample_advance._2)
-    .map(q => {
-      DenseVector(q._1.toArray.zip(q._2.toArray).zipWithIndex.map(qm => scala.math.max(scala.math.abs(qm._1._1 - array._3(qm._2)),scala.math.abs(qm._1._2 - array._3(qm._2)))))
-    })
-
-    for(v1 <- 0 until sample_mean.head.length)
-      {
-        for(m1 <- 0 until sample_mean.length)
-        {
+      for (v1 <- 0 until sample_mean.head.length) {
+        for (m1 <- 0 until sample_mean.length) {
           println(app_name + "," + k_dist + "," + ((m1 + 1) * (-1)) + "," + sample_mean(m1)(v1) + "," + sample_variance(m1)(v1) + "," + sample_count)
         }
 
-        for(m2 <- 0 until sample_mean_advance.length)
-        {
+        for (m2 <- 0 until sample_mean_advance.length) {
           println(app_name + "," + k_dist + "," + (m2 + 1) + "," + sample_mean_advance(m2)(v1) + "," + sample_variance_advance(m2)(v1) + "," + sample_count_advance)
         }
       }
 
-    for (i <- 0 until local_sensitivity_sample.length) {
-      local_sensitivity_sample(i) = local_sensitivity_sample(i).map(p => p*exp(-beta*(i+1)))
-    }
-
-    for (i <- 0 until local_sensitivity_sample_advance.length) {
-      local_sensitivity_sample_advance(i) = local_sensitivity_sample_advance(i).map(p => p*exp(-beta*(i+1)))
-    }
-    val final_sensitivity = (local_sensitivity_sample ++ local_sensitivity_sample_advance).reduce((a,b) => {
-      val v_length = a.length
-      val new_v = new Array[Double](v_length)
-      for(v2 <- 0 until v_length)
-      {
-        new_v(v2) = scala.math.max(a(v2),b(v2))
+      for (i <- 0 until local_sensitivity_sample.length) {
+        local_sensitivity_sample(i) = local_sensitivity_sample(i).map(p => p * exp(-beta * (i + 1)))
       }
-      DenseVector(new_v)
-    })
+
+      for (i <- 0 until local_sensitivity_sample_advance.length) {
+        local_sensitivity_sample_advance(i) = local_sensitivity_sample_advance(i).map(p => p * exp(-beta * (i + 1)))
+      }
+      val final_sensitivity = (local_sensitivity_sample ++ local_sensitivity_sample_advance).reduce((a, b) => {
+        val v_length = a.length
+        val new_v = new Array[Double](v_length)
+        for (v2 <- 0 until v_length) {
+          new_v(v2) = scala.math.max(a(v2), b(v2))
+        }
+        DenseVector(new_v)
+      })
+    }
     array._3.asInstanceOf[T]
+  }
+
+  def reduce_and_add_noise_KM(f: (T, T) => T, app_name: String, k_dist: Int): Vector[Double] = {
+    //computin candidates of smooth sensitivity
+
+    val array = reduceDP(f).asInstanceOf[(RDD[Array[(Vector[Double],Int)]], RDD[Array[(Vector[Double],Int)]], (Vector[Double],Int))]
+
+    val return_result = array._3._1.map(p => p/array._3._2)
+
+    if(!array._1.isEmpty && !array._2.isEmpty) {
+      val sample_n = array._1.map(q => q.map(v => v._1.map(v1 => v1 / v._2)))
+      val sample_a = array._2.map(q => q.map(v => v._1.map(v1 => v1 / v._2)))
+      val stat_sample = sample_n
+        .map(p => (p, p, p, 1))
+        .reduce((a, b) => {
+
+          val max = a._1.zip(b._1).map(x => {
+            Vector(x._1.toArray.zip(x._2.toArray).map(qm => scala.math.max(qm._1, qm._2)))
+          })
+
+          val min = a._2.zip(b._2).map(x => {
+            Vector(x._1.toArray.zip(x._2.toArray).map(qm => scala.math.min(qm._1, qm._2)))
+          })
+
+          val sum = a._3.zip(b._3).map(x => {
+            Vector(x._1.toArray.zip(x._2.toArray).map(qm => qm._1 + qm._2))
+          })
+
+          (max, min, sum, a._4 + b._4)
+        })
+
+      val sample_count = stat_sample._4
+      val sample_mean = stat_sample._3.map(s => s.map(ss => ss / sample_count))
+      val b_sample_mean = original.sparkContext.broadcast(sample_mean)
+      val sample_variance = sample_n.map(s => {
+
+        s.zipWithIndex.map(ss => Vector(ss._1.toArray.zipWithIndex.map(sss => pow(sss._1 - b_sample_mean.value(ss._2)(sss._2), 2))))
+
+      }).reduce((a, b) => {
+        val zipped = a.zip(b)
+        val sum = zipped.map(x => Vector(x._1.toArray.zip(x._2.toArray).map(qm => qm._1 + qm._2)))
+        sum
+      }).map(sv => sv.map(svv => svv / sample_count))
+
+      val local_sensitivity_sample = stat_sample._1
+        .zip(stat_sample._2)
+        .map(q => {
+          DenseVector(q._1.toArray.zip(q._2.toArray).zipWithIndex
+            .map(qm => scala.math.max(scala.math.abs(qm._1._1 - return_result(qm._2)), scala.math.abs(qm._1._2 - return_result(qm._2)))))
+        })
+
+      //****************sample advance
+
+      val stat_sample_advance = sample_a
+        .map(p => (p, p, p, 1))
+        .reduce((a, b) => {
+
+          val max = a._1.zip(b._1).map(x => {
+            Vector(x._1.toArray.zip(x._2.toArray).map(qm => scala.math.max(qm._1, qm._2)))
+          })
+
+          val min = a._2.zip(b._2).map(x => {
+            Vector(x._1.toArray.zip(x._2.toArray).map(qm => scala.math.min(qm._1, qm._2)))
+          })
+
+          val sum = a._3.zip(b._3).map(x => {
+            Vector(x._1.toArray.zip(x._2.toArray).map(qm => qm._1 + qm._2))
+          })
+
+          (max, min, sum, a._4 + b._4)
+        })
+
+      val sample_count_advance = stat_sample_advance._4
+      val sample_mean_advance = stat_sample_advance._3.map(s => s.map(ss => ss / sample_count_advance))
+      val b_sample_mean_advance = original.sparkContext.broadcast(sample_mean_advance)
+      val sample_variance_advance = sample_a.map(s => {
+
+        s.zipWithIndex.map(ss => Vector(ss._1.toArray.zipWithIndex.map(sss => pow(sss._1 - b_sample_mean_advance.value(ss._2)(sss._2), 2))))
+
+      }).reduce((a, b) => {
+        val zipped = a.zip(b)
+        val sum = zipped.map(x => Vector(x._1.toArray.zip(x._2.toArray).map(qm => qm._1 + qm._2)))
+        sum
+      }).map(sv => sv.map(svv => svv / sample_count_advance))
+
+      val local_sensitivity_sample_advance = stat_sample_advance._1
+        .zip(stat_sample_advance._2)
+        .map(q => {
+          DenseVector(q._1.toArray.zip(q._2.toArray).zipWithIndex.map(qm => scala.math.max(scala.math.abs(qm._1._1 - return_result(qm._2)), scala.math.abs(qm._1._2 - return_result(qm._2)))))
+        })
+
+      for (v1 <- 0 until sample_mean.head.length) {
+        for (m1 <- 0 until sample_mean.length) {
+          println(app_name + "," + k_dist + "," + ((m1 + 1) * (-1)) + "," + sample_mean(m1)(v1) + "," + sample_variance(m1)(v1) + "," + sample_count)
+        }
+
+        for (m2 <- 0 until sample_mean_advance.length) {
+          println(app_name + "," + k_dist + "," + (m2 + 1) + "," + sample_mean_advance(m2)(v1) + "," + sample_variance_advance(m2)(v1) + "," + sample_count_advance)
+        }
+      }
+
+      for (i <- 0 until local_sensitivity_sample.length) {
+        local_sensitivity_sample(i) = local_sensitivity_sample(i).map(p => p * exp(-beta * (i + 1)))
+      }
+
+      for (i <- 0 until local_sensitivity_sample_advance.length) {
+        local_sensitivity_sample_advance(i) = local_sensitivity_sample_advance(i).map(p => p * exp(-beta * (i + 1)))
+      }
+      val final_sensitivity = (local_sensitivity_sample ++ local_sensitivity_sample_advance).reduce((a, b) => {
+        val v_length = a.length
+        val new_v = new Array[Double](v_length)
+        for (v2 <- 0 until v_length) {
+          new_v(v2) = scala.math.max(a(v2), b(v2))
+        }
+        DenseVector(new_v)
+      })
+    }
+    return_result
   }
 
   def filterDP(f: T => Boolean) : dpobject[T] = {
