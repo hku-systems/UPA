@@ -46,8 +46,14 @@ class dpobjectArray[T: ClassTag](
     new dpobjectArray(inputsample.filter(p => f(p._1)),inputsample_advance.filter(p => f(p._1)),inputoriginal.filter(f))
   }
 
-  def reduceDP(f: (T, T) => T) : (RDD[Array[T]],RDD[Array[T]],T) = {
+  def reduceDP(f: (T, T) => T) : (RDD[Array[T]],RDD[Array[T]],T, Double) = {
     //The "sample" field carries the aggregated result already "
+    val parameters = scala.io.Source.fromFile("security.csv").mkString.split(',')
+    val epsilon = parameters(0).toDouble
+    val delta = parameters(1).toDouble
+    val k_distance_double = 1/epsilon
+    val k_distance = k_distance_double.toInt
+    val beta = epsilon / (2*scala.math.log(2/delta))
 
     val result = original.reduce(f)
       val filtered_sample = sample.map(p => (p._2,p._1)).reduceByKey(f).map(_._2)
@@ -138,12 +144,14 @@ class dpobjectArray[T: ClassTag](
               neighnout_o
             })
       }
-    (sample_array,sample_array_advance,aggregatedResult)
+    (sample_array,sample_array_advance,aggregatedResult,beta)
   }
 
   def reduce_and_add_noise_KDE(f: (T, T) => T, app_name: String, k_dist: Int): T = {
     //computin candidates of smooth sensitivity
-    var array = reduceDP(f).asInstanceOf[(RDD[Array[Double]],RDD[Array[Double]],Double)]
+
+    var array = reduceDP(f).asInstanceOf[(RDD[Array[Double]],RDD[Array[Double]],Double, Double)]
+    val beta = array._4
 
     if(!array._1.isEmpty() && !array._2.isEmpty()) {
       val stat_sample = array._1

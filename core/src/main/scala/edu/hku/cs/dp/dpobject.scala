@@ -29,12 +29,6 @@ var sample_advance = inputsample_advance
   var original = inputoriginal
   var sample_addition = inputsample
 
-  val epsilon = 0.1
-  val delta = pow(10,-8)
-  val k_distance_double = 1/epsilon
-  val k_distance = k_distance_double.toInt
-  val beta = epsilon / (2*scala.math.log(2/delta))
-
 
   override def compute(split: org.apache.spark.Partition, context: org.apache.spark.TaskContext): Iterator[T] =
   {
@@ -63,7 +57,15 @@ var sample_advance = inputsample_advance
     new dpobjectKV(inputsample.map(f).asInstanceOf[RDD[(K,V)]],sample_advance.map(f).asInstanceOf[RDD[(K,V)]],inputoriginal.map(f).asInstanceOf[RDD[(K,V)]])
   }
 
-  def reduceDP(f: (T, T) => T) : (RDD[Array[T]],RDD[Array[T]],T) = {
+  def reduceDP(f: (T, T) => T) : (RDD[Array[T]],RDD[Array[T]],T, Double) = {
+
+    val parameters = scala.io.Source.fromFile("security.csv").mkString.split(',')
+    val epsilon = parameters(0).toDouble
+    val delta = parameters(1).toDouble
+    val k_distance_double = 1/epsilon
+    val k_distance = k_distance_double.toInt
+    val beta = epsilon / (2*scala.math.log(2/delta))
+
     //The "sample" field carries the aggregated result already
     val result = original.reduce(f)
     var aggregatedResult = result//get the aggregated result
@@ -156,20 +158,19 @@ var sample_advance = inputsample_advance
           })
     }
 
-    (sample_array,sample_array_advance,aggregatedResult)
+    (sample_array,sample_array_advance,aggregatedResult,beta)
   }
 
   def reduce_and_add_noise_KDE(f: (T, T) => T, app_name: String, k_dist: Int): T = {
-
-//    val parameters = original.sparkContext.textFile("security.csv")
 
     //    val src = Source.fromFile("/etc/passwd")
 //    val iter = src.getLines().map(_.split(":"))
 
     //computin candidates of smooth sensitivity
-    var array = reduceDP(f).asInstanceOf[(RDD[Array[Double]],RDD[Array[Double]],Double)]
+    var array = reduceDP(f).asInstanceOf[(RDD[Array[Double]],RDD[Array[Double]],Double,Double)]
+    val beta = array._4
 
-    if(!array._1.isEmpty && !array._2.isEmpty) {
+      if(!array._1.isEmpty && !array._2.isEmpty) {
       val stat_sample = array._1
         .map(p => (p, p, p, 1))
         .reduce((a, b) => {
@@ -264,7 +265,8 @@ var sample_advance = inputsample_advance
   def reduce_and_add_noise_LR(f: (T, T) => T, app_name: String, k_dist: Int): T = {
     //computin candidates of smooth sensitivity
 
-    val array = reduceDP(f).asInstanceOf[(RDD[Array[Vector[Double]]], RDD[Array[Vector[Double]]], Vector[Double])]
+    val array = reduceDP(f).asInstanceOf[(RDD[Array[Vector[Double]]], RDD[Array[Vector[Double]]], Vector[Double], Double)]
+    val beta = array._4
 
     if(!array._1.isEmpty && !array._2.isEmpty) {
       val stat_sample = array._1
@@ -378,7 +380,8 @@ var sample_advance = inputsample_advance
   def reduce_and_add_noise_KM(f: (T, T) => T, app_name: String, k_dist: Int): Vector[Double] = {
     //computin candidates of smooth sensitivity
 
-    val array = reduceDP(f).asInstanceOf[(RDD[Array[(Vector[Double],Int)]], RDD[Array[(Vector[Double],Int)]], (Vector[Double],Int))]
+    val array = reduceDP(f).asInstanceOf[(RDD[Array[(Vector[Double],Int)]], RDD[Array[(Vector[Double],Int)]], (Vector[Double],Int), Double)]
+    val beta = array._4
 
     val return_result = array._3._1.map(p => p/array._3._2)
 
