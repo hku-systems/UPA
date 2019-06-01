@@ -32,12 +32,11 @@ import scala.math.exp
  * please refer to org.apache.spark.ml.classification.LogisticRegression.
  */
 object SparkHdfsLR {
-  val D = 10   // Number of dimensions
   val rand = new Random(42)
 
   case class DataPoint(x: Vector[Double], y: Double)
 
-  def parsePoint(line: String): DataPoint = {
+  def parsePoint(line: String, D: Int): DataPoint = {
     val tok = new java.util.StringTokenizer(line, ",")
     var y = tok.nextToken.toDouble
     var x = new Array[Double](D)
@@ -74,11 +73,13 @@ object SparkHdfsLR {
     val inputPath = args(0)
     val lines = spark.read.textFile(inputPath).rdd
 
-    val points = lines.map(parsePoint)
     val ITERATIONS = args(1).toInt
+    val D = args(2).toInt
+    val points = lines.map(p => parsePoint(p,D))
 
     // Initialize w to a random value
-    var w = DenseVector(0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0)
+    val r = scala.util.Random
+    var w = DenseVector.fill(D)(r.nextDouble)
 //    println("Initial w: " + w)
 
     for (i <- 1 to ITERATIONS) {

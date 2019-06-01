@@ -31,11 +31,13 @@ class dpread[T: ClassTag](
 //      case a: RDD[Int] =>
     //Normal Sample is ok e.g., tuple
 //        val sample_rate = 1111/main.count()
-        val t1 = System.nanoTime
         val sampling = main.sparkContext.parallelize(main.takeSample(false, 1111))
         val advance_sampling = advance.sparkContext.parallelize(advance.takeSample(false, 1111))
+<<<<<<< HEAD
         val duration = (System.nanoTime - t1) / 1e9d
         println("SampleDP: " + duration)
+=======
+>>>>>>> master
         new dpobject(sampling.map(f),advance_sampling.map(f),main.subtract(sampling).map(f))
 //    }
   }
