@@ -7,6 +7,10 @@ path_p="../tpch-spark/dbgen/partsupp.tbl" #Should have 1 million rows
 echo "10,1" > security.csv #make sure this file is under ~/AutoDP on all servers
 #do some scp here
 
+#You may have already worked on
+#1 End-to-end performance
+#2 Scalability to dataset size
+
 #Evaluation itms:
 #1. Iteration
 #2. Dimension
@@ -130,4 +134,15 @@ $path_l /home/john/tpch-spark/dbgen/partsupp.tbl 1 > output16.txt
 $path_l /home/john/tpch-spark/dbgen/lineitem.tbl \
 /home/john/tpch-spark/dbgen/orders.tbl /home/john/tpch-spark/dbgen/orders.tbl \
 /home/john/tpch-spark/dbgen/nation.tbl 1 > output.txt
+
+./bin/spark-submit \
+--class edu.hku.dp.SparkKMeansDP examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar \
+$input_KM /home/john/tpch-spark/dataset/ds/ds1.10_a.csv \
+1 3 10 1 > outputKM.txt
+
+./bin/spark-submit \
+--class edu.hku.dp.SparkHdfsLRDP examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar \
+$input_LR /home/john/tpch-spark/dataset/ds/ds1.10_a.csv \
+1 10 1 > outputKM.txt
+
 done

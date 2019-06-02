@@ -78,8 +78,6 @@ var sample_advance = inputsample_advance
     //The "sample" field carries the aggregated result already
     val result = original.reduce(f)
     var aggregatedResult = result//get the aggregated result
-    if(!sample.isEmpty())
-      aggregatedResult = f(sample.reduce(f),result)//get the aggregated result
     val broadcast_result = original.sparkContext.broadcast(result)
     val broadcast_aggregatedResult = original.sparkContext.broadcast(aggregatedResult)
 
@@ -101,7 +99,8 @@ var sample_advance = inputsample_advance
         original.sparkContext.parallelize(Seq(only_array))
       case b if b == 1 =>
         val only_array = new Array[T](1)
-        only_array(0) = f(result,s_collect.head)
+        aggregatedResult = f(result,s_collect.head)
+        only_array(0) = result
         original.sparkContext.parallelize(Seq(only_array)) //without that sample
       case _ =>
         if (sample_count <= k_distance)
@@ -117,7 +116,7 @@ var sample_advance = inputsample_advance
           })
         val array_collected = inner_array.collect()
         val upper_array = original.sparkContext.broadcast(array_collected)
-        original.sparkContext.parallelize(0 to up_to_index - 1) //(0,1,2,3,4,5,6,7)
+        val n = original.sparkContext.parallelize(0 to up_to_index - 1) //(0,1,2,3,4,5,6,7)
           .map(p => {
           var neighnout_o = new Array[T](b_i.value - 1)
           var j = b_i.value - 1 //start form 10
@@ -130,7 +129,12 @@ var sample_advance = inputsample_advance
           }
           neighnout_o
         })
+
+        aggregatedResult = f(n.take(1).head.head,s_collect.head)
+        n
     }
+
+
 
 
     //**********sample advance*************

@@ -77,8 +77,8 @@ class dpobjectArray[T: ClassTag](
     val result = original.reduce(f)
     val filtered_sample = sample.map(p => (p._2,p._1)).reduceByKey(f).map(_._2)
     var aggregatedResult = result //get the aggregated result
-    if(!filtered_sample.isEmpty())
-      aggregatedResult = f(filtered_sample.reduce(f), result) //get the aggregated result
+//    if(!filtered_sample.isEmpty())
+//      aggregatedResult = f(filtered_sample.reduce(f), result) //get the aggregated result
     val filtered_sample_advance = sample_advance.map(p => (p._2,p._1)).reduceByKey(f).map(_._2)
     val broadcast_result = original.sparkContext.broadcast(result)
     val broadcast_aggregatedResult = original.sparkContext.broadcast(aggregatedResult)
@@ -100,6 +100,7 @@ class dpobjectArray[T: ClassTag](
         original.sparkContext.parallelize(Seq(only_array))
       case b if b == 1 =>
         val only_array = new Array[T](1)
+        aggregatedResult = f(result,s_collect.head)
         only_array(0) = f(result, s_collect.head)
         original.sparkContext.parallelize(Seq(only_array)) //without that sample
       case _ =>
@@ -116,7 +117,7 @@ class dpobjectArray[T: ClassTag](
           })
         val array_collected = inner_array.collect()
         val upper_array = original.sparkContext.broadcast(array_collected)
-        original.sparkContext.parallelize(0 to up_to_index - 1) //(0,1,2,3,4,5,6,7)
+        val n = original.sparkContext.parallelize(0 to up_to_index - 1) //(0,1,2,3,4,5,6,7)
           .map(p => {
           var neighnout_o = new Array[T](b_i.value - 1)
           var j = b_i.value - 1 //start form 10
@@ -129,6 +130,8 @@ class dpobjectArray[T: ClassTag](
           }
           neighnout_o
         })
+        aggregatedResult = f(n.take(1).head.head,s_collect.head)
+        n
     }
     //**********sample advance*************
 
