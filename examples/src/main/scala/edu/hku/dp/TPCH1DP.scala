@@ -37,7 +37,7 @@ object TPCH1DP {
 //      .sort($"l_returnflag", $"l_linestatus")
 
     val filtered_result = new dpread(spark.sparkContext.textFile(args(0)),spark.sparkContext.textFile(args(1)))
-      .mapDP(_.split('|'))
+      .mapDP(_.split('|'),args(3).toInt)
       .mapDP(p =>
       (p(0).trim.toLong, p(1).trim.toLong, p(2).trim.toLong, p(3).trim.toLong, p(4).trim.toDouble, p(5).trim.toDouble, p(6).trim.toDouble, p(7).trim.toDouble, p(8).trim, p(9).trim, p(10).trim, p(11).trim, p(12).trim, p(13).trim, p(14).trim, p(15).trim))
 //      .map(case (l_orderkey: Long, l_partkey: Long, l_suppkey: Long, l_linenumber: Long, l_quantity: Double, l_extendedprice: Double, l_discount:Double, l_tax:Double, l_returnflag:String, l_linestatus:String, l_shipdate:String, l_commitdate:String, l_receiptdate:String, l_shipinstruct:String, l_shipmode:String, l_comment:String))

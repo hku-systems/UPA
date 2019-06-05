@@ -24,12 +24,12 @@ object TPCH13DP {
     val t1 = System.nanoTime
 
     val customer_input = new dpread(spark.sparkContext.textFile(args(0)),spark.sparkContext.textFile(args(1)))
-      .mapDP(_.split('|'))
+      .mapDP(_.split('|'),args(5).toInt)
       .mapDPKV(p =>
       (p(0).trim.toLong,1))
 
     val order_input = new dpread(spark.sparkContext.textFile(args(2)),spark.sparkContext.textFile(args(3)))
-      .mapDP(_.split('|'))
+      .mapDP(_.split('|'),args(5).toInt)
       .mapDPKV(p =>
       (p(1).trim.toLong, p(0).trim.toLong))
 

@@ -15,13 +15,13 @@ object TPCH11DP {
     val t1 = System.nanoTime
 
     val supplier_input = new dpread(spark.sparkContext.textFile(args(0)),spark.sparkContext.textFile(args(1)))
-      .mapDP(_.split('|'),111)
+      .mapDP(_.split('|'),args(6).toInt)
       .mapDPKV(p =>
         (p(3).trim.toLong, p(0).trim.toLong))
     //s_nationkey, s_suppkey
 
     val nation_input = spark.sparkContext.textFile(args(2))
-      .map(_.split('|'))
+      .map(_.split('|'),args(6).toInt)
       .map(p =>
         (p(0).trim.toLong, p(1).trim))
       .filter(p => p._2 == "GERMANY")
@@ -32,7 +32,7 @@ object TPCH11DP {
     //nationley, (n_name,s_suppkey)
 
     val partsupp_input = new dpread(spark.sparkContext.textFile(args(3)),spark.sparkContext.textFile(args(4)))
-      .mapDP(_.split('|'),111)
+      .mapDP(_.split('|'),args(6).toInt)
       .mapDPKV(p => {
         (p(1).trim.toLong,p(2).trim.toInt * p(3).trim.toDouble)
       })

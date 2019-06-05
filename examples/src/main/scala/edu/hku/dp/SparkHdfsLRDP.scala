@@ -75,7 +75,8 @@ object SparkHdfsLRDP {
 
     val ITERATIONS = args(2).toInt
     val D1 = args(2).toInt
-    val points = lines.mapDP(p => parsePoint(p,D1))
+    val sr = args(4).toInt
+    val points = lines.mapDP(p => parsePoint(p,D1),sr)
 
     // Initialize w to a random value
     val r = scala.util.Random

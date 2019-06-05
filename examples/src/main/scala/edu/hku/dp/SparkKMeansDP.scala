@@ -66,8 +66,9 @@ object SparkKMeansDP {
     val ITERATIONS = args(2).toInt
     val K = args(3).toInt
     val D = args(4).toInt
+    val sr = args(6).toInt
     val b_D = spark.sparkContext.broadcast(D)
-    val data = lines.mapDP(p => parseVector(p,b_D.value))
+    val data = lines.mapDP(p => parseVector(p,b_D.value),sr)
 
     val r = scala.util.Random
     var kPoints =  Array.fill(K)(Vector.fill(D)(r.nextDouble))
