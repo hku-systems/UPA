@@ -21,7 +21,7 @@ object TPCH11DP {
     //s_nationkey, s_suppkey
 
     val nation_input = spark.sparkContext.textFile(args(2))
-      .map(_.split('|'),args(6).toInt)
+      .map(_.split('|'))
       .map(p =>
         (p(0).trim.toLong, p(1).trim))
       .filter(p => p._2 == "GERMANY")
