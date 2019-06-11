@@ -21,7 +21,6 @@ class dpobject[T: ClassTag](
                              var inputsample : RDD[T],
                              var inputsample_advance : RDD[T],
                              var inputoriginal : RDD[T])
-  extends RDD[T](inputoriginal)
 {
 
   var sample = inputsample //for each element, sample refers to "if this element exists"
@@ -29,14 +28,6 @@ var sample_advance = inputsample_advance
   var original = inputoriginal
   var sample_addition = inputsample
 
-
-  override def compute(split: org.apache.spark.Partition, context: org.apache.spark.TaskContext): Iterator[T] =
-  {
-    inputsample.iterator(split, context)
-  }
-
-  override protected def getPartitions: Array[org.apache.spark.Partition] =
-    inputsample.partitions
 
   def mapDP[U: ClassTag](f: T => U): dpobject[U]= {
         val t1 = System.nanoTime
@@ -184,22 +175,30 @@ var sample_advance = inputsample_advance
     val k_distance_double = 1/epsilon
     val k_distance = parameters(0).toInt
     val beta = epsilon / (2*scala.math.log(2/delta))
+    val durations = (System.nanoTime - t1) / 1e9d
+    println("io security level: " + durations)
+
+    val s_collect = sample.take(30)
+    println("sample length: " + s_collect.length)
+    val a_collect = sample_advance.take(30)
+    println("advance length: " + a_collect.length)
+
+    val durationac = (System.nanoTime - t1) / 1e9d
+    println("after collect: " + durationac)
 
     //The "sample" field carries the aggregated result already
     val result = original.reduce(f)
     var aggregatedResult = result//get the aggregated result
-    if(!sample.isEmpty())
-      aggregatedResult = f(sample.reduce(f),result)//get the aggregated result
+//    if(!sample.isEmpty())
+//      aggregatedResult = f(sample.reduce(f),result)//get the aggregated result
 
     //    val inner = new ArrayBuffer[V]
     var inner_num = 0
     var outer_num = k_distance
-    val s_collect = sample.collect()
-    val a_collect = sample_advance.collect()
     val sample_count = s_collect.length //e.g., 64
     val sample_advance_count = s_collect.length
     val duration1 = (System.nanoTime - t1) / 1e9d
-    println("pre compute: " + duration1)
+    println("after reduce: " + duration1)
     //***********samples*********************
 
     val sample_array = sample_count match {

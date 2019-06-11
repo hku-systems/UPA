@@ -13,18 +13,9 @@ import scala.reflect.ClassTag
 class dpread[T: ClassTag](
   var rdd1 : RDD[T],
   var rdd2 : RDD[T])
-  extends RDD[T] (rdd1)
 {
   var main = rdd1
   var advance = rdd2
-
-  override def compute(split: org.apache.spark.Partition,context: org.apache.spark.TaskContext): Iterator[T] =
-  {
-    rdd1.iterator(split, context)
-  }
-
-  override protected def getPartitions: Array[org.apache.spark.Partition] =
-    rdd1.partitions
 
   def mapDP[U: ClassTag](f: T => U): dpobject[U]= {
 //    main match {
@@ -47,8 +38,8 @@ val t1 = System.nanoTime
     //        val sample_rate = 1111/main.count()
 //    val t1 = System.nanoTime
     val t1 = System.nanoTime
-    val sampling = main.sparkContext.parallelize(main.takeSample(false, rate))
-    val advance_sampling = advance.sparkContext.parallelize(advance.takeSample(false, rate))
+    val sampling = main.sparkContext.parallelize(main.take(rate))
+    val advance_sampling = advance.sparkContext.parallelize(advance.take(rate))
     val duration = (System.nanoTime - t1) / 1e9d
     println("sample: " + duration)
 //    val duration = (System.nanoTime - t1) / 1e9d

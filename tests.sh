@@ -142,7 +142,12 @@ $input_KM /home/john/tpch-spark/dataset/ds/ds1.10_a.csv \
 
 ./bin/spark-submit \
 --class edu.hku.dp.SparkHdfsLRDP examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar \
-$input_LR /home/john/tpch-spark/dataset/ds/ds1.10_a.csv \
-1 10 1 > outputKM.txt
+/home/john/tpch-spark/dataset/ds/ds1.10_10m.csv /home/john/tpch-spark/dataset/ds/ds1.10_10m.csv \
+1 10 1 30 > outputLR.txt
+
+./bin/spark-submit \
+--class edu.hku.dp.original.SparkHdfsLR examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar \
+/home/john/tpch-spark/dataset/ds/ds1.10_10m.csv \
+1 10 1 > outputOLR.txt
 
 done
