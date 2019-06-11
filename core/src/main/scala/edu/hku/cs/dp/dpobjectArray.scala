@@ -233,7 +233,7 @@ class dpobjectArray[T: ClassTag](
           neighnout_o
         })
 
-        if(!n.isEmpty)
+        if(!n.isEmpty && !n.head.isEmpty)
           aggregatedResult = f(n.head.head,s_collect.head)
         n
     }
