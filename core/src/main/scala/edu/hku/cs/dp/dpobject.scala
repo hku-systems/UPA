@@ -175,16 +175,9 @@ var sample_advance = inputsample_advance
     val k_distance_double = 1/epsilon
     val k_distance = parameters(0).toInt
     val beta = epsilon / (2*scala.math.log(2/delta))
-    val durations = (System.nanoTime - t1) / 1e9d
-    println("io security level: " + durations)
 
     val s_collect = sample.take(30)
-    println("sample length: " + s_collect.length)
     val a_collect = sample_advance.take(30)
-    println("advance length: " + a_collect.length)
-
-    val durationac = (System.nanoTime - t1) / 1e9d
-    println("after collect: " + durationac)
 
     //The "sample" field carries the aggregated result already
     val result = original.reduce(f)
@@ -197,8 +190,6 @@ var sample_advance = inputsample_advance
     var outer_num = k_distance
     val sample_count = s_collect.length //e.g., 64
     val sample_advance_count = s_collect.length
-    val duration1 = (System.nanoTime - t1) / 1e9d
-    println("after reduce: " + duration1)
     //***********samples*********************
 
     val sample_array = sample_count match {
@@ -237,12 +228,11 @@ var sample_advance = inputsample_advance
           neighnout_o
         })
 
+        if(!n.isEmpty)
         aggregatedResult = f(n.head.head,s_collect.head)
         n
     }
 
-    val duration2 = (System.nanoTime - t1) / 1e9d
-    println("sample: " + duration2)
     //**********sample advance*************
 
     val sample_array_advance = sample_advance_count match {
@@ -276,8 +266,8 @@ var sample_advance = inputsample_advance
             neighnout_o
           })
     }
-    val duration3 = (System.nanoTime - t1) / 1e9d
-    println("advance sample: " + duration3)
+    val duration = (System.nanoTime - t1) / 1e9d
+    println("reduce: " + duration)
     (sample_array,sample_array_advance,aggregatedResult,beta)
   }
 

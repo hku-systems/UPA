@@ -71,7 +71,7 @@ object SparkHdfsLRDP {
       .getOrCreate()
 
     val t1 = System.nanoTime
-    val lines = new dpread(spark.sparkContext.textFile(args(0)),spark.sparkContext.textFile(args(1)))
+    val lines = new dpread(spark.sparkContext.textFile(args(0)))
 
     val ITERATIONS = args(2).toInt
     val D1 = args(2).toInt

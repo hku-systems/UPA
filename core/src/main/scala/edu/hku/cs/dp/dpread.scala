@@ -11,11 +11,10 @@ import scala.reflect.ClassTag
   * Created by lionon on 10/22/18.
   */
 class dpread[T: ClassTag](
-  var rdd1 : RDD[T],
-  var rdd2 : RDD[T])
+  var rdd1 : RDD[T])
 {
   var main = rdd1
-  var advance = rdd2
+  var advance = rdd1
 
   def mapDP[U: ClassTag](f: T => U): dpobject[U]= {
 //    main match {
@@ -27,7 +26,7 @@ val t1 = System.nanoTime
         val advance_sampling = advance.sparkContext.parallelize(advance.takeSample(false, 1111))
         val duration = (System.nanoTime - t1) / 1e9d
         println("sample: " + duration)
-        new dpobject(sampling.map(f),advance_sampling.map(f),main.subtract(sampling).map(f))
+        new dpobject(sampling.map(f),advance_sampling.map(f),main.map(f))
 //    }
   }
 
@@ -44,7 +43,7 @@ val t1 = System.nanoTime
     println("sample: " + duration)
 //    val duration = (System.nanoTime - t1) / 1e9d
 //    print("Sample: " + duration)
-    new dpobject(sampling.map(f),advance_sampling.map(f),main.subtract(sampling).map(f))
+    new dpobject(sampling.map(f),advance_sampling.map(f),main.map(f))
     //    }
   }
 
@@ -57,6 +56,6 @@ val t1 = System.nanoTime
     println("sample: " + duration)
 //    val duration = (System.nanoTime - t1) / 1e9d
 //    print("Sample: " + duration)
-    new dpobjectKV(sampling.map(f).asInstanceOf[RDD[(K,V)]],advance_sampling.map(f).asInstanceOf[RDD[(K,V)]],main.subtract(sampling).map(f).asInstanceOf[RDD[(K,V)]])
+    new dpobjectKV(sampling.map(f).asInstanceOf[RDD[(K,V)]],advance_sampling.map(f).asInstanceOf[RDD[(K,V)]],main.map(f).asInstanceOf[RDD[(K,V)]])
   }
 }

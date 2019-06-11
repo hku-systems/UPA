@@ -99,7 +99,12 @@ echo "$dimension,1" > security.csv #make sure this file is under ~/AutoDP on all
 ./bin/spark-submit \
 --class edu.hku.dp.TPCH1DP \
 examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar \
-$path_l /home/john/tpch-spark/dbgen/lineitem.ftbl 1 > output1.txt
+/home/john/tpch-spark/dbgen/lineitem.tbl /home/john/tpch-spark/dbgen/lineitem.tbl 1 30 > output1.txt
+
+./bin/spark-submit \
+--class edu.hku.dp.TPCH1 \
+examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar \
+/home/john/tpch-spark/dbgen/lineitem.tbl 1 30 > outputO1.txt
 
 ./bin/spark-submit \
 --class edu.hku.dp.TPCH4DP \
@@ -120,25 +125,41 @@ $path_p /home/john/tpch-spark/dbgen/partsupp.tbl 1 > output11.txt
 ./bin/spark-submit \
 --class edu.hku.dp.TPCH13DP examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar \
 /home/john/tpch-spark/dbgen/orders.tbl /home/john/tpch-spark/dbgen/orders.tbl \
-$path_l /home/john/tpch-spark/dbgen/lineitem.tbl 1 > output13.txt
+/home/john/tpch-spark/dbgen/lineitem.tbl /home/john/tpch-spark/dbgen/lineitem.tbl 1 30 > output13.txt
+
+./bin/spark-submit \
+--class edu.hku.dp.TPCH13 examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar \
+/home/john/tpch-spark/dbgen/orders.tbl \
+/home/john/tpch-spark/dbgen/lineitem.tbl 1 30 > outputO13.txt
 
 ./bin/spark-submit \
 --class edu.hku.dp.TPCH16DP examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar \
 /home/john/tpch-spark/dbgen/part.tbl /home/john/tpch-spark/dbgen/part.tbl \
 /home/john/tpch-spark/dbgen/supplier.tbl /home/john/tpch-spark/dbgen/supplier.tbl \
-$path_l /home/john/tpch-spark/dbgen/partsupp.tbl 1 > output16.txt
+/home/john/tpch-spark/dbgen/partsupp.tbl /home/john/tpch-spark/dbgen/partsupp.tbl 1 30 > output16.txt
+
+./bin/spark-submit \
+--class edu.hku.dp.TPCH16 examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar \
+/home/john/tpch-spark/dbgen/part.tbl \
+/home/john/tpch-spark/dbgen/supplier.tbl \
+/home/john/tpch-spark/dbgen/partsupp.tbl 1 30 > output16.txt
 
 ./bin/spark-submit \
 --class edu.hku.dp.TPCH21DP examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar \
 /home/john/tpch-spark/dbgen/supplier.tbl /home/john/tpch-spark/dbgen/supplier.tbl \
-$path_l /home/john/tpch-spark/dbgen/lineitem.tbl \
+/home/john/tpch-spark/dbgen/lineitem.tbl /home/john/tpch-spark/dbgen/lineitem.tbl \
 /home/john/tpch-spark/dbgen/orders.tbl /home/john/tpch-spark/dbgen/orders.tbl \
-/home/john/tpch-spark/dbgen/nation.tbl 1 > output.txt
+/home/john/tpch-spark/dbgen/nation.tbl 1 30 > output.txt
 
 ./bin/spark-submit \
 --class edu.hku.dp.SparkKMeansDP examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar \
 $input_KM /home/john/tpch-spark/dataset/ds/ds1.10_a.csv \
 1 3 10 1 > outputKM.txt
+
+./bin/spark-submit \
+--class edu.hku.dp.original.SparkKMeans examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar \
+/home/john/tpch-spark/dataset/ds/ds1.10_a.csv \
+1 3 10 1 > outputOKM.txt
 
 ./bin/spark-submit \
 --class edu.hku.dp.SparkHdfsLRDP examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar \

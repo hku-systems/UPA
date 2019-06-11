@@ -14,7 +14,7 @@ object TPCH11DP {
     val inputDir = "/home/john/tpch-spark/dbgen"
     val t1 = System.nanoTime
 
-    val supplier_input = new dpread(spark.sparkContext.textFile(args(0)),spark.sparkContext.textFile(args(1)))
+    val supplier_input = new dpread(spark.sparkContext.textFile(args(0)))
       .mapDP(_.split('|'),args(6).toInt)
       .mapDPKV(p =>
         (p(3).trim.toLong, p(0).trim.toLong))
@@ -31,7 +31,7 @@ object TPCH11DP {
     val nation_supplier = supplier_input.joinDP(nation_input)
     //nationley, (n_name,s_suppkey)
 
-    val partsupp_input = new dpread(spark.sparkContext.textFile(args(3)),spark.sparkContext.textFile(args(4)))
+    val partsupp_input = new dpread(spark.sparkContext.textFile(args(3)))
       .mapDP(_.split('|'),args(6).toInt)
       .mapDPKV(p => {
         (p(1).trim.toLong,p(2).trim.toInt * p(3).trim.toDouble)

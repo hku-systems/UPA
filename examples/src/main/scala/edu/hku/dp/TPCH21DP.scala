@@ -21,13 +21,13 @@ object TPCH21DP {
     val inputDir = "/home/john/tpch-spark/dbgen"
     val t1 = System.nanoTime
 
-    val supplier_input = new dpread(spark.sparkContext.textFile(args(0)),spark.sparkContext.textFile(args(1)))
+    val supplier_input = new dpread(spark.sparkContext.textFile(args(0)))
       .mapDP(_.split('|'),args(8).toInt)
       .mapDPKV(p =>
         (p(3).trim.toLong, (p(0).trim.toLong, p(1).trim)))
     //(s_nationkey, (s_suppkey, s_name))
 
-        val lineitem_input = new dpread(spark.sparkContext.textFile(args(2)),spark.sparkContext.textFile(args(3)))
+        val lineitem_input = new dpread(spark.sparkContext.textFile(args(2)))
           .mapDP(_.split('|'),args(8).toInt)
           .mapDP(p =>
           ( p(0).trim.toLong, (p(2).trim.toLong,  p(12).trim, p(11).trim, 1)))
@@ -44,7 +44,7 @@ object TPCH21DP {
           .reduceByKey((a,b) => (max(a._1, b._1), a._2, a._3, a._4 + b._4))
           .map(p => (p._1,(p._2._4,p._2._1)))
 
-        val order_input = new dpread(spark.sparkContext.textFile(args(4)),spark.sparkContext.textFile(args(5)))
+        val order_input = new dpread(spark.sparkContext.textFile(args(4)))
           .mapDP(_.split('|'),args(8).toInt)
           .mapDP(p =>
           (p(0).trim.toLong, p(2).trim))

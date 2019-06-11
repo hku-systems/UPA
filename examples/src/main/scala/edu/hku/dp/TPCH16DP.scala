@@ -34,21 +34,21 @@ object TPCH16DP {
     val inputDir = "/home/john/tpch-spark/dbgen"
     val t1 = System.nanoTime
 
-    val part_input = new dpread(spark.sparkContext.textFile(args(0)),spark.sparkContext.textFile(args(1)))
+    val part_input = new dpread(spark.sparkContext.textFile(args(0)))
       .mapDP(_.split('|'),args(7).toInt)
       .mapDP(p =>
       (p(0).trim.toLong, (p(3).trim, p(4).trim, p(5).trim.toLong)))
       .filterDP(p => p._2._1 != "Brand#45" && !polished(p._2._2) && numbers(p._2._3)).mapDPKV(p => p)
 
 
-    val supplier_input = new dpread(spark.sparkContext.textFile(args(2)),spark.sparkContext.textFile(args(3)))
+    val supplier_input = new dpread(spark.sparkContext.textFile(args(2)))
       .mapDP(_.split('|'),args(7).toInt)
       .mapDP(p =>
       (p(0).trim.toLong, p(6).trim))
       .filterDP(p => !complains(p._2))
       .mapDPKV(p => p)
 
-    val partsupp_input = new dpread(spark.sparkContext.textFile(args(4)),spark.sparkContext.textFile(args(5)))
+    val partsupp_input = new dpread(spark.sparkContext.textFile(args(4)))
       .mapDP(_.split('|'),args(7).toInt)
       .mapDPKV(p =>
       ( p(1).trim.toLong,p(0).trim.toLong))

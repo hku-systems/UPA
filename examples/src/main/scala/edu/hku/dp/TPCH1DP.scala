@@ -36,7 +36,7 @@ object TPCH1DP {
 //        avg($"l_quantity"), avg($"l_extendedprice"), avg($"l_discount"), count($"l_quantity"))
 //      .sort($"l_returnflag", $"l_linestatus")
 
-    val filtered_result = new dpread(spark.sparkContext.textFile(args(0)),spark.sparkContext.textFile(args(1)))
+    val filtered_result = new dpread(spark.sparkContext.textFile(args(0)))
       .mapDP(_.split('|'),args(3).toInt)
       .mapDP(p =>
       (p(0).trim.toLong, p(1).trim.toLong, p(2).trim.toLong, p(3).trim.toLong, p(4).trim.toDouble, p(5).trim.toDouble, p(6).trim.toDouble, p(7).trim.toDouble, p(8).trim, p(9).trim, p(10).trim, p(11).trim, p(12).trim, p(13).trim, p(14).trim, p(15).trim))
