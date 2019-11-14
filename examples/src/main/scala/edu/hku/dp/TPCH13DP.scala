@@ -36,9 +36,14 @@ object TPCH13DP {
     val final_result = customer_input
       .joinDP(order_input)
       .mapDP(p => 1.0)
-      .reduce_and_add_noise_KDE(_+_,"TPCH13DP", args(4).toInt)
+      .reduceDP(_+_, args(4).toInt)
 
     val duration = (System.nanoTime - t1) / 1e9d
+    println("final output: " + final_result._1)
+    println("noise: " + final_result._2)
+    println("error: " + final_result._2/final_result._1)
+    println("min bound: " + final_result._3)
+    println("max bound: " + final_result._4)
     println("Execution time: " + duration)
     spark.stop()
 

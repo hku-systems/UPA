@@ -37,7 +37,7 @@ object TPCH21DP {
           .mapDPKV(p => (p._2._1,(p._1,p._2._2,p._2._3,p._2._4)))
         //(l_suppkey,(l_orderkey, l_receiptdate, l_commitdate, 4))
 
-        val line1 = spark.sparkContext.textFile(inputDir + "/lineitem.ftbl*")
+        val line1 = spark.sparkContext.textFile(args(2))
           .map(_.split('|'))
           .map(p =>
             ( p(0).trim.toLong, (p(2).trim.toLong,  p(12).trim, p(11).trim, 1)))
@@ -78,9 +78,14 @@ object TPCH21DP {
 //          //$"s_name", ($"l_orderkey", $"l_suppkey", $"suppkey_count", $"suppkey_max")
 //          .filterDP(p => p._2._3 == 1 && p._2._2 == p._2._4)
           .mapDP(p => 1.0)
-          .reduce_and_add_noise_KDE((a,b) => a + b,"TPCH21DP", args(7).toInt)
+          .reduceDP((a,b) => a + b, args(7).toInt)
 
     val duration = (System.nanoTime - t1) / 1e9d
+    println("final output: " + final_result._1)
+    println("noise: " + final_result._2)
+    println("error: " + final_result._2/final_result._1)
+    println("min bound: " + final_result._3)
+    println("max bound: " + final_result._4)
     println("Execution time: " + duration)
     spark.stop()
       }

@@ -34,12 +34,16 @@ object TPCH4DP {
 
     val result = lineitem_filtered
       .joinDP(order_filtered)
-      .mapDP(p => 1.0).reduce_and_add_noise_KDE(_+_, "TPCH4DP", args(4).toInt)
+      .mapDP(p => 1.0).reduceDP(_+_, args(4).toInt)
 //      .reduceByKeyDP_Int((a,b)=> a + b)
 val duration = (System.nanoTime - t1) / 1e9d
+    println("final output: " + result._1)
+    println("noise: " + result._2)
+    println("error: " + result._2/result._1)
+    println("min bound: " + result._3)
+    println("max bound: " + result._4)
     println("Execution time: " + duration)
     spark.stop()
-
     //    result.collect().foreach(p => print(p._1._1 + "," + p._1._2 + ":" + p._2 + "\n"))
   }
 }

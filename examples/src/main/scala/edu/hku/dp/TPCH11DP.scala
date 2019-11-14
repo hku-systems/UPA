@@ -44,9 +44,14 @@ object TPCH11DP {
 
     val final_result = join_partsupp
       .mapDP(p => p._2._2)
-      .reduce_and_add_noise_KDE((a,b) => a + b,"TpchQuery11",args(5).toInt)
+      .reduceDP((a,b) => a + b,args(5).toInt)
 
     val duration = (System.nanoTime - t1) / 1e9d
+    println("final output: " + final_result._1)
+    println("noise: " + final_result._2)
+    println("error: " + final_result._2/final_result._1)
+    println("min bound: " + final_result._3)
+    println("max bound: " + final_result._4)
     println("Execution time: " + duration)
     spark.stop()
   }
