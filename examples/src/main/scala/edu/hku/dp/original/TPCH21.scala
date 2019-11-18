@@ -37,14 +37,14 @@ object TPCH21 {
       .map(p => (p._2._1,(p._1,p._2._2,p._2._3,p._2._4)))
     //(l_suppkey,(l_orderkey, l_receiptdate, l_commitdate, 4))
 
-    val line1 = spark.sparkContext.textFile(inputDir + "/lineitem.ftbl*")
+    val line1 = spark.sparkContext.textFile(args(2))
       .map(_.split('|'))
       .map(p =>
         ( p(0).trim.toLong, (p(2).trim.toLong,  p(12).trim, p(11).trim, 1)))
       .reduceByKey((a,b) => (max(a._1, b._1), a._2, a._3, a._4 + b._4))
       .map(p => (p._1,(p._2._4,p._2._1)))
 
-    val order_input = spark.sparkContext.textFile(args(2))
+    val order_input = spark.sparkContext.textFile(args(3))
       .map(_.split('|'))
       .map(p =>
         (p(0).trim.toLong, p(2).trim))
@@ -52,7 +52,7 @@ object TPCH21 {
       .map(p => p)
     //(o_orderkey, o_orderstatus)
 
-    val nation_input = spark.sparkContext.textFile(args(3))
+    val nation_input = spark.sparkContext.textFile(args(4))
       .map(_.split('|'))
       .map(p =>
         (p(0).trim.toLong, p(1).trim))
@@ -72,15 +72,19 @@ object TPCH21 {
     val line1join = orderkeyjoin.map(p => p).join(line1)
     //(l_orderkey,(((s_suppkey, s_name),o_orderstatus),(suppkey_count, max)))
 
-    val final_result = line1join
+    val final_result_before_reduce = line1join
       .filter(p => p._2._2._1 > 1 || (p._2._2._1 == 1 && p._2._1._1 == p._2._2._2))
       .map(p => (p._2._1._1._2, (p._1,p._2._1._1._1,p._2._2._1,p._2._2._2)))
       //          //$"s_name", ($"l_orderkey", $"l_suppkey", $"suppkey_count", $"suppkey_max")
       //          .filterDP(p => p._2._3 == 1 && p._2._2 == p._2._4)
       .map(p => 1.0)
-      .reduce((a,b) => a + b)
-
-
+    if(args(5) == "0" || args(5) == "2") {
+      val final_result = final_result_before_reduce.reduce((a, b) => a + b)
+    }
+    else if(args(5) == "1" || args(5) == "2") { //1 means print length
+      val result_length = final_result_before_reduce.count()
+      print("result_length: " + result_length)
+    }
     val duration = (System.nanoTime - t1) / 1e9d
     println("Execution time: " + duration)
     spark.stop()

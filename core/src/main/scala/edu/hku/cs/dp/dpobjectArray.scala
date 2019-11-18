@@ -45,6 +45,11 @@ class dpobjectArray[T: ClassTag](
     new dpobjectArray(r1,r2,r3)
   }
 
+  def print_length(): Unit = {
+    val original_length = original.count()
+    print("dpobjectarray length: " + original_length)
+  }
+
   def mapDPKV[K: ClassTag,V: ClassTag](f: T => (K,V)): dpobjectKVArray[K,V]= {
     val t1 = System.nanoTime
     val r1 = inputsample.map(p => (f(p._1),p._2))
@@ -74,14 +79,19 @@ class dpobjectArray[T: ClassTag](
     val all_samp = array._1.flatMap(p => p) ++ array._2.flatMap(p => p)
     val sum_all_samp = all_samp.reduce((a,b) => a*a + b*b)
     val r = new Random()
-    val all_samp_normalised_max = all_samp.map(p => p/sum_all_samp + r.nextGaussian()*math.sqrt(sum_all_samp)).zipWithIndex
-    val all_samp_noise_max = all_samp_normalised_max.maxBy(_._1)._2
-    val max_bound = all_samp(all_samp_noise_max)
-    val all_samp_normalised_min = all_samp.map(p => -1*(p/sum_all_samp + r.nextGaussian()*math.sqrt(sum_all_samp))).zipWithIndex
-    val all_samp_noise_min = all_samp_normalised_min.maxBy(_._1)._2
-    val min_bound = all_samp(all_samp_noise_min)
     val original_res = array._3
-    val diff = max_bound - min_bound
+    var diff = 0.0
+    var max_bound = 0.0
+    var min_bound = 0.0
+    if (!all_samp.isEmpty) {
+      val all_samp_normalised_max = all_samp.map(p => p / sum_all_samp + r.nextGaussian() * math.sqrt(sum_all_samp)).zipWithIndex
+      val all_samp_noise_max = all_samp_normalised_max.maxBy(_._1)._2
+      val max_bound = all_samp(all_samp_noise_max)
+      val all_samp_normalised_min = all_samp.map(p => -1 * (p / sum_all_samp + r.nextGaussian() * math.sqrt(sum_all_samp))).zipWithIndex
+      val all_samp_noise_min = all_samp_normalised_min.maxBy(_._1)._2
+      val min_bound = all_samp(all_samp_noise_min)
+      diff = max_bound - min_bound
+    }
 
     val duration = (System.nanoTime - t1) / 1e9d
     println("calsen: " + duration)
@@ -105,11 +115,23 @@ class dpobjectArray[T: ClassTag](
     val k_distance = parameters(0).toInt
     val beta = epsilon / (2*scala.math.log(2/delta))
 
+    val reduce_sample_time = System.nanoTime
     val s_collect = sample.map(p => (p._2,p._1)).reduceByKey(f).map(_._2).take(30)
+    val reduce_sample_duration = (System.nanoTime - reduce_sample_time) / 1e9d
+    println("reduce_sample_time: " + reduce_sample_duration)
+
+    val reduce_advance_time = System.nanoTime
     val a_collect = sample_advance.map(p => (p._2,p._1)).reduceByKey(f).map(_._2).take(30)
+    val reduce_advance_duration = (System.nanoTime - reduce_advance_time) / 1e9d
+    println("reduce_advance_time: " + reduce_advance_duration)
 
     //The "sample" field carries the aggregated result already
+    val reduce_original_time = System.nanoTime
     val result = original.reduce(f)
+    val reduce_original_duration = (System.nanoTime - reduce_original_time) / 1e9d
+    println("reduce_original_time: " + reduce_original_duration)
+
+
     var aggregatedResult = result//get the aggregated result
     //    if(!sample.isEmpty())
     //      aggregatedResult = f(sample.reduce(f),result)//get the aggregated result

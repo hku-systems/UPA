@@ -23,18 +23,18 @@ object TPCH13DP {
     val inputDir = "/home/john/tpch-spark/dbgen"
     val t1 = System.nanoTime
 
-    val customer_input = new dpread(spark.sparkContext.textFile(args(0)))
+    val lineitem = new dpread(spark.sparkContext.textFile(args(0)))
       .mapDP(_.split('|'),args(5).toInt)
       .mapDPKV(p =>
       (p(0).trim.toLong,1))
 
-    val order_input = new dpread(spark.sparkContext.textFile(args(2)))
-      .mapDP(_.split('|'),args(5).toInt)
-      .mapDPKV(p =>
+    val order_input = spark.sparkContext.textFile(args(2))
+      .map(_.split('|'))
+      .map(p =>
       (p(1).trim.toLong, p(0).trim.toLong))
 
-    val final_result = customer_input
-      .joinDP(order_input)
+    val final_result = lineitem
+      .joinDP_original(order_input)
       .mapDP(p => 1.0)
       .reduceDP(_+_, args(4).toInt)
 

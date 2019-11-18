@@ -168,14 +168,19 @@ var sample_advance = inputsample_advance
     val all_samp = array._1.flatMap(p => p) ++ array._2.flatMap(p => p)
     val sum_all_samp = all_samp.reduce((a,b) => a*a + b*b)
     val r = new Random()
-    val all_samp_normalised_max = all_samp.map(p => p/sum_all_samp + r.nextGaussian()*math.sqrt(sum_all_samp)).zipWithIndex
-    val all_samp_noise_max = all_samp_normalised_max.maxBy(_._1)._2
-    val max_bound = all_samp(all_samp_noise_max)
-    val all_samp_normalised_min = all_samp.map(p => -1*(p/sum_all_samp + r.nextGaussian()*math.sqrt(sum_all_samp))).zipWithIndex
-    val all_samp_noise_min = all_samp_normalised_min.maxBy(_._1)._2
-    val min_bound = all_samp(all_samp_noise_min)
+    var diff = 0.0
+    var max_bound = 0.0
+    var min_bound = 0.0
     val original_res = array._3
-    val diff = max_bound - min_bound
+    if (!all_samp.isEmpty) {
+      val all_samp_normalised_max = all_samp.map(p => p / sum_all_samp + r.nextGaussian() * math.sqrt(sum_all_samp)).zipWithIndex
+      val all_samp_noise_max = all_samp_normalised_max.maxBy(_._1)._2
+      val max_bound = all_samp(all_samp_noise_max)
+      val all_samp_normalised_min = all_samp.map(p => -1 * (p / sum_all_samp + r.nextGaussian() * math.sqrt(sum_all_samp))).zipWithIndex
+      val all_samp_noise_min = all_samp_normalised_min.maxBy(_._1)._2
+      val min_bound = all_samp(all_samp_noise_min)
+      diff = max_bound - min_bound
+    }
 
     val duration = (System.nanoTime - t1) / 1e9d
     println("calsen: " + duration)

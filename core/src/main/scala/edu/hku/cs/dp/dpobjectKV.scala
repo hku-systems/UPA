@@ -524,6 +524,31 @@ class dpobjectKV[K, V](var inputsample: RDD[(K, V)], var inputsample_advance: RD
     new dpobjectArray(with_sample,advance_original,joinresult)
   }
 
+  def joinDP_original[W](otherDP: RDD[(K, W)]): dpobjectArray[((K, (V, W)))] = {
+
+    //No need to care about sample2 join sample1
+    val t1 = System.nanoTime
+
+    val joinresult = original.join(otherDP).map(q => (q._1,(q._2._1,q._2._2)))
+
+    val advance_original = sample_advance
+      .zipWithIndex()
+      .map(p => (p._1._1,(p._1._2,p._2)))
+      .join(otherDP)
+      .map(p => ((p._1,(p._2._1._1,p._2._2)),p._2._1._2))
+
+    val with_sample = sample
+      .zipWithIndex()
+      .map(p => (p._1._1,(p._1._2,p._2)))
+      .join(otherDP)
+      .map(p => ((p._1,(p._2._1._1,p._2._2)),p._2._1._2))
+
+    val duration = (System.nanoTime - t1) / 1e9d
+    println("join: " + duration)
+
+    new dpobjectArray(with_sample,advance_original,joinresult)
+  }
+
   def joinDP[W](otherDP: dpobjectKV[K, W]): dpobjectArray[((K, (V, W)))] = {
 
     //No need to care about sample2 join sample1

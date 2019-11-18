@@ -19,11 +19,11 @@ object TPCH4DP {
     val inputDir = "/home/john/tpch-spark/dbgen"
     val t1 = System.nanoTime
 
-    val order_filtered = new dpread(spark.sparkContext.textFile(args(0)))
-      .mapDP(_.split('|'),args(5).toInt)
-      .mapDPKV(p =>
+    val order_filtered = spark.sparkContext.textFile(args(0))
+      .map(_.split('|'))
+      .map(p =>
       (p(0).trim.toLong, (p(4).trim, p(5).trim)))
-      .filterDPKV(p => p._2._1 >= "1993-07-01" && p._2._1 < "1993-10-01")
+      .filter(p => p._2._1 >= "1993-07-01" && p._2._1 < "1993-10-01")
 
     val lineitem_filtered = new dpread(spark.sparkContext.textFile(args(2)))
       .mapDP(_.split('|'),args(5).toInt)
@@ -33,7 +33,7 @@ object TPCH4DP {
       .mapDPKV(p => (p._1,p._2._3))
 
     val result = lineitem_filtered
-      .joinDP(order_filtered)
+      .joinDP_original(order_filtered)
       .mapDP(p => 1.0).reduceDP(_+_, args(4).toInt)
 //      .reduceByKeyDP_Int((a,b)=> a + b)
 val duration = (System.nanoTime - t1) / 1e9d
