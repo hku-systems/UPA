@@ -9,7 +9,7 @@ sing = sing_input if sing_input > 0 else 1
 sp = int(sys.argv[4])
 db = sys.argv[5]
 
-scale = [1,10,100,1000,10000]
+scale = [10,100,1000,10000]
 
 lineitem_path = Path("/home/john/AutoDP/security.csv")
 if not lineitem_path.is_file():
