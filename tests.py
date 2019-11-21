@@ -290,7 +290,7 @@ if wq == "6o" or wq == "all":
         lineitem = "/home/john/tpch-dbgen/data/lineitem.tbl." + str(sing)
         output6 = open("output6o-" + str(sing) + ".txt","w+")
         err6 = open("err6o-" + str(sing) + ".txt","w+")
-        cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.TPCH6 " + \
+        cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.original.TPCH6 " + \
                "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
                "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
                "--driver-memory 50g --executor-memory 50g --conf spark.executor.extraJavaOptions='-Xms50g' --conf spark.driver.extraJavaOptions='-Xms50g' " + \
@@ -303,7 +303,7 @@ if wq == "6o" or wq == "all":
             lineitem = "/home/john/tpch-dbgen/data/lineitem.tbl." + str(i)
             output6 = open("output6o-" + str(i) + ".txt","w+")
             err6 = open("err6o-" + str(i) + ".txt","w+")
-            cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.TPCH6 " + \
+            cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.original.TPCH6 " + \
                    "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
                    "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
                    "--driver-memory 50g --executor-memory 50g --conf spark.executor.extraJavaOptions='-Xms50g' --conf spark.driver.extraJavaOptions='-Xms50g' " + \
@@ -317,7 +317,7 @@ if wq == "11o" or wq == "all":
         partsupp = "/home/john/tpch-dbgen/data/partsupp.tbl." + str(sing)
         output11 = open("output11o-" + str(sing) + ".txt","w+")
         err11 = open("err11o-" + str(sing) + ".txt","w+")
-        cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.TPCH11 " + \
+        cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.original.TPCH11 " + \
                "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
                "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
                "--driver-memory 50g --executor-memory 50g --conf spark.executor.extraJavaOptions='-Xms50g' --conf spark.driver.extraJavaOptions='-Xms50g' " + \
@@ -330,7 +330,7 @@ if wq == "11o" or wq == "all":
             partsupp = "/home/john/tpch-dbgen/data/partsupp.tbl." + str(i)
             output11 = open("output11o-" + str(i) + ".txt","w+")
             err11 = open("err11o-" + str(i) + ".txt","w+")
-            cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.TPCH11 " + \
+            cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.original.TPCH11 " + \
                    "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
                    "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
                    "--driver-memory 50g --executor-memory 50g --conf spark.executor.extraJavaOptions='-Xms50g' --conf spark.driver.extraJavaOptions='-Xms50g' " + \
