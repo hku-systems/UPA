@@ -13,7 +13,6 @@ class dpobjectArray[T: ClassTag](
                                   var inputsample : RDD[(T,Long)],
                                   var inputsample_advance : RDD[(T,Long)],
                                   var inputoriginal : RDD[T])
-  extends RDD[T](inputoriginal)
 {
 
   var sample = inputsample //for each element, sample refers to "if this element exists"
@@ -25,15 +24,6 @@ class dpobjectArray[T: ClassTag](
   val k_distance_double = 1/epsilon
   val k_distance = k_distance_double.toInt
   val beta = epsilon / (2*scala.math.log(2/delta))
-
-
-  override def compute(split: org.apache.spark.Partition, context: org.apache.spark.TaskContext): Iterator[T] =
-  {
-    inputoriginal.iterator(split, context)
-  }
-
-  override protected def getPartitions: Array[org.apache.spark.Partition] =
-    inputoriginal.partitions
 
   def mapDP[U: ClassTag](f: T => U): dpobjectArray[U]= {
     val t1 = System.nanoTime
@@ -48,6 +38,10 @@ class dpobjectArray[T: ClassTag](
   def print_length(): Unit = {
     val original_length = original.count()
     print("dpobjectarray length: " + original_length)
+  }
+
+  def count(): (Long,Long,Long) = {
+    (inputsample.count(),inputsample_advance.count(),inputoriginal.count())
   }
 
   def mapDPKV[K: ClassTag,V: ClassTag](f: T => (K,V)): dpobjectKVArray[K,V]= {

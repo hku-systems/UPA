@@ -34,6 +34,9 @@ if wq == "line" or wq == "all":
     cmd = "./dbgen -s " + str(s) + " -S " + str(S) + " -C 50 -T L -v"
     process = subprocess.Popen(cmd.split(),cwd="/home/john/tpch-dbgen/data")
     output, error = process.communicate()
+    cmd = "mv lineitem.tbl.1 lineitem.tbl." + str(s)
+    process = subprocess.Popen(cmd.split(),cwd="/home/john/tpch-dbgen/data")
+    output, error = process.communicate()
 
 if wq == "order" or wq == "all":
     cmd = "./dbgen -s " + str(s) + " -S " + str(S) + " -C 50 -T O -v"
@@ -49,14 +52,12 @@ if wq == "parts" or wq == "all":
     cmd = "./dbgen -s " + str(s) + " -S " + str(S) + " -C 50 -T S -v"
     process = subprocess.Popen(cmd.split(),cwd="/home/john/tpch-dbgen/data")
     output, error = process.communicate()
-
-if wq == "nati" or wq == "all":
-    cmd = "./dbgen -s " + str(s) + " -S " + str(S) + " -C 50 -T n -v"
+    cmd = "mv partsupp.tbl.1 partsupp.tbl." + str(s)
     process = subprocess.Popen(cmd.split(),cwd="/home/john/tpch-dbgen/data")
     output, error = process.communicate()
 
-if wq == "part" or wq == "all":
-    cmd = "./dbgen -s " + str(s) + " -S " + str(S) + " -C 50 -T P -v"
+if wq == "nati" or wq == "all":
+    cmd = "./dbgen -s " + str(s) + " -S " + str(S) + " -C 50 -T n -v"
     process = subprocess.Popen(cmd.split(),cwd="/home/john/tpch-dbgen/data")
     output, error = process.communicate()
 

@@ -16,7 +16,7 @@ object TPCH21DP {
     // this is used to implicitly convert an RDD to a DataFrame.
     val spark = SparkSession
       .builder
-      .appName("TpchQuery1")
+      .appName("TpchQuery21DP")
       .getOrCreate()
     val inputDir = "/home/john/tpch-spark/dbgen"
     val t1 = System.nanoTime
@@ -27,15 +27,12 @@ object TPCH21DP {
         (p(3).trim.toLong, (p(0).trim.toLong, p(1).trim)))
     //(s_nationkey, (s_suppkey, s_name))
 
-        val lineitem_input = new dpread(spark.sparkContext.textFile(args(2)))
-          .mapDP(_.split('|'),args(8).toInt)
-          .mapDP(p =>
-          ( p(0).trim.toLong, (p(2).trim.toLong,  p(12).trim, p(11).trim, 1)))
+        val lineitem4join = new dpread(spark.sparkContext.textFile(args(2)))
+          .mapDPKV(p => {
+            val s = p.split('|')
+            (s(0).trim.toLong, (s(2).trim.toLong,  s(12).trim, s(11).trim, 1))
+          },args(8).toInt)
         //(l_orderkey, (l_suppkey, l_receiptdate, l_commitdate, 1))
-
-        val lineitem4join = lineitem_input
-          .mapDPKV(p => (p._2._1,(p._1,p._2._2,p._2._3,p._2._4)))
-        //(l_suppkey,(l_orderkey, l_receiptdate, l_commitdate, 4))
 
         val line1 = spark.sparkContext.textFile(args(3))
           .map(_.split('|'))
@@ -87,7 +84,9 @@ object TPCH21DP {
     }
     else if(args(9) == "1" || args(9) == "2") { //1 means print length
       val result_length = final_result_before_reduce.count()
-      print("result_length: " + result_length)
+      print("sample: " + result_length._1)
+      print("advance: " + result_length._2)
+      print("original: " + result_length._3)
     }
     val duration = (System.nanoTime - t1) / 1e9d
     println("Execution time: " + duration)

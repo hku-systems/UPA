@@ -15,7 +15,7 @@ object TPCH11 {
     // this is used to implicitly convert an RDD to a DataFrame.
     val spark = SparkSession
       .builder
-      .appName("TpchQuery1")
+      .appName("TpchQuery11")
       .getOrCreate()
     val inputDir = "/home/john/tpch-spark/dbgen"
 

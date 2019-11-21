@@ -58,7 +58,7 @@ object SparkKMeansDP {
 
     val spark = SparkSession
       .builder
-      .appName("SparkKMeans")
+      .appName("SparkKMeansDP")
       .getOrCreate()
     val t1 = System.nanoTime
 

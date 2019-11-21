@@ -67,7 +67,7 @@ object SparkHdfsLRDP {
 
     val spark = SparkSession
       .builder
-      .appName("SparkHdfsLR")
+      .appName("SparkHdfsLRDP")
       .getOrCreate()
 
     val t1 = System.nanoTime

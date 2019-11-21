@@ -8,7 +8,7 @@ object TPCH6DP {
     // this is used to implicitly convert an RDD to a DataFrame.
     val spark = SparkSession
       .builder
-      .appName("TpchQuery6")
+      .appName("TpchQuery6DP")
       .getOrCreate()
     val inputDir = "/home/john/tpch-spark/dbgen"
     //    schemaProvider.lineitem.filter($"l_shipdate" <= "1998-09-02")

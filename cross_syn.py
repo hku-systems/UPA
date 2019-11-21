@@ -34,6 +34,6 @@ if op == "data":
     process = subprocess.Popen(cmd1.split())
     output, error = process.communicate()
 
-    cmd1 = "parallel-ssh -h /home/john/AutoDP/hosts.txt -l john -i pigz -dc tpch.tgz | tar xf -"
+    cmd1 = "parallel-ssh -h /home/john/AutoDP/hosts.txt -l john -t 0 -i pigz -dc tpch.tgz | tar xf -"
     process = subprocess.Popen(cmd1.split())
     output, error = process.communicate()
