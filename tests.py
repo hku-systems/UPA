@@ -16,7 +16,7 @@ scale_c = [1,10,100,1000,10000]
 lineitem_path = Path("/home/john/AutoDP/security.csv")
 if not lineitem_path.is_file():
     f = open("security.csv","w+")
-    f.write("10,1")
+    f.write("8,1")
     f.close()
 
 lineitem = "/home/john/tpch-dbgen/data/lineitem.tbl.original"
@@ -28,7 +28,7 @@ nation = "/home/john/tpch-dbgen/data/nation.tbl"
 threshold = 2
 # sampleSize = sp
 for sampleSize in sp:
-    if wq == "1" or wq == "all":
+    if wq == "1" or wq == "all" or wq == "upa":
         if op == "sing":
             lineitem = "/home/john/tpch-dbgen/data/lineitem.tbl." + str(sing)
             output1 = open("output1-" + str(sing) + ".txt","w+")
@@ -58,7 +58,7 @@ for sampleSize in sp:
         #./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.TPCH1DP --conf "spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps" --conf "spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps" examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar /home/john/tpch-dbgen/data/lineitem.tbl.original /home/john/tpch-dbgen/data/lineitem.tbl.original 2 30
         #
 
-    if wq == "4" or wq == "all":
+    if wq == "4" or wq == "all" or wq == "upa":
         if op == "sing":
             lineitem = "/home/john/tpch-dbgen/data/lineitem.tbl." + str(sing)
             output4 = open("output4-" + str(sing) + ".txt","w+")
@@ -85,7 +85,7 @@ for sampleSize in sp:
                 process = subprocess.Popen(cmd1,shell=True, stdout=output4, stderr=err4)
                 output, error = process.communicate()
 
-    if wq == "6" or wq == "all":
+    if wq == "6" or wq == "all" or wq == "upa":
         if op == "sing":
             lineitem = "/home/john/tpch-dbgen/data/lineitem.tbl." + str(sing)
             output6 = open("output6-" + str(sing) + ".txt","w+")
@@ -112,7 +112,7 @@ for sampleSize in sp:
                 process = subprocess.Popen(cmd1,shell=True, stdout=output6, stderr=err6)
                 output, error = process.communicate()
 
-    if wq == "11" or wq == "all":
+    if wq == "11" or wq == "all" or wq == "upa":
         if op == "sing":
             partsupp = "/home/john/tpch-dbgen/data/partsupp.tbl." + str(sing)
             output11 = open("output11-" + str(sing) + ".txt","w+")
@@ -141,7 +141,7 @@ for sampleSize in sp:
                 process = subprocess.Popen(cmd1,shell=True, stdout=output11, stderr=err11)
                 output, error = process.communicate()
 
-    if wq == "13" or wq == "all":
+    if wq == "13" or wq == "all" or wq == "upa":
         if op == "sing":
             lineitem = "/home/john/tpch-dbgen/data/lineitem.tbl." + str(sing)
             output13 = open("output13-" + str(sing) + ".txt","w+")
@@ -170,7 +170,7 @@ for sampleSize in sp:
                 process = subprocess.Popen(cmd1,shell=True, stdout=output13, stderr=err13)
                 output, error = process.communicate()
 
-    if wq == "16" or wq == "all":
+    if wq == "16" or wq == "all" or wq == "upa":
         if op == "sing":
             partsupp = "/home/john/tpch-dbgen/data/partsupp.tbl." + str(sing)
             output16 = open("output16-" + str(sing) + ".txt","w+")
@@ -201,7 +201,7 @@ for sampleSize in sp:
                 process = subprocess.Popen(cmd1,shell=True, stdout=output16, stderr=err16)
                 output, error = process.communicate()
 
-    if wq == "21" or wq == "all":
+    if wq == "21" or wq == "all" or wq == "upa":
         if op == "sing":
             lineitem = "/home/john/tpch-dbgen/data/lineitem.tbl." + str(sing)
             output21 = open("output21-" + str(sing) + ".txt","w+")
