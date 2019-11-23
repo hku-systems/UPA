@@ -38,8 +38,7 @@ class dpobjectKV_checker[K, V](var inputoriginal: RDD[((K, V),Long)])
     new dpobject_checker(joinresult)
   }
 
-  def joinDP_original[W](otherDP: RDD[(K, W)]): dpobjectArray[((K, (V, W)))] = {
-
+  def joinDP_original[W](otherDP: RDD[(K, W)]): dpobject_checker[((K, (V, W)))] = {
 
     val joinresult = original
       .map(p => (p._1._1,(p._1._2,p._2)))

@@ -26,20 +26,25 @@ class dpobject_checker[T: ClassTag](
     original.isEmpty()
   }
 
-  def mapDPKV[K: ClassTag,V: ClassTag](f: T => (K,V)): dpobjectKV[K,V]= {
+  def mapDPKV[K: ClassTag,V: ClassTag](f: T => (K,V)): dpobjectKV_checker[K,V]= {
     val r3 = original.map(p => {
       (f(p._1),p._2)
     }).asInstanceOf[RDD[((K,V),Long)]]
-    new dpobjectKV(r3)
+    new dpobjectKV_checker(r3)
   }
 
-  def reduceDP(f: (T, T) => T, k_dist: Int): Unit = {
+  def reduceDP(f: (T, T) => T): Unit = {
     val result_by_part = original.map(p => (p._2,p._1)).reduceByKey((a,b) => f(a,b))
     val result_by_part_collect = result_by_part.collect()
-    val final_result = result_by_part_collect.map(p => p._2).reduce(f)
-    println("by part: ")
-    result_by_part_collect.foreach(println)
-    println("final result: " + final_result)
+    if(result_by_part.isEmpty) {
+      println("output is Empty")
+    }
+    else {
+      val final_result = result_by_part.map(p => p._2).reduce(f)
+      println("by part: ")
+      result_by_part_collect.foreach(println)
+      println("final result: " + final_result)
+    }
   }
 
   def filterDP(f: T => Boolean) : dpobject_checker[T] = {

@@ -172,8 +172,8 @@ var sample_advance = inputsample_advance
     var min_bound = 0.0
     val original_res = array._3
     if (!all_samp.isEmpty) {
-      max_bound = all_samp.max()
-      min_bound = all_samp.min()
+      max_bound = all_samp.max
+      min_bound = all_samp.min
       diff = max_bound - min_bound
     }
 
