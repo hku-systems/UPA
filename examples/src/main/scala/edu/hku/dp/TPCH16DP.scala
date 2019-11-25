@@ -27,9 +27,10 @@ object TPCH16DP {
 
   def main(args: Array[String]): Unit = {
     // this is used to implicitly convert an RDD to a DataFrame.
+    val input_size = args(4).split('.').last
     val spark = SparkSession
       .builder
-      .appName("TpchQuery16DP")
+      .appName("TpchQuery16DP-" + input_size + "-" + args(7))
       .getOrCreate()
     val inputDir = "/home/john/tpch-spark/dbgen"
     val t1 = System.nanoTime

@@ -6,9 +6,10 @@ import org.apache.spark.sql.SparkSession
 object TPCH6DP {
   def main(args: Array[String]): Unit = {
     // this is used to implicitly convert an RDD to a DataFrame.
+    val input_size = args(0).split('.').last
     val spark = SparkSession
       .builder
-      .appName("TpchQuery6DP")
+      .appName("TpchQuery6DP-" + input_size + "-" + args(3))
       .getOrCreate()
     val inputDir = "/home/john/tpch-spark/dbgen"
     //    schemaProvider.lineitem.filter($"l_shipdate" <= "1998-09-02")

@@ -31,8 +31,8 @@ for sampleSize in sp:
     if wq == "1" or wq == "all" or wq == "upa":
         if op == "sing":
             lineitem = "/home/john/tpch-dbgen/data/lineitem.tbl." + str(sing)
-            output1 = open("output1-" + str(sing) + ".txt","w+")
-            err1 = open("err1-" + str(sing) + ".txt","w+")
+            output1 = open("output1-" + str(sing) + "," + str(sampleSize) + ".txt","w+")
+            err1 = open("err1-" + str(sing) + "," + str(sampleSize) + ".txt","w+")
             cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.TPCH1DP " + \
                    "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
                    "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
@@ -44,8 +44,8 @@ for sampleSize in sp:
         elif op == "scal":
             for i in scale:
                 lineitem = "/home/john/tpch-dbgen/data/lineitem.tbl." + str(i)
-                output1 = open("output1-" + str(i) + ".txt","w+")
-                err1 = open("err1-" + str(i) + ".txt","w+")
+                output1 = open("output1-" + str(i) + "," + str(sampleSize) + ".txt","w+")
+                err1 = open("err1-" + str(i) + "," + str(sampleSize) + ".txt","w+")
                 cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.TPCH1DP " + \
                        "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
                        "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
@@ -61,8 +61,8 @@ for sampleSize in sp:
     if wq == "4" or wq == "all" or wq == "upa":
         if op == "sing":
             lineitem = "/home/john/tpch-dbgen/data/lineitem.tbl." + str(sing)
-            output4 = open("output4-" + str(sing) + ".txt","w+")
-            err4 = open("err4-" + str(sing) + ".txt","w+")
+            output4 = open("output4-" + str(sing) + "," + str(sampleSize) + ".txt","w+")
+            err4 = open("err4-" + str(sing) + "," + str(sampleSize) + ".txt","w+")
             cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.TPCH4DP " + \
                    "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
                    "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
@@ -74,8 +74,8 @@ for sampleSize in sp:
         elif op == "scal":
             for i in scale:
                 lineitem = "/home/john/tpch-dbgen/data/lineitem.tbl." + str(i)
-                output4 = open("output4-" + str(i) + ".txt","w+")
-                err4 = open("err4-" + str(i) + ".txt","w+")
+                output4 = open("output4-" + str(i) + "," + str(sampleSize) + ".txt","w+")
+                err4 = open("err4-" + str(i) + "," + str(sampleSize) + ".txt","w+")
                 cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.TPCH4DP " + \
                        "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
                        "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
@@ -88,8 +88,8 @@ for sampleSize in sp:
     if wq == "6" or wq == "all" or wq == "upa":
         if op == "sing":
             lineitem = "/home/john/tpch-dbgen/data/lineitem.tbl." + str(sing)
-            output6 = open("output6-" + str(sing) + ".txt","w+")
-            err6 = open("err6-" + str(sing) + ".txt","w+")
+            output6 = open("output6-" + str(sing) + "," + str(sampleSize) + ".txt","w+")
+            err6 = open("err6-" + str(sing) + "," + str(sampleSize) + ".txt","w+")
             cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.TPCH6DP " + \
                    "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
                    "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
@@ -101,8 +101,8 @@ for sampleSize in sp:
         elif op == "scal":
             for i in scale:
                 lineitem = "/home/john/tpch-dbgen/data/lineitem.tbl." + str(i)
-                output6 = open("output6-" + str(i) + ".txt","w+")
-                err6 = open("err6-" + str(i) + ".txt","w+")
+                output6 = open("output6-" + str(i) + "," + str(sampleSize) + ".txt","w+")
+                err6 = open("err6-" + str(i) + "," + str(sampleSize) + ".txt","w+")
                 cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.TPCH6DP " + \
                        "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
                        "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
@@ -115,8 +115,8 @@ for sampleSize in sp:
     if wq == "11" or wq == "all" or wq == "upa":
         if op == "sing":
             partsupp = "/home/john/tpch-dbgen/data/partsupp.tbl." + str(sing)
-            output11 = open("output11-" + str(sing) + ".txt","w+")
-            err11 = open("err11-" + str(sing) + ".txt","w+")
+            output11 = open("output11-" + str(sing) + "," + str(sampleSize) + ".txt","w+")
+            err11 = open("err11-" + str(sing) + "," + str(sampleSize) + ".txt","w+")
             cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.TPCH11DP " + \
                    "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
                    "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
@@ -129,8 +129,8 @@ for sampleSize in sp:
         elif op == "scal":
             for i in scale:
                 partsupp = "/home/john/tpch-dbgen/data/partsupp.tbl." + str(i)
-                output11 = open("output11-" + str(i) + ".txt","w+")
-                err11 = open("err11-" + str(i) + ".txt","w+")
+                output11 = open("output11-" + str(i) + "," + str(sampleSize) + ".txt","w+")
+                err11 = open("err11-" + str(i) + "," + str(sampleSize) + ".txt","w+")
                 cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.TPCH11DP " + \
                        "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
                        "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
@@ -144,8 +144,8 @@ for sampleSize in sp:
     if wq == "13" or wq == "all" or wq == "upa":
         if op == "sing":
             lineitem = "/home/john/tpch-dbgen/data/lineitem.tbl." + str(sing)
-            output13 = open("output13-" + str(sing) + ".txt","w+")
-            err13 = open("err13-" + str(sing) + ".txt","w+")
+            output13 = open("output13-" + str(sing) + "," + str(sampleSize) + ".txt","w+")
+            err13 = open("err13-" + str(sing) + "," + str(sampleSize) + ".txt","w+")
             cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.TPCH13DP " + \
                    "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
                    "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
@@ -158,8 +158,8 @@ for sampleSize in sp:
         elif op == "scal":
             for i in scale:
                 lineitem = "/home/john/tpch-dbgen/data/lineitem.tbl." + str(i)
-                output13 = open("output13-" + str(i) + ".txt","w+")
-                err13 = open("err13-" + str(i) + ".txt","w+")
+                output13 = open("output13-" + str(i) + "," + str(sampleSize) + ".txt","w+")
+                err13 = open("err13-" + str(i) + "," + str(sampleSize) + ".txt","w+")
                 cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.TPCH13DP " + \
                        "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
                        "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
@@ -173,8 +173,8 @@ for sampleSize in sp:
     if wq == "16" or wq == "all" or wq == "upa":
         if op == "sing":
             partsupp = "/home/john/tpch-dbgen/data/partsupp.tbl." + str(sing)
-            output16 = open("output16-" + str(sing) + ".txt","w+")
-            err16 = open("err16-" + str(sing) + ".txt","w+")
+            output16 = open("output16-" + str(sing) + "," + str(sampleSize) + ".txt","w+")
+            err16 = open("err16-" + str(sing) + "," + str(sampleSize) + ".txt","w+")
             cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.TPCH16DP " + \
                    "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
                    "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
@@ -188,8 +188,8 @@ for sampleSize in sp:
         elif op == "scal":
             for i in scale:
                 partsupp = "/home/john/tpch-dbgen/data/partsupp.tbl." + str(i)
-                output16 = open("output16-" + str(i) + ".txt","w+")
-                err16 = open("err16-" + str(i) + ".txt","w+")
+                output16 = open("output16-" + str(i) + "," + str(sampleSize) + ".txt","w+")
+                err16 = open("err16-" + str(i) + "," + str(sampleSize) + ".txt","w+")
                 cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.TPCH16DP " + \
                        "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
                        "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
@@ -204,8 +204,8 @@ for sampleSize in sp:
     if wq == "21" or wq == "all" or wq == "upa":
         if op == "sing":
             lineitem = "/home/john/tpch-dbgen/data/lineitem.tbl." + str(sing)
-            output21 = open("output21-" + str(sing) + ".txt","w+")
-            err21 = open("err21-" + str(sing) + ".txt","w+")
+            output21 = open("output21-" + str(sing) + "," + str(sampleSize) + ".txt","w+")
+            err21 = open("err21-" + str(sing) + "," + str(sampleSize) + ".txt","w+")
             cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.TPCH21DP " + \
                    "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
                    "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
@@ -220,8 +220,8 @@ for sampleSize in sp:
         elif op == "scal":
             for i in scale:
                 lineitem = "/home/john/tpch-dbgen/data/lineitem.tbl." + str(i)
-                output21 = open("output21-" + str(i) + ".txt","w+")
-                err21 = open("err21-" + str(i) + ".txt","w+")
+                output21 = open("output21-" + str(i) + "," + str(sampleSize) + ".txt","w+")
+                err21 = open("err21-" + str(i) + "," + str(sampleSize) + ".txt","w+")
                 cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.TPCH21DP " + \
                        "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
                        "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \

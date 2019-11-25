@@ -7,9 +7,10 @@ object TPCH11DP {
 
   def main(args: Array[String]): Unit = {
     // this is used to implicitly convert an RDD to a DataFrame.
+    val input_size = args(3).split('.').last
     val spark = SparkSession
       .builder
-      .appName("TpchQuery11DP")
+      .appName("TpchQuery11DP-" + input_size + "-" + args(6))
       .getOrCreate()
     val inputDir = "/home/john/tpch-spark/dbgen"
     val t1 = System.nanoTime
@@ -25,7 +26,6 @@ object TPCH11DP {
       .map(p =>
         (p(0).trim.toLong, p(1).trim))
       .filter(p => p._2 == "GERMANY")
-      .map(p => p)
     //n_nationkey, n_name
 
     val nation_supplier = supplier_input.join(nation_input)

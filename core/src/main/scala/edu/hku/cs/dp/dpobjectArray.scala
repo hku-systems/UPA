@@ -67,23 +67,19 @@ class dpobjectArray[T: ClassTag](
   def reduceDP(f: (Double, Double) => Double, k_dist: Int): (Double,Double,Double,Double) = {
 
     //computin candidates of smooth sensitivity
-    var array = reduceDP_deep(f).asInstanceOf[(Array[Array[Double]],Array[Array[Double]],Double,Double)]
+    var array = reduceDP_deep(f)
     val t1 = System.nanoTime
 
     val all_samp = array._1.flatMap(p => p) ++ array._2.flatMap(p => p)
-    val sum_all_samp = all_samp.reduce((a,b) => a*a + b*b)
+    all_samp.foreach(p => println("samp_output: " + p))
     val r = new Random()
-    val original_res = array._3
     var diff = 0.0
     var max_bound = 0.0
     var min_bound = 0.0
+    val original_res = array._3
     if (!all_samp.isEmpty) {
-      val all_samp_normalised_max = all_samp.map(p => p / sum_all_samp + r.nextGaussian() * math.sqrt(sum_all_samp)).zipWithIndex
-      val all_samp_noise_max = all_samp_normalised_max.maxBy(_._1)._2
-      val max_bound = all_samp(all_samp_noise_max)
-      val all_samp_normalised_min = all_samp.map(p => -1 * (p / sum_all_samp + r.nextGaussian() * math.sqrt(sum_all_samp))).zipWithIndex
-      val all_samp_noise_min = all_samp_normalised_min.maxBy(_._1)._2
-      val min_bound = all_samp(all_samp_noise_min)
+      max_bound = all_samp.max
+      min_bound = all_samp.min
       diff = max_bound - min_bound
     }
 
@@ -114,7 +110,10 @@ class dpobjectArray[T: ClassTag](
     val a_collect = sample_advance.asInstanceOf[RDD[(Double,Long)]].map(p => (p._2,p._1)).reduceByKey(f).map(_._2).collect()
 
     //The "sample" field carries the aggregated result already
-    val result = original.asInstanceOf[RDD[Double]].reduce(f)
+    var result = 0.0
+    if(!original.isEmpty) {
+      result = original.asInstanceOf[RDD[Double]].reduce(f)
+    }
     val result_b = original.sparkContext.broadcast(result)
     var aggregatedResult = result//get the aggregated result
     //    if(!sample.isEmpty())
@@ -135,6 +134,7 @@ class dpobjectArray[T: ClassTag](
       case b if b == 1 =>
         val only_array = new Array[Double](1)
         only_array(0) = f(result,s_collect.head)
+        aggregatedResult = f(result,s_collect.head)
         Array(only_array) //without that sample
       case _ => //more than one sample
         if (sample_count <= k_distance)
@@ -147,25 +147,25 @@ class dpobjectArray[T: ClassTag](
         val b_i_b = sample.sparkContext.broadcast(i)
         val inner_array = sample.sparkContext.parallelize((0 to up_to_index - 1).toSeq)
           .map(p => {
-            f(sample_count_b.value.patch(p, Nil, b_i_b.value).reduce(f), result_b.value) //(0 -> 7, 8 -> 15, 16, 24, 32, 40, 48, 56)
+            (p,f(sample_count_b.value.patch(p, Nil, b_i_b.value).reduce(f), result_b.value)) //(0 -> 7, 8 -> 15, 16, 24, 32, 40, 48, 56)
           })
-        val upper_array = sample.sparkContext.broadcast(inner_array.collect())
+        val in_cp = inner_array.collect()
+        if(!in_cp.isEmpty)
+          aggregatedResult = f(in_cp.filter(_._1 == 0).head._2,s_collect.slice(0, b_i).reduce(f))
+        val upper_array = sample.sparkContext.broadcast(in_cp)
         val n = sample.sparkContext.parallelize((0 to up_to_index - 1).toSeq) //(0,1,2,3,4,5,6,7)
           .map(p => {
             var neighnout_o = new Array[Double](b_i_b.value - 1) //bi is the number of layer
             var j = b_i_b.value - 1 //start form 10
             while (j >= 1) {
               if(j == b_i_b.value - 1)
-                neighnout_o(j - 1) = f(upper_array.value(p), sample_count_b.value(p + j + 1)) //add back 11, so would be 1 to 10
+                neighnout_o(j - 1) = f(upper_array.value(p)._2, sample_count_b.value(p + j + 1)) //add back 11, so would be 1 to 10
               else
                 neighnout_o(j - 1) = f(sample_count_b.value(p + j + 1), neighnout_o(j))
               j = j - 1
             }
             neighnout_o
           }).collect()
-
-        if(!n.isEmpty && !n.head.isEmpty)
-          aggregatedResult = f(n.head.head,s_collect.head)
         n
     }
     val aggregatedResult_b = sample.sparkContext.broadcast(aggregatedResult)
