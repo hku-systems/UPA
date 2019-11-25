@@ -105,9 +105,7 @@ class dpobjectArray[T: ClassTag](
     val k_distance = parameters(0).toInt
     val beta = epsilon / (2*scala.math.log(2/delta))
 
-    val s_collect = sample.asInstanceOf[RDD[(Double,Long)]].map(p => (p._2,p._1)).reduceByKey(f).map(_._2).collect()
-
-    val a_collect = sample_advance.asInstanceOf[RDD[(Double,Long)]].map(p => (p._2,p._1)).reduceByKey(f).map(_._2).collect()
+    val s_collect = sample.map(p => (p._2,p._1)).asInstanceOf[RDD[(Long,Double)]].reduceByKey(f).map(_._2).collect()
 
     //The "sample" field carries the aggregated result already
     var result = 0.0
@@ -125,54 +123,51 @@ class dpobjectArray[T: ClassTag](
     val sample_count = s_collect.length //e.g., 64
     val sample_count_b =  sample.sparkContext.broadcast(s_collect)
     //***********samples*********************
-    println("sample count: " + sample_count)
+    print("sample count: " + sample_count)
     val sample_array = sample_count match {
       case a if a == 0 =>
         val only_array = new Array[Double](1)
         only_array(0) = aggregatedResult
-        Array(only_array)
+        Array((0,only_array))
       case b if b == 1 =>
         val only_array = new Array[Double](1)
         only_array(0) = f(result,s_collect.head)
         aggregatedResult = f(result,s_collect.head)
-        Array(only_array) //without that sample
+        Array((0,only_array)) //without that sample
       case _ => //more than one sample
-        if (sample_count <= k_distance)
-          outer_num = k_distance - 1 //to make sure all k has a sample point
-        else
+        if (sample_count <= k_distance) {
+          outer_num = 1 //to make sure all k has a sample point
+        } else
           outer_num = k_distance //outer_num = 10
-        val i = outer_num + 1//11
-      val up_to_index = (sample_count - i).toInt
+        val i = outer_num //i = 10
+        val up_to_index = (sample_count - i).toInt //up_to_index = 8
         val b_i = i // i is the number of layer
         val b_i_b = sample.sparkContext.broadcast(i)
-        val inner_array = sample.sparkContext.parallelize((0 to up_to_index - 1).toSeq)
+        val n = sample.sparkContext.parallelize((0 to up_to_index - 1).toSeq)// if distance 1, then need 2 differing element here because this layer will not be included into the nieghour array
           .map(p => {
-            (p,f(sample_count_b.value.patch(p, Nil, b_i_b.value).reduce(f), result_b.value)) //(0 -> 7, 8 -> 15, 16, 24, 32, 40, 48, 56)
-          })
-        val in_cp = inner_array.collect()
-        if(!in_cp.isEmpty)
-          aggregatedResult = f(in_cp.filter(_._1 == 0).head._2,s_collect.slice(0, b_i).reduce(f))
-        val upper_array = sample.sparkContext.broadcast(in_cp)
-        val n = sample.sparkContext.parallelize((0 to up_to_index - 1).toSeq) //(0,1,2,3,4,5,6,7)
-          .map(p => {
-            var neighnout_o = new Array[Double](b_i_b.value - 1) //bi is the number of layer
-            var j = b_i_b.value - 1 //start form 10
-            while (j >= 1) {
+            val upper_array = f(sample_count_b.value.patch(p, Nil, b_i_b.value + 1).reduce(f), result_b.value) //(0 -> 7, 8 -> 15, 16, 24, 32, 40, 48, 56)
+            var neighnout_o = new Array[Double](b_i_b.value) //bi is the number of layer
+            var j = b_i_b.value - 1 //start form 10, minus one because it is an index
+            while (j >= 0) {
               if(j == b_i_b.value - 1)
-                neighnout_o(j - 1) = f(upper_array.value(p)._2, sample_count_b.value(p + j + 1)) //add back 11, so would be 1 to 10
+                neighnout_o(j) = f(upper_array, sample_count_b.value(p + j + 1)) //add back 11, so would be 1 to 10
               else
-                neighnout_o(j - 1) = f(sample_count_b.value(p + j + 1), neighnout_o(j))
+                neighnout_o(j) = f(sample_count_b.value(p + j + 1), neighnout_o(j + 1))// upper layer, so j+1
               j = j - 1
             }
-            neighnout_o
+            (p,neighnout_o)
           }).collect()
+        n
+        if(!n.isEmpty)
+          aggregatedResult = f(n.filter(_._1 == 0).head._2(0),s_collect(0))
         n
     }
     val aggregatedResult_b = sample.sparkContext.broadcast(aggregatedResult)
+    val a_collect = sample_advance.map(p => (p._2,p._1)).asInstanceOf[RDD[(Long,Double)]].reduceByKey(f).map(_._2).collect()
     //**********sample advance*************
     val a_collect_b =  sample_advance.sparkContext.broadcast(a_collect)
     val sample_advance_count = a_collect.length
-    println("sample advance count: " + sample_advance_count)
+    print("ssample advance count: " + sample_advance_count)
     val sample_array_advance = sample_advance_count match {
       case a if a == 0 =>
         var only_array_advance = new Array[Double](1)
@@ -184,7 +179,7 @@ class dpobjectArray[T: ClassTag](
         Array(only_array_advance) //without that sample
       case _ =>
         if (sample_advance_count <= k_distance)
-          outer_num = k_distance - 1
+          outer_num = 1
         else
           outer_num = k_distance //outer_num = 10
         var i = outer_num
@@ -207,7 +202,7 @@ class dpobjectArray[T: ClassTag](
     }
     val duration = (System.nanoTime - t1) / 1e9d
     println("reduce: " + duration)
-    (sample_array,sample_array_advance,aggregatedResult,beta)
+    (sample_array.map(_._2),sample_array_advance,aggregatedResult,beta)
   }
 
 }
