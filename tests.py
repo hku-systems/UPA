@@ -9,14 +9,14 @@ sing = sing_input if sing_input > 0 else 1
 sp = list(sys.argv[4].split(','))
 db = sys.argv[5]
 #python tests.py all scal 0 [10,100,1000,10000,100000] 0
-
+#python tests.py allc sing 10000 10,100,1000,10000 0 <- middle: samp rate
 scale = [10,100,1000,10000]
 scale_c = [1,10,100,1000,10000]
 
 # lineitem_path = Path("/home/john/AutoDP/security.csv")
 # if not lineitem_path.is_file():
 f = open("security.csv","w+")
-f.write("2,1,0")
+f.write("8,1,0")
 f.close()
 
 lineitem = "/home/john/tpch-dbgen/data/lineitem.tbl.original"
@@ -423,166 +423,151 @@ if wq == "21o" or wq == "all":
                    " " + order + " " + nation + " " + db
             process = subprocess.Popen(cmd1,shell=True, stdout=output21, stderr=err21)
             output, error = process.communicate()
-
-if wq == "1c" or wq == "allc":
-    if op == "sing":
-        lineitem = "/home/john/tpch-dbgen/data/lineitem.tbl." + str(sing)
-        output1 = open("output1c-" + str(sing) + ".txt","w+")
-        err1 = open("err1c-" + str(sing) + ".txt","w+")
-        cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.checker.TPCH1DP_checker " + \
-               "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
-               "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
-               "--driver-memory 50g --executor-memory 50g --conf spark.executor.extraJavaOptions='-Xms50g' --conf spark.driver.extraJavaOptions='-Xms50g' " + \
-               "examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar " + \
-               lineitem + " " + lineitem + "  "+ str(threshold) + " " + str(sampleSize)
-        process = subprocess.Popen(cmd1,shell=True, stdout=output1, stderr=err1)
-        output, error = process.communicate()
-    elif op == "scal":
-        for i in scale_c:
+for sampleSize in sp:
+    if wq == "1c" or wq == "allc":
+        if op == "sing":
             lineitem = "/home/john/tpch-dbgen/data/lineitem.tbl." + str(sing)
-            output1 = open("output1c-" + str(sing) + ".txt","w+")
-            err1 = open("err1c-" + str(sing) + ".txt","w+")
+            output1 = open("output1c-" + str(sing) + "," + str(sampleSize) + ".txt","w+")
+            err1 = open("err1c-" + str(sing) + "," + str(sampleSize) + ".txt","w+")
             cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.checker.TPCH1DP_checker " + \
                    "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
                    "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
                    "--driver-memory 50g --executor-memory 50g --conf spark.executor.extraJavaOptions='-Xms50g' --conf spark.driver.extraJavaOptions='-Xms50g' " + \
                    "examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar " + \
-                   lineitem + " " + lineitem + "  "+ str(threshold) + " " + str(i)
+                   lineitem + " " + lineitem + "  "+ str(threshold) + " " + str(sampleSize)
             process = subprocess.Popen(cmd1,shell=True, stdout=output1, stderr=err1)
             output, error = process.communicate()
+        elif op == "scal":
+            for i in scale_c:
+                lineitem = "/home/john/tpch-dbgen/data/lineitem.tbl." + str(sing)
+                output1 = open("output1c-" + str(sing) + "," + str(i) + ".txt","w+")
+                err1 = open("err1c-" + str(sing) + "," + str(i) + ".txt","w+")
+                cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.checker.TPCH1DP_checker " + \
+                       "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
+                       "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
+                       "--driver-memory 50g --executor-memory 50g --conf spark.executor.extraJavaOptions='-Xms50g' --conf spark.driver.extraJavaOptions='-Xms50g' " + \
+                       "examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar " + \
+                       lineitem + " " + lineitem + "  "+ str(threshold) + " " + str(i)
+                process = subprocess.Popen(cmd1,shell=True, stdout=output1, stderr=err1)
+                output, error = process.communicate()
 
-if wq == "4c" or wq == "allc":
-    if op == "sing":
-        lineitem = "/home/john/tpch-dbgen/data/lineitem.tbl." + str(sing)
-        output4 = open("output4c-" + str(sing) + ".txt","w+")
-        err4 = open("err4c-" + str(sing) + ".txt","w+")
-        cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.checker.TPCH4DP_checker " + \
-               "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
-               "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
-               "--driver-memory 50g --executor-memory 50g --conf spark.executor.extraJavaOptions='-Xms50g' --conf spark.driver.extraJavaOptions='-Xms50g' " + \
-               "examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar " + \
-               order + " " + order + "  " + lineitem + " " + lineitem + " " + str(threshold) + " " + str(sampleSize)
-        process = subprocess.Popen(cmd1,shell=True, stdout=output4, stderr=err4)
-        output, error = process.communicate()
-    elif op == "scal":
-        for i in scale_c:
+    if wq == "4c" or wq == "allc":
+        if op == "sing":
             lineitem = "/home/john/tpch-dbgen/data/lineitem.tbl." + str(sing)
-            output4 = open("output4c-" + str(sing) + ".txt","w+")
-            err4 = open("err4c-" + str(sing) + ".txt","w+")
+            output4 = open("output4c-" + str(sing) + "," + str(sampleSize) + ".txt","w+")
+            err4 = open("err4c-" + str(sing) + "," + str(sampleSize) + ".txt","w+")
             cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.checker.TPCH4DP_checker " + \
                    "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
                    "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
                    "--driver-memory 50g --executor-memory 50g --conf spark.executor.extraJavaOptions='-Xms50g' --conf spark.driver.extraJavaOptions='-Xms50g' " + \
                    "examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar " + \
-                   order + " " + order + "  " + lineitem + " " + lineitem + " " + str(threshold) + " " + str(i)
+                   order + " " + order + "  " + lineitem + " " + lineitem + " " + str(threshold) + " " + str(sampleSize)
             process = subprocess.Popen(cmd1,shell=True, stdout=output4, stderr=err4)
             output, error = process.communicate()
+        elif op == "scal":
+            for i in scale_c:
+                lineitem = "/home/john/tpch-dbgen/data/lineitem.tbl." + str(sing)
+                output4 = open("output4c-" + str(sing) + "," + str(i) + ".txt","w+")
+                err4 = open("err4c-" + str(sing) + "," + str(i) + ".txt","w+")
+                cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.checker.TPCH4DP_checker " + \
+                       "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
+                       "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
+                       "--driver-memory 50g --executor-memory 50g --conf spark.executor.extraJavaOptions='-Xms50g' --conf spark.driver.extraJavaOptions='-Xms50g' " + \
+                       "examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar " + \
+                       order + " " + order + "  " + lineitem + " " + lineitem + " " + str(threshold) + " " + str(i)
+                process = subprocess.Popen(cmd1,shell=True, stdout=output4, stderr=err4)
+                output, error = process.communicate()
 
-if wq == "6c" or wq == "allc":
-    if op == "sing":
-        lineitem = "/home/john/tpch-dbgen/data/lineitem.tbl." + str(sing)
-        output6 = open("output6c-" + str(sing) + ".txt","w+")
-        err6 = open("err6c-" + str(sing) + ".txt","w+")
-        cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.checker.TPCH6DP_checker " + \
-               "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
-               "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
-               "--driver-memory 50g --executor-memory 50g --conf spark.executor.extraJavaOptions='-Xms50g' --conf spark.driver.extraJavaOptions='-Xms50g' " + \
-               "examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar " + \
-               lineitem + " " + lineitem + " " + str(threshold) + " " + str(sampleSize)
-        process = subprocess.Popen(cmd1,shell=True, stdout=output6, stderr=err6)
-        output, error = process.communicate()
-    elif op == "scal":
-        for i in scale_c:
+    if wq == "6c" or wq == "allc":
+        if op == "sing":
             lineitem = "/home/john/tpch-dbgen/data/lineitem.tbl." + str(sing)
-            output6 = open("output6c-" + str(sing) + ".txt","w+")
-            err6 = open("err6c-" + str(sing) + ".txt","w+")
+            output6 = open("output6c-" + str(sing) + "," + str(sampleSize) + ".txt","w+")
+            err6 = open("err6c-" + str(sing) + "," + str(sampleSize) + ".txt","w+")
             cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.checker.TPCH6DP_checker " + \
                    "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
                    "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
                    "--driver-memory 50g --executor-memory 50g --conf spark.executor.extraJavaOptions='-Xms50g' --conf spark.driver.extraJavaOptions='-Xms50g' " + \
                    "examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar " + \
-                   lineitem + " " + lineitem + " " + str(threshold) + " " + str(i)
+                   lineitem + " " + lineitem + " " + str(threshold) + " " + str(sampleSize)
             process = subprocess.Popen(cmd1,shell=True, stdout=output6, stderr=err6)
             output, error = process.communicate()
+        elif op == "scal":
+            for i in scale_c:
+                lineitem = "/home/john/tpch-dbgen/data/lineitem.tbl." + str(sing)
+                output6 = open("output6c-" + str(sing) + "," + str(sampleSize) + ".txt","w+")
+                err6 = open("err6c-" + str(sing) + "," + str(sampleSize) + ".txt","w+")
+                cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.checker.TPCH6DP_checker " + \
+                       "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
+                       "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
+                       "--driver-memory 50g --executor-memory 50g --conf spark.executor.extraJavaOptions='-Xms50g' --conf spark.driver.extraJavaOptions='-Xms50g' " + \
+                       "examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar " + \
+                       lineitem + " " + lineitem + " " + str(threshold) + " " + str(i)
+                process = subprocess.Popen(cmd1,shell=True, stdout=output6, stderr=err6)
+                output, error = process.communicate()
 
-if wq == "11c" or wq == "allc":
-    if op == "sing":
-        partsupp = "/home/john/tpch-dbgen/data/partsupp.tbl." + str(sing)
-        output11 = open("output11c-" + str(sing) + ".txt","w+")
-        err11 = open("err11c-" + str(sing) + ".txt","w+")
-        cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.checker.TPCH11DP_checker " + \
-               "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
-               "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
-               "--driver-memory 50g --executor-memory 50g --conf spark.executor.extraJavaOptions='-Xms50g' --conf spark.driver.extraJavaOptions='-Xms50g' " + \
-               "examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar " + \
-               supplier + " " + supplier + " " + nation + " " + partsupp + \
-               " " + partsupp + " " + str(threshold) + " " + str(sampleSize)
-        process = subprocess.Popen(cmd1,shell=True, stdout=output11, stderr=err11)
-        output, error = process.communicate()
-    elif op == "scal":
-        for i in scale_c:
+    if wq == "11c" or wq == "allc":
+        if op == "sing":
             partsupp = "/home/john/tpch-dbgen/data/partsupp.tbl." + str(sing)
-            output11 = open("output11c-" + str(sing) + ".txt","w+")
-            err11 = open("err11c-" + str(sing) + ".txt","w+")
+            output11 = open("output11c-" + str(sing) + "," + str(sampleSize) + ".txt","w+")
+            err11 = open("err11c-" + str(sing) + "," + str(sampleSize) + ".txt","w+")
             cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.checker.TPCH11DP_checker " + \
                    "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
                    "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
                    "--driver-memory 50g --executor-memory 50g --conf spark.executor.extraJavaOptions='-Xms50g' --conf spark.driver.extraJavaOptions='-Xms50g' " + \
                    "examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar " + \
                    supplier + " " + supplier + " " + nation + " " + partsupp + \
-                   " " + partsupp + " " + str(threshold) + " " + str(i)
+                   " " + partsupp + " " + str(threshold) + " " + str(sampleSize)
             process = subprocess.Popen(cmd1,shell=True, stdout=output11, stderr=err11)
             output, error = process.communicate()
+        elif op == "scal":
+            for i in scale_c:
+                partsupp = "/home/john/tpch-dbgen/data/partsupp.tbl." + str(sing)
+                output11 = open("output11c-" + str(sing) + "," + str(i) + ".txt","w+")
+                err11 = open("err11c-" + str(sing) + "," + str(i) + ".txt","w+")
+                cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.checker.TPCH11DP_checker " + \
+                       "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
+                       "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
+                       "--driver-memory 50g --executor-memory 50g --conf spark.executor.extraJavaOptions='-Xms50g' --conf spark.driver.extraJavaOptions='-Xms50g' " + \
+                       "examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar " + \
+                       supplier + " " + supplier + " " + nation + " " + partsupp + \
+                       " " + partsupp + " " + str(threshold) + " " + str(i)
+                process = subprocess.Popen(cmd1,shell=True, stdout=output11, stderr=err11)
+                output, error = process.communicate()
 
-if wq == "13c" or wq == "allc":
-    if op == "sing":
-        lineitem = "/home/john/tpch-dbgen/data/lineitem.tbl." + str(sing)
-        output13 = open("output13c-" + str(sing) + ".txt","w+")
-        err13 = open("err13c-" + str(sing) + ".txt","w+")
-        cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.checker.TPCH13DP_checker " + \
-               "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
-               "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
-               "--driver-memory 50g --executor-memory 50g --conf spark.executor.extraJavaOptions='-Xms50g' --conf spark.driver.extraJavaOptions='-Xms50g' " + \
-               "examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar " + \
-               lineitem + " " + lineitem + " " + order + " " + order + \
-               " " + str(threshold) + " " + str(sampleSize)
-        process = subprocess.Popen(cmd1,shell=True, stdout=output13, stderr=err13)
-        output, error = process.communicate()
-    elif op == "scal":
-        for i in scale_c:
+    if wq == "13c" or wq == "allc":
+        if op == "sing":
             lineitem = "/home/john/tpch-dbgen/data/lineitem.tbl." + str(sing)
-            output13 = open("output13c-" + str(sing) + ".txt","w+")
-            err13 = open("err13c-" + str(sing) + ".txt","w+")
+            output13 = open("output13c-" + str(sing) + "," + str(sampleSize) + ".txt","w+")
+            err13 = open("err13c-" + str(sing) + "," + str(sampleSize) + ".txt","w+")
             cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.checker.TPCH13DP_checker " + \
                    "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
                    "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
                    "--driver-memory 50g --executor-memory 50g --conf spark.executor.extraJavaOptions='-Xms50g' --conf spark.driver.extraJavaOptions='-Xms50g' " + \
                    "examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar " + \
                    lineitem + " " + lineitem + " " + order + " " + order + \
-                   " " + str(threshold) + " " + str(i)
+                   " " + str(threshold) + " " + str(sampleSize)
             process = subprocess.Popen(cmd1,shell=True, stdout=output13, stderr=err13)
             output, error = process.communicate()
+        elif op == "scal":
+            for i in scale_c:
+                lineitem = "/home/john/tpch-dbgen/data/lineitem.tbl." + str(sing)
+                output13 = open("output13c-" + str(sing) + "," + str(i) + ".txt","w+")
+                err13 = open("err13c-" + str(sing) + "," + str(i) + ".txt","w+")
+                cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.checker.TPCH13DP_checker " + \
+                       "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
+                       "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
+                       "--driver-memory 50g --executor-memory 50g --conf spark.executor.extraJavaOptions='-Xms50g' --conf spark.driver.extraJavaOptions='-Xms50g' " + \
+                       "examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar " + \
+                       lineitem + " " + lineitem + " " + order + " " + order + \
+                       " " + str(threshold) + " " + str(i)
+                process = subprocess.Popen(cmd1,shell=True, stdout=output13, stderr=err13)
+                output, error = process.communicate()
 
-if wq == "16c" or wq == "allc":
-    if op == "sing":
-        partsupp = "/home/john/tpch-dbgen/data/partsupp.tbl." + str(sing)
-        output16 = open("output16c-" + str(sing) + ".txt","w+")
-        err16 = open("err16c-" + str(sing) + ".txt","w+")
-        cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.checker.TPCH16DP_checker " + \
-               "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
-               "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
-               "--driver-memory 50g --executor-memory 50g --conf spark.executor.extraJavaOptions='-Xms50g' --conf spark.driver.extraJavaOptions='-Xms50g' " + \
-               "examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar " + \
-               part + " " + part + " " + supplier + " " + supplier + \
-               " " + partsupp + " " + partsupp + " " + \
-               str(threshold) + " " + str(sampleSize)
-        process = subprocess.Popen(cmd1,shell=True, stdout=output16, stderr=err16)
-        output, error = process.communicate()
-    elif op == "scal":
-        for i in scale_c:
+    if wq == "16c" or wq == "allc":
+        if op == "sing":
             partsupp = "/home/john/tpch-dbgen/data/partsupp.tbl." + str(sing)
-            output16 = open("output16c-" + str(sing) + ".txt","w+")
-            err16 = open("err16c-" + str(sing) + ".txt","w+")
+            output16 = open("output16c-" + str(sing) + "," + str(sampleSize) + ".txt","w+")
+            err16 = open("err16c-" + str(sing) + "," + str(sampleSize) + ".txt","w+")
             cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.checker.TPCH16DP_checker " + \
                    "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
                    "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
@@ -590,31 +575,30 @@ if wq == "16c" or wq == "allc":
                    "examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar " + \
                    part + " " + part + " " + supplier + " " + supplier + \
                    " " + partsupp + " " + partsupp + " " + \
-                   str(threshold) + " " + str(i)
+                   str(threshold) + " " + str(sampleSize)
             process = subprocess.Popen(cmd1,shell=True, stdout=output16, stderr=err16)
             output, error = process.communicate()
+        elif op == "scal":
+            for i in scale_c:
+                partsupp = "/home/john/tpch-dbgen/data/partsupp.tbl." + str(sing)
+                output16 = open("output16c-" + str(sing) + "," + str(i) + ".txt","w+")
+                err16 = open("err16c-" + str(sing) + "," + str(i) + ".txt","w+")
+                cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.checker.TPCH16DP_checker " + \
+                       "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
+                       "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
+                       "--driver-memory 50g --executor-memory 50g --conf spark.executor.extraJavaOptions='-Xms50g' --conf spark.driver.extraJavaOptions='-Xms50g' " + \
+                       "examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar " + \
+                       part + " " + part + " " + supplier + " " + supplier + \
+                       " " + partsupp + " " + partsupp + " " + \
+                       str(threshold) + " " + str(i)
+                process = subprocess.Popen(cmd1,shell=True, stdout=output16, stderr=err16)
+                output, error = process.communicate()
 
-if wq == "21c" or wq == "allc":
-    if op == "sing":
-        lineitem = "/home/john/tpch-dbgen/data/lineitem.tbl." + str(sing)
-        output21 = open("output21c-" + str(sing) + ".txt","w+")
-        err21 = open("err21c-" + str(sing) + ".txt","w+")
-        cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.checker.TPCH21DP_checker " + \
-               "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
-               "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
-               "--driver-memory 50g --executor-memory 50g --conf spark.executor.extraJavaOptions='-Xms50g' --conf spark.driver.extraJavaOptions='-Xms50g' " + \
-               "examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar " + \
-               supplier + " " + supplier + " " + lineitem + " " + "/home/john/tpch-dbgen/data/lineitem.tbl.original" + \
-               " " + order + " " + order + " " + nation + " " + \
-               str(threshold) + " " + str(sampleSize) + " " + db
-        #./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.TPCH21DP --conf "spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps" --conf "spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps" examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar
-        process = subprocess.Popen(cmd1,shell=True, stdout=output21, stderr=err21)
-        output, error = process.communicate()
-    elif op == "scal":
-        for i in scale_c:
+    if wq == "21c" or wq == "allc":
+        if op == "sing":
             lineitem = "/home/john/tpch-dbgen/data/lineitem.tbl." + str(sing)
-            output21 = open("output21c-" + str(sing) + ".txt","w+")
-            err21 = open("err21c-" + str(sing) + ".txt","w+")
+            output21 = open("output21c-" + str(sing) + "," + str(sampleSize) + ".txt","w+")
+            err21 = open("err21c-" + str(sing) + "," + str(sampleSize) + ".txt","w+")
             cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.checker.TPCH21DP_checker " + \
                    "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
                    "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
@@ -622,6 +606,22 @@ if wq == "21c" or wq == "allc":
                    "examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar " + \
                    supplier + " " + supplier + " " + lineitem + " " + "/home/john/tpch-dbgen/data/lineitem.tbl.original" + \
                    " " + order + " " + order + " " + nation + " " + \
-                   str(threshold) + " " + str(i) + " " + db
+                   str(threshold) + " " + str(sampleSize) + " " + db
+            #./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.TPCH21DP --conf "spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps" --conf "spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps" examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar
             process = subprocess.Popen(cmd1,shell=True, stdout=output21, stderr=err21)
             output, error = process.communicate()
+        elif op == "scal":
+            for i in scale_c:
+                lineitem = "/home/john/tpch-dbgen/data/lineitem.tbl." + str(sing)
+                output21 = open("output21c-" + str(sing) + "," + str(i) + ".txt","w+")
+                err21 = open("err21c-" + str(sing) + "," + str(i) + ".txt","w+")
+                cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.checker.TPCH21DP_checker " + \
+                       "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
+                       "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
+                       "--driver-memory 50g --executor-memory 50g --conf spark.executor.extraJavaOptions='-Xms50g' --conf spark.driver.extraJavaOptions='-Xms50g' " + \
+                       "examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar " + \
+                       supplier + " " + supplier + " " + lineitem + " " + "/home/john/tpch-dbgen/data/lineitem.tbl.original" + \
+                       " " + order + " " + order + " " + nation + " " + \
+                       str(threshold) + " " + str(i) + " " + db
+                process = subprocess.Popen(cmd1,shell=True, stdout=output21, stderr=err21)
+                output, error = process.communicate()
