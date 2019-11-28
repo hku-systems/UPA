@@ -16,11 +16,9 @@ for j in range(0,100): #700 rounds experiments
         new_index = random.randint(0,num_data) // interval #the random number indicate
         p[new_index] = p[new_index] + 1
 
-    print(p)
-    redun_count = [ 1 if p[new_index] == 0  else 0 for i in range(0,num_p)]
+    redun_count = [ 1 if int(p[i]) > 0  else 0 for i in range(0,num_p)]
     redun_count_sum = sum(redun_count)
-    # print(redun_count_sum)
-    if redun_count_sum < dist + 1:
+    if redun_count_sum > dist:
         slow_path = slow_path + 1
 # print(str(dist + 1))
 print(slow_path)
