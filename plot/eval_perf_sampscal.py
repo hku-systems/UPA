@@ -4,15 +4,15 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import os
 q = {
-    "TPCH1":[1.13444444,1.13222222,1.20333333,1.48777778],
-    "TPCH4":[1.06966667,1.046,1.02033333,1.053],
-    "TPCH6":[1.00555556,1.14777778,1.16333333,1.06555556],
-    "TPCH11":[1.05166667,1.05051282,1.03794872,1.06935897],
-    "TPCH13":[0.97606838,0.98376068,0.98589744,1.0974359],
-    "TPCH16":[1.01969697,0.96848485,1.01530303,1.01727273],
-    "TPCH21":[1.04322377,1.01305718,1.04299865,1.05110311]
+    "TPCH1":[2.268,2.266,2.337,2.621],
+    "TPCH4":[1.590,1.566,1.540,1.573],
+    "TPCH6":[2.206,2.348,2.363,2.266],
+    "TPCH11":[1.436,1.435,1.422,1.454],
+    "TPCH13":[2.079,2.086,2.088,2.2],
+    "TPCH16":[1.565,1.514,1.561,1.563],
+    "TPCH21":[1.259,1.229,1.259,1.267]
 }
-x_label = ['$10^2$','10^3','10^4','10^5']
+x_label = ['$10^2$','$10^3$','$10^4$','$10^5$']
 # colours = ['tab:blue','tab:orange','tab:green','tab:red','tab:purple']
 colours = ['tab:blue','tab:orange','tab:green','tab:red',\
            'tab:purple','tab:brown','tab:pink','tab:gray', \
@@ -26,6 +26,6 @@ for key in q:
 plt.xticks(range(0,len(x_label)),x_label)
 plt.ylabel("Performance Overhead")
 plt.xlabel("Sample size")
-plt.legend()
-plt.show()
-# plt.savefig(os.path.basename(__file__).replace(".py", ".pdf"))
+plt.legend(loc='center right')
+# plt.show()
+plt.savefig(os.path.basename(__file__).replace(".py", ".pdf"))
