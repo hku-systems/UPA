@@ -65,9 +65,11 @@ object SparkHdfsLRDP {
 
     showWarning()
 
+    val input_size = args(0).split('.').last
+
     val spark = SparkSession
       .builder
-      .appName("SparkHdfsLRDP")
+      .appName("LR-" + input_size + "-" + args(4))
       .getOrCreate()
 
     val t1 = System.nanoTime
@@ -87,9 +89,14 @@ object SparkHdfsLRDP {
       //      println("On iteration " + i)
       val gradient = points.mapDP { p =>
         p.x * (1 / (1 + exp(-p.y * (w.dot(p.x)))) - 1) * p.y
-      }.reduce_and_add_noise_LR((a,b) => a + b, "SparkHdfsLRDP", args(3).toInt)
+      }.reduceDP_vector((a,b) => a + b, "SparkHdfsLRDP", args(3).toInt)
 
-      w -= gradient
+      println("final output: " + gradient._1(0))
+      println("noise: " + gradient._2)
+      println("error: " + gradient._2/gradient._1)
+      println("min bound: " + gradient._3)
+      println("max bound: " + gradient._4)
+      w -= gradient._1
     }
 
     val duration = (System.nanoTime - t1) / 1e9d

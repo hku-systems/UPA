@@ -1,6 +1,7 @@
 import subprocess
 from pathlib import Path
 import sys
+import pandas as pd
 
 # -C <n> -- separate data set into <n> chunks (requires -S, default: 1)
 # -f     -- force. Overwrite existing files
@@ -65,3 +66,6 @@ if wq == "part" or wq == "all":
     cmd = "./dbgen -s " + str(s) + " -S " + str(S) + " -C 50 -T P -v"
     process = subprocess.Popen(cmd.split(),cwd="/home/john/tpch-dbgen/data")
     output, error = process.communicate()
+
+if wq == "ml" or wq == "all":
+    data = pd.read_csv("filename.csv")

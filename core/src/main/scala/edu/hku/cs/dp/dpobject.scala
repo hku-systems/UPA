@@ -54,111 +54,6 @@ var sample_advance = inputsample_advance
     new dpobjectKV(r1,r2,r3)
   }
 
-  def reduceDP_deep(f: (T, T) => T) : (Array[Array[T]],Array[Array[T]],T, Double) = {
-    val t1 = System.nanoTime
-    val parameters = scala.io.Source.fromFile("security.csv").mkString.split(",")
-    val epsilon = 1
-    val delta = 1
-    val k_distance_double = 1/epsilon
-    val k_distance = parameters(0).toInt
-    val beta = epsilon / (2*scala.math.log(2/delta))
-
-    //The "sample" field carries the aggregated result already
-    val result = original.asInstanceOf[RDD[T]].reduce(f)
-    val result_b = original.sparkContext.broadcast(result)
-    var aggregatedResult = result//get the aggregated result
-    //    if(!sample.isEmpty())
-    //      aggregatedResult = f(sample.reduce(f),result)//get the aggregated result
-
-    //    val inner = new ArrayBuffer[V]
-    var inner_num = 0
-
-    var outer_num = k_distance
-    val s_collect = sample.collect()
-    val a_collect = sample_advance.collect()
-    val sample_count = s_collect.length //e.g., 64
-    val sample_advance_count = s_collect.length
-    //***********samples*********************
-
-    val sample_array = sample_count match {
-      case a if a == 0 =>
-        val only_array = new Array[T](1)
-        only_array(0) = aggregatedResult
-        Array(only_array)
-      case b if b == 1 =>
-        val only_array = new Array[T](1)
-        only_array(0) = f(result,s_collect.head)
-        Array(only_array) //without that sample
-      case _ =>
-        if (sample_count <= k_distance)
-          outer_num = k_distance - 1
-        else
-          outer_num = k_distance //outer_num = 10
-        var i = outer_num + 1//11
-      val up_to_index = (sample_count - i).toInt
-        val b_i = i
-        val inner_array = (0 to up_to_index - 1).toArray
-          .map(p => {
-            f(s_collect.patch(p, Nil, b_i).reduce(f), result) //(0 -> 7, 8 -> 15, 16, 24, 32, 40, 48, 56)
-          })
-        val upper_array = inner_array
-        val n = (0 to up_to_index - 1).toArray //(0,1,2,3,4,5,6,7)
-          .map(p => {
-            var neighnout_o = new Array[T](b_i - 1)
-            var j = b_i - 1 //start form 10
-            while (j >= 1) {
-              if(j == b_i - 1)
-                neighnout_o(j - 1) = f(upper_array(p), s_collect(p + j + 1)) //add back 11, so would be 1 to 10
-              else
-                neighnout_o(j - 1) = f(s_collect(p + j + 1), neighnout_o(j))
-              j = j - 1
-            }
-            neighnout_o
-          })
-
-        if(!n.isEmpty && !n.head.isEmpty)
-          aggregatedResult = f(n.head.head,s_collect.head)
-        n
-    }
-
-    //**********sample advance*************
-
-    val sample_array_advance = sample_advance_count match {
-      case a if a == 0 =>
-        var only_array_advance = new Array[T](1)
-        only_array_advance(0) = aggregatedResult
-        Array(only_array_advance)
-      case b if b == 1 =>
-        var only_array_advance = new Array[T](1)
-        only_array_advance(0) = f(aggregatedResult,a_collect.head)
-        Array(only_array_advance) //without that sample
-      case _ =>
-        if (sample_advance_count <= k_distance)
-          outer_num = k_distance - 1
-        else
-          outer_num = k_distance //outer_num = 10
-        var i = outer_num
-        val up_to_index = (sample_advance_count - i).toInt
-        val b_i = i
-        (0 to up_to_index - 1).toArray
-          .map(p => {
-            var neighnout_o = new Array[T](b_i )
-            var j = 0 //start form 10
-            while (j < b_i) {
-              if(j == 0)
-                neighnout_o(j) = f(a_collect(p), aggregatedResult)
-              else
-                neighnout_o(j) = f(a_collect(p + j), neighnout_o(j-1))
-              j = j + 1
-            }
-            neighnout_o
-          })
-    }
-    val duration = (System.nanoTime - t1) / 1e9d
-    println("reduce: " + duration)
-    (sample_array,sample_array_advance,aggregatedResult,beta)
-  }
-
   def reduceDP_deep_double(f: (Double, Double) => Double) : (Array[Array[Double]],Array[Array[Double]],Double, Double) = {
     val t1 = System.nanoTime
     val parameters = scala.io.Source.fromFile("security.csv").mkString.split(",")
@@ -267,6 +162,224 @@ var sample_advance = inputsample_advance
     (sample_array.map(_._2),sample_array_advance,aggregatedResult,beta)
   }
 
+
+  def reduceDP_deep_vector(f: (Vector[Double], Vector[Double]) => Vector[Double]) : (Array[Array[Vector[Double]]],Array[Array[Vector[Double]]],Vector[Double], Double) = {
+    val t1 = System.nanoTime
+    val parameters = scala.io.Source.fromFile("security.csv").mkString.split(",")
+    val epsilon = 1
+    val delta = 1
+    val k_distance_double = 1/epsilon
+    val k_distance = parameters(0).toInt
+    val beta = epsilon / (2*scala.math.log(2/delta))
+
+    //The "sample" field carries the aggregated result already
+    var result = Vector(0.0, 0.0, 0.0)// hard coded
+    if(!original.isEmpty) {
+      result = original.asInstanceOf[RDD[Vector[Double]]].reduce(f)
+    }
+    val result_b = original.sparkContext.broadcast(result)
+    var aggregatedResult = result//get the aggregated result
+    //    if(!sample.isEmpty())
+    //      aggregatedResult = f(sample.reduce(f),result)//get the aggregated result
+
+    //    val inner = new ArrayBuffer[V]
+    var inner_num = 0
+    var outer_num = k_distance
+    val s_collect = sample.asInstanceOf[RDD[Vector[Double]]].collect()
+    val sample_count = s_collect.length //e.g., 64
+    val sample_count_b =  sample.sparkContext.broadcast(s_collect)
+    //***********samples*********************
+    print("sample count: " + sample_count)
+    val sample_array = sample_count match {
+      case a if a == 0 =>
+        val only_array = new Array[Vector[Double]](1)
+        only_array(0) = aggregatedResult
+        Array((0,only_array))
+      case b if b == 1 =>
+        val only_array = new Array[Vector[Double]](1)
+        only_array(0) = f(result,s_collect.head)
+        aggregatedResult = f(result,s_collect.head)
+        Array((0,only_array)) //without that sample
+      case _ => //more than one sample
+        if (sample_count <= k_distance)
+          outer_num = 1 //to make sure all k has a sample point
+        else
+          outer_num = k_distance //outer_num = 10
+        val i = outer_num //i = 10
+        val up_to_index = (sample_count - i).toInt //up_to_index = 8
+        val b_i = i // i is the number of layer
+        val b_i_b = sample.sparkContext.broadcast(i)
+        val n = sample.sparkContext.parallelize((0 to up_to_index - 1).toSeq)// if distance 1, then need 2 differing element here because this layer will not be included into the nieghour array
+          .map(p => {
+            val upper_array = f(sample_count_b.value.patch(p, Nil, b_i_b.value + 1).reduce(f), result_b.value) //(0 -> 7, 8 -> 15, 16, 24, 32, 40, 48, 56)
+            var neighnout_o = new Array[Vector[Double]](b_i_b.value) //bi is the number of layer
+            var j = b_i_b.value - 1 //start form 10, minus one because it is an index
+            while (j >= 0) {
+              if(j == b_i_b.value - 1)
+                neighnout_o(j) = f(upper_array, sample_count_b.value(p + j + 1)) //add back 11, so would be 1 to 10
+              else
+                neighnout_o(j) = f(sample_count_b.value(p + j + 1), neighnout_o(j + 1))// upper layer, so j+1
+              j = j - 1
+            }
+            (p,neighnout_o)
+          }).collect()
+        n
+        if(!n.isEmpty)
+          aggregatedResult = f(n.filter(_._1 == 0).head._2(0),s_collect(0))
+        n
+    }
+    val aggregatedResult_b = sample.sparkContext.broadcast(aggregatedResult)
+    //**********sample advance*************
+    val a_collect = sample_advance.asInstanceOf[RDD[Vector[Double]]].collect()
+    val a_collect_b =  sample_advance.sparkContext.broadcast(a_collect)
+    val sample_advance_count = a_collect.length
+    print("ssample advance count: " + sample_advance_count)
+    val sample_array_advance = sample_advance_count match {
+      case a if a == 0 =>
+        var only_array_advance = new Array[Vector[Double]](1)
+        only_array_advance(0) = aggregatedResult
+        Array(only_array_advance)
+      case b if b == 1 =>
+        var only_array_advance = new Array[Vector[Double]](1)
+        only_array_advance(0) = f(aggregatedResult,a_collect.head)
+        Array(only_array_advance) //without that sample
+      case _ =>
+        if (sample_advance_count <= k_distance) {
+          outer_num = 1
+        } else
+          outer_num = k_distance //outer_num = 10
+        var i = outer_num
+        val up_to_index = (sample_advance_count - i).toInt
+        val b_i = i // i is the number of layer
+        val b_i_b = sample_advance.sparkContext.broadcast(i)
+        sample_advance.sparkContext.parallelize((0 to up_to_index - 1).toSeq)
+          .map(p => {
+            var neighnout_o = new Array[Vector[Double]](b_i_b.value)
+            var j = 0 //start form 10
+            while (j < b_i) {
+              if(j == 0)
+                neighnout_o(j) = f(a_collect(p), aggregatedResult_b.value)
+              else
+                neighnout_o(j) = f(a_collect(p + j), neighnout_o(j-1))
+              j = j + 1
+            }
+            neighnout_o
+          }).collect()
+    }
+    val duration = (System.nanoTime - t1) / 1e9d
+    println("reduce: " + duration)
+    (sample_array.map(_._2),sample_array_advance,aggregatedResult,beta)
+  }
+
+
+  def reduceDP_deep_vector_km(f: ((Vector[Double],Int), (Vector[Double],Int)) => (Vector[Double],Int)) : (Array[Array[(Vector[Double],Int)]],Array[Array[(Vector[Double],Int)]],(Vector[Double],Int), Double) = {
+    val t1 = System.nanoTime
+    val parameters = scala.io.Source.fromFile("security.csv").mkString.split(",")
+    val epsilon = 1
+    val delta = 1
+    val k_distance_double = 1/epsilon
+    val k_distance = parameters(0).toInt
+    val beta = epsilon / (2*scala.math.log(2/delta))
+
+    //The "sample" field carries the aggregated result already
+    var result = (Vector(0.0, 0.0, 0.0),1)
+    if(!original.isEmpty) {
+      result = original.asInstanceOf[RDD[(Vector[Double],Int)]].reduce(f)
+    }
+    val result_b = original.sparkContext.broadcast(result)
+    var aggregatedResult = result//get the aggregated result
+    //    if(!sample.isEmpty())
+    //      aggregatedResult = f(sample.reduce(f),result)//get the aggregated result
+
+    //    val inner = new ArrayBuffer[V]
+    var inner_num = 0
+    var outer_num = k_distance
+    val s_collect = sample.asInstanceOf[RDD[(Vector[Double],Int)]].collect()
+    val sample_count = s_collect.length //e.g., 64
+    val sample_count_b =  sample.sparkContext.broadcast(s_collect)
+    //***********samples*********************
+    print("sample count: " + sample_count)
+    val sample_array = sample_count match {
+      case a if a == 0 =>
+        val only_array = new Array[(Vector[Double],Int)](1)
+        only_array(0) = aggregatedResult
+        Array((0,only_array))
+      case b if b == 1 =>
+        val only_array = new Array[(Vector[Double],Int)](1)
+        only_array(0) = f(result,s_collect.head)
+        aggregatedResult = f(result,s_collect.head)
+        Array((0,only_array)) //without that sample
+      case _ => //more than one sample
+        if (sample_count <= k_distance)
+          outer_num = 1 //to make sure all k has a sample point
+        else
+          outer_num = k_distance //outer_num = 10
+        val i = outer_num //i = 10
+        val up_to_index = (sample_count - i).toInt //up_to_index = 8
+        val b_i = i // i is the number of layer
+        val b_i_b = sample.sparkContext.broadcast(i)
+        val n = sample.sparkContext.parallelize((0 to up_to_index - 1).toSeq)// if distance 1, then need 2 differing element here because this layer will not be included into the nieghour array
+          .map(p => {
+            val upper_array = f(sample_count_b.value.patch(p, Nil, b_i_b.value + 1).reduce(f), result_b.value) //(0 -> 7, 8 -> 15, 16, 24, 32, 40, 48, 56)
+            var neighnout_o = new Array[(Vector[Double],Int)](b_i_b.value) //bi is the number of layer
+            var j = b_i_b.value - 1 //start form 10, minus one because it is an index
+            while (j >= 0) {
+              if(j == b_i_b.value - 1)
+                neighnout_o(j) = f(upper_array, sample_count_b.value(p + j + 1)) //add back 11, so would be 1 to 10
+              else
+                neighnout_o(j) = f(sample_count_b.value(p + j + 1), neighnout_o(j + 1))// upper layer, so j+1
+              j = j - 1
+            }
+            (p,neighnout_o)
+          }).collect()
+        n
+        if(!n.isEmpty)
+          aggregatedResult = f(n.filter(_._1 == 0).head._2(0),s_collect(0))
+        n
+    }
+    val aggregatedResult_b = sample.sparkContext.broadcast(aggregatedResult)
+    //**********sample advance*************
+    val a_collect = sample_advance.asInstanceOf[RDD[(Vector[Double],Int)]].collect()
+    val a_collect_b =  sample_advance.sparkContext.broadcast(a_collect)
+    val sample_advance_count = a_collect.length
+    print("ssample advance count: " + sample_advance_count)
+    val sample_array_advance = sample_advance_count match {
+      case a if a == 0 =>
+        var only_array_advance = new Array[(Vector[Double],Int)](1)
+        only_array_advance(0) = aggregatedResult
+        Array(only_array_advance)
+      case b if b == 1 =>
+        var only_array_advance = new Array[(Vector[Double],Int)](1)
+        only_array_advance(0) = f(aggregatedResult,a_collect.head)
+        Array(only_array_advance) //without that sample
+      case _ =>
+        if (sample_advance_count <= k_distance) {
+          outer_num = 1
+        } else
+          outer_num = k_distance //outer_num = 10
+        var i = outer_num
+        val up_to_index = (sample_advance_count - i).toInt
+        val b_i = i // i is the number of layer
+        val b_i_b = sample_advance.sparkContext.broadcast(i)
+        sample_advance.sparkContext.parallelize((0 to up_to_index - 1).toSeq)
+          .map(p => {
+            var neighnout_o = new Array[(Vector[Double],Int)](b_i_b.value)
+            var j = 0 //start form 10
+            while (j < b_i) {
+              if(j == 0)
+                neighnout_o(j) = f(a_collect(p), aggregatedResult_b.value)
+              else
+                neighnout_o(j) = f(a_collect(p + j), neighnout_o(j-1))
+              j = j + 1
+            }
+            neighnout_o
+          }).collect()
+    }
+    val duration = (System.nanoTime - t1) / 1e9d
+    println("reduce: " + duration)
+    (sample_array.map(_._2),sample_array_advance,aggregatedResult,beta)
+  }
+
   def reduceDP(f: (Double, Double) => Double, k_dist: Int): (Double,Double,Double,Double) = {
 
     //computin candidates of smooth sensitivity
@@ -298,218 +411,66 @@ var sample_advance = inputsample_advance
     }
   }
 
-  def reduce_and_add_noise_LR(f: (T, T) => T, app_name: String, k_dist: Int): T = {
+  def reduceDP_vector(f: (Vector[Double], Vector[Double]) => Vector[Double], k_dist: Int): (Vector[Double],Double,Double,Double) = {
+
     //computin candidates of smooth sensitivity
-
-    val array = reduceDP_deep(f).asInstanceOf[(Array[Array[Vector[Double]]], Array[Array[Vector[Double]]], Vector[Double], Double)]
+    var array = reduceDP_deep_vector(f)
     val t1 = System.nanoTime
-    val beta = array._4
-    if(!array._1.isEmpty && !array._2.isEmpty) {
-      val stat_sample = array._1
-        .map(p => (p, p, p, 1))
-        .reduce((a, b) => {
 
-          val max = a._1.zip(b._1).map(x => {
-            Vector(x._1.toArray.zip(x._2.toArray).map(qm => scala.math.max(qm._1, qm._2)))
-          })
-
-          val min = a._2.zip(b._2).map(x => {
-            Vector(x._1.toArray.zip(x._2.toArray).map(qm => scala.math.min(qm._1, qm._2)))
-          })
-
-          val sum = a._3.zip(b._3).map(x => {
-            Vector(x._1.toArray.zip(x._2.toArray).map(qm => qm._1 + qm._2))
-          })
-
-          (max, min, sum, a._4 + b._4)
-        })
-
-      val sample_count = stat_sample._4
-      val sample_mean = stat_sample._3.map(s => s.map(ss => ss / sample_count))
-      val sample_variance = array._1.map(s => {
-
-        s.zipWithIndex.map(ss => Vector(ss._1.toArray.zipWithIndex.map(sss => pow(sss._1 - sample_mean(ss._2)(sss._2), 2))))
-
-      }).reduce((a, b) => {
-        val zipped = a.zip(b)
-        val sum = zipped.map(x => Vector(x._1.toArray.zip(x._2.toArray).map(qm => qm._1 + qm._2)))
-        sum
-      }).map(sv => sv.map(svv => svv / sample_count))
-
-      val local_sensitivity_sample = stat_sample._1
-        .zip(stat_sample._2)
-        .map(q => {
-          DenseVector(q._1.toArray.zip(q._2.toArray).zipWithIndex
-            .map(qm => scala.math.max(scala.math.abs(qm._1._1 - array._3(qm._2)), scala.math.abs(qm._1._2 - array._3(qm._2)))))
-        })
-
-      //****************sample advance
-
-      val stat_sample_advance = array._2
-        .map(p => (p, p, p, 1))
-        .reduce((a, b) => {
-
-          val max = a._1.zip(b._1).map(x => {
-            Vector(x._1.toArray.zip(x._2.toArray).map(qm => scala.math.max(qm._1, qm._2)))
-          })
-
-          val min = a._2.zip(b._2).map(x => {
-            Vector(x._1.toArray.zip(x._2.toArray).map(qm => scala.math.min(qm._1, qm._2)))
-          })
-
-          val sum = a._3.zip(b._3).map(x => {
-            Vector(x._1.toArray.zip(x._2.toArray).map(qm => qm._1 + qm._2))
-          })
-
-          (max, min, sum, a._4 + b._4)
-        })
-
-      val sample_count_advance = stat_sample_advance._4
-      val sample_mean_advance = stat_sample_advance._3.map(s => s.map(ss => ss / sample_count_advance))
-      val sample_variance_advance = array._2.map(s => {
-
-        s.zipWithIndex.map(ss => Vector(ss._1.toArray.zipWithIndex.map(sss => pow(sss._1 - sample_mean_advance(ss._2)(sss._2), 2))))
-
-      }).reduce((a, b) => {
-        val zipped = a.zip(b)
-        val sum = zipped.map(x => Vector(x._1.toArray.zip(x._2.toArray).map(qm => qm._1 + qm._2)))
-        sum
-      }).map(sv => sv.map(svv => svv / sample_count_advance))
-
-      val local_sensitivity_sample_advance = stat_sample_advance._1
-        .zip(stat_sample_advance._2)
-        .map(q => {
-          DenseVector(q._1.toArray.zip(q._2.toArray).zipWithIndex.map(qm => scala.math.max(scala.math.abs(qm._1._1 - array._3(qm._2)), scala.math.abs(qm._1._2 - array._3(qm._2)))))
-        })
-
-      for (i <- 0 until local_sensitivity_sample.length) {
-        local_sensitivity_sample(i) = local_sensitivity_sample(i).map(p => p * exp(-beta * (i + 1)))
-      }
-
-      for (i <- 0 until local_sensitivity_sample_advance.length) {
-        local_sensitivity_sample_advance(i) = local_sensitivity_sample_advance(i).map(p => p * exp(-beta * (i + 1)))
-      }
-      val final_sensitivity = (local_sensitivity_sample ++ local_sensitivity_sample_advance).reduce((a, b) => {
-        val v_length = a.length
-        val new_v = new Array[Double](v_length)
-        for (v2 <- 0 until v_length) {
-          new_v(v2) = scala.math.max(a(v2), b(v2))
-        }
-        DenseVector(new_v)
-      })
+    val all_samp = (array._1.flatMap(p => p) ++ array._2.flatMap(p => p)).map(p => p(0))
+    all_samp.foreach(p => println("samp_output: " + p))
+    val r = new Random()
+    var diff = 0.0
+    var max_bound = 0.0
+    var min_bound = 0.0
+    val original_res = array._3(0)
+    if (!all_samp.isEmpty) {
+      max_bound = all_samp.max
+      min_bound = all_samp.min
+      diff = max_bound - min_bound
     }
+
     val duration = (System.nanoTime - t1) / 1e9d
     println("calsen: " + duration)
-    array._3.asInstanceOf[T]
+
+    if(original_res >= min_bound && original_res <= max_bound) {
+      val final_noise =  r.nextGaussian()*math.sqrt(diff)
+      (array._3,final_noise,min_bound,max_bound) //sensitivity
+    } else {
+      val final_noise =  r.nextDouble*diff
+      (array._3,final_noise,min_bound,max_bound) //sensitivity
+    }
   }
 
-  def reduce_and_add_noise_KM(f: (T, T) => T, app_name: String, k_dist: Int): Vector[Double] = {
+  def reduceDP_vector_km(f: ((Vector[Double],Int), (Vector[Double],Int)) => (Vector[Double],Int), k_dist: Int): ((Vector[Double],Int),Double,Double,Double) = {
+
     //computin candidates of smooth sensitivity
-
-    val array = reduceDP_deep(f).asInstanceOf[(RDD[Array[(Vector[Double],Int)]], RDD[Array[(Vector[Double],Int)]], (Vector[Double],Int), Double)]
+    var array = reduceDP_deep_vector_km(f)
     val t1 = System.nanoTime
-    val beta = array._4
-    val return_result = array._3._1.map(p => p/array._3._2)
 
-    if(!array._1.isEmpty && !array._2.isEmpty) {
-      val sample_n = array._1.map(q => q.map(v => v._1.map(v1 => v1 / v._2)))
-      val sample_a = array._2.map(q => q.map(v => v._1.map(v1 => v1 / v._2)))
-      val stat_sample = sample_n
-        .map(p => (p, p, p, 1))
-        .reduce((a, b) => {
-
-          val max = a._1.zip(b._1).map(x => {
-            Vector(x._1.toArray.zip(x._2.toArray).map(qm => scala.math.max(qm._1, qm._2)))
-          })
-
-          val min = a._2.zip(b._2).map(x => {
-            Vector(x._1.toArray.zip(x._2.toArray).map(qm => scala.math.min(qm._1, qm._2)))
-          })
-
-          val sum = a._3.zip(b._3).map(x => {
-            Vector(x._1.toArray.zip(x._2.toArray).map(qm => qm._1 + qm._2))
-          })
-
-          (max, min, sum, a._4 + b._4)
-        })
-
-      val sample_count = stat_sample._4
-      val sample_mean = stat_sample._3.map(s => s.map(ss => ss / sample_count))
-      val sample_variance = sample_n.map(s => {
-
-        s.zipWithIndex.map(ss => Vector(ss._1.toArray.zipWithIndex.map(sss => pow(sss._1 - sample_mean(ss._2)(sss._2), 2))))
-
-      }).reduce((a, b) => {
-        val zipped = a.zip(b)
-        val sum = zipped.map(x => Vector(x._1.toArray.zip(x._2.toArray).map(qm => qm._1 + qm._2)))
-        sum
-      }).map(sv => sv.map(svv => svv / sample_count))
-
-      val local_sensitivity_sample = stat_sample._1
-        .zip(stat_sample._2)
-        .map(q => {
-          DenseVector(q._1.toArray.zip(q._2.toArray).zipWithIndex
-            .map(qm => scala.math.max(scala.math.abs(qm._1._1 - return_result(qm._2)), scala.math.abs(qm._1._2 - return_result(qm._2)))))
-        })
-
-      //****************sample advance
-
-      val stat_sample_advance = sample_a
-        .map(p => (p, p, p, 1))
-        .reduce((a, b) => {
-
-          val max = a._1.zip(b._1).map(x => {
-            Vector(x._1.toArray.zip(x._2.toArray).map(qm => scala.math.max(qm._1, qm._2)))
-          })
-
-          val min = a._2.zip(b._2).map(x => {
-            Vector(x._1.toArray.zip(x._2.toArray).map(qm => scala.math.min(qm._1, qm._2)))
-          })
-
-          val sum = a._3.zip(b._3).map(x => {
-            Vector(x._1.toArray.zip(x._2.toArray).map(qm => qm._1 + qm._2))
-          })
-
-          (max, min, sum, a._4 + b._4)
-        })
-
-      val sample_count_advance = stat_sample_advance._4
-      val sample_mean_advance = stat_sample_advance._3.map(s => s.map(ss => ss / sample_count_advance))
-      val sample_variance_advance = sample_a.map(s => {
-
-        s.zipWithIndex.map(ss => Vector(ss._1.toArray.zipWithIndex.map(sss => pow(sss._1 - sample_mean_advance(ss._2)(sss._2), 2))))
-
-      }).reduce((a, b) => {
-        val zipped = a.zip(b)
-        val sum = zipped.map(x => Vector(x._1.toArray.zip(x._2.toArray).map(qm => qm._1 + qm._2)))
-        sum
-      }).map(sv => sv.map(svv => svv / sample_count_advance))
-
-      val local_sensitivity_sample_advance = stat_sample_advance._1
-        .zip(stat_sample_advance._2)
-        .map(q => {
-          DenseVector(q._1.toArray.zip(q._2.toArray).zipWithIndex.map(qm => scala.math.max(scala.math.abs(qm._1._1 - return_result(qm._2)), scala.math.abs(qm._1._2 - return_result(qm._2)))))
-        })
-
-      for (i <- 0 until local_sensitivity_sample.length) {
-        local_sensitivity_sample(i) = local_sensitivity_sample(i).map(p => p * exp(-beta * (i + 1)))
-      }
-
-      for (i <- 0 until local_sensitivity_sample_advance.length) {
-        local_sensitivity_sample_advance(i) = local_sensitivity_sample_advance(i).map(p => p * exp(-beta * (i + 1)))
-      }
-      val final_sensitivity = (local_sensitivity_sample ++ local_sensitivity_sample_advance).reduce((a, b) => {
-        val v_length = a.length
-        val new_v = new Array[Double](v_length)
-        for (v2 <- 0 until v_length) {
-          new_v(v2) = scala.math.max(a(v2), b(v2))
-        }
-        DenseVector(new_v)
-      })
+    val all_samp = (array._1.flatMap(p => p) ++ array._2.flatMap(p => p)).map(p => p._1(0))
+    all_samp.foreach(p => println("samp_output: " + p))
+    val r = new Random()
+    var diff = 0.0
+    var max_bound = 0.0
+    var min_bound = 0.0
+    val original_res = array._3._1(0)
+    if (!all_samp.isEmpty) {
+      max_bound = all_samp.max
+      min_bound = all_samp.min
+      diff = max_bound - min_bound
     }
+
     val duration = (System.nanoTime - t1) / 1e9d
     println("calsen: " + duration)
-    return_result
+
+    if(original_res >= min_bound && original_res <= max_bound) {
+      val final_noise =  r.nextGaussian()*math.sqrt(diff)
+      (array._3,final_noise,min_bound,max_bound) //sensitivity
+    } else {
+      val final_noise =  r.nextDouble*diff
+      (array._3,final_noise,min_bound,max_bound) //sensitivity
+    }
   }
 
   def filterDP(f: T => Boolean) : dpobject[T] = {

@@ -86,8 +86,15 @@ object SparkKMeansDP {
         if(new_centroid.isEmptyDP()) {
           newPoints += (j -> kPoints(j))
         }else {
-          val value = new_centroid.mapDP(_._2).reduce_and_add_noise_KM((a,b) => (a._1 + b._1,a._2 + b._2),"KMeans",args(5).toInt)
-          newPoints += (j -> value)
+          val value = new_centroid.mapDP(_._2).reduceDP_vector_km((a,b) => (a._1 + b._1,a._2 + b._2),"KMeans",args(5).toInt)
+          newPoints += (j -> value._1)
+          if(j == 0) {
+            println("final output: " + value._1._1(0))
+            println("noise: " + value._2)
+            println("error: " + value._2/value._1._1(0))
+            println("min bound: " + value._3)
+            println("max bound: " + value._4)
+          }
         }
       }
 

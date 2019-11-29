@@ -21,7 +21,8 @@ markers=['o','v','^','p','3','2','s','p','1']
 #markers=["ro-","bv-","c^-","mp-","ys-","g3-","o2-",""]
 counter = 0
 for key in q:
-    plt.plot(range(0,len(x_label)),q[key],marker=markers[counter],label=key,color=colours[counter])
+    plt.plot(range(0,len(x_label)),q[key],\
+             marker=markers[counter],label=key,color=colours[counter])
     counter = counter + 1
 plt.xticks(range(0,len(x_label)),x_label)
 plt.ylabel("Performance Overhead")
