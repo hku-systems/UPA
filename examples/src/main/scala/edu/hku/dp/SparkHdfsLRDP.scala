@@ -75,7 +75,7 @@ object SparkHdfsLRDP {
     val t1 = System.nanoTime
     val lines = new dpread(spark.sparkContext.textFile(args(0)))
 
-    val ITERATIONS = args(2).toInt
+    val ITERATIONS = args(1).toInt
     val D1 = args(2).toInt
     val sr = args(4).toInt
     val points = lines.mapDP(p => parsePoint(p,D1),sr)
@@ -89,7 +89,7 @@ object SparkHdfsLRDP {
       //      println("On iteration " + i)
       val gradient = points.mapDP { p =>
         p.x * (1 / (1 + exp(-p.y * (w.dot(p.x)))) - 1) * p.y
-      }.reduceDP_vector((a,b) => a + b, "SparkHdfsLRDP", args(3).toInt)
+      }.reduceDP_vector((a,b) => a + b, args(3).toInt)
 
       println("final output: " + gradient._1(0))
       println("noise: " + gradient._2)

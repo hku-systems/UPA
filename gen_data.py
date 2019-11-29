@@ -2,7 +2,8 @@ import subprocess
 from pathlib import Path
 import sys
 import pandas as pd
-
+import random
+import csv
 # -C <n> -- separate data set into <n> chunks (requires -S, default: 1)
 # -f     -- force. Overwrite existing files
 # -h     -- display this message
@@ -68,4 +69,13 @@ if wq == "part" or wq == "all":
     output, error = process.communicate()
 
 if wq == "ml" or wq == "all":
-    data = pd.read_csv("filename.csv")
+    df = pd.read_csv("data/ds1.10.csv")
+    maxs = df.max().values
+    mins = df.min().values
+    with open("/home/john/tpch-dbgen/data/ml." + str(s),"w") as ins:
+        writer = csv.writer(ins, delimiter =",",lineterminator='\n')
+        for rows in range(s):
+            write_row = []
+            for col in range(11):
+                write_row.append(str('%.2f' % random.uniform(maxs[col], mins[col])))
+            writer.writerow(write_row)

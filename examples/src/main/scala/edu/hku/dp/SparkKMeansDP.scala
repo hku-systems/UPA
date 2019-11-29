@@ -56,9 +56,10 @@ object SparkKMeansDP {
       System.exit(1)
     }
 
+    val input_size = args(0).split('.').last
     val spark = SparkSession
       .builder
-      .appName("SparkKMeansDP")
+      .appName("LR-" + input_size + "-" + args(6))
       .getOrCreate()
     val t1 = System.nanoTime
 
@@ -86,8 +87,8 @@ object SparkKMeansDP {
         if(new_centroid.isEmptyDP()) {
           newPoints += (j -> kPoints(j))
         }else {
-          val value = new_centroid.mapDP(_._2).reduceDP_vector_km((a,b) => (a._1 + b._1,a._2 + b._2),"KMeans",args(5).toInt)
-          newPoints += (j -> value._1)
+          val value = new_centroid.mapDP(_._2).reduceDP_vector_km((a,b) => (a._1 + b._1,a._2 + b._2),args(5).toInt)
+          newPoints += (j -> value._1._1.map(p => p / value._1._2))
           if(j == 0) {
             println("final output: " + value._1._1(0))
             println("noise: " + value._2)
