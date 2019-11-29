@@ -1,6 +1,7 @@
 package edu.hku.cs.dp
 
 import breeze.linalg.{DenseVector, Vector}
+import org.apache.spark.internal.Logging
 import org.apache.spark.rdd.RDD
 
 import scala.math.{exp, pow}
@@ -12,6 +13,7 @@ import scala.util.Random
   */
 class dpobject_checker[T: ClassTag](
                              var inputoriginal : RDD[(T,Long)])
+  extends Logging with Serializable
 {
   var original = inputoriginal
 
@@ -46,6 +48,13 @@ class dpobject_checker[T: ClassTag](
       println("final result: " + final_result)
     }
   }
+
+  def reduceDP_vector(f: (T, T) => T): T = {
+    val result_by_part = original.map(p => (p._2,p._1)).reduceByKey((a,b) => f(a,b))
+    val result_by_part_collect = result_by_part.collect()
+    val final_result = result_by_part.map(p => p._2).reduce(f)
+    final_result
+    }
 
   def filterDP(f: T => Boolean) : dpobject_checker[T] = {
     val r3 = original.filter(p => f(p._1))

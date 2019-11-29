@@ -18,18 +18,21 @@
 // scalastyle:off println
 package edu.hku.dp.checker
 
+import java.util.Random
+
 import breeze.linalg.{DenseVector, Vector}
+import edu.hku.cs.dp.dpread_checker
 import org.apache.spark.sql.SparkSession
 
 import scala.math.exp
 
 /**
- * Logistic regression based classification.
- *
- * This is an example implementation for learning how to use Spark. For more conventional use,
- * please refer to org.apache.spark.ml.classification.LogisticRegression.
- */
-object SparkHdfsLR_checker {
+  * Logistic regression based classification.
+  *
+  * This is an example implementation for learning how to use Spark. For more conventional use,
+  * please refer to org.apache.spark.ml.classification.LogisticRegression.
+  */
+object SparkHdfsLRDP_checker {
   val rand = new Random(42)
 
   case class DataPoint(x: Vector[Double], y: Double)
@@ -62,29 +65,30 @@ object SparkHdfsLR_checker {
 
     showWarning()
 
+    val input_size = args(0).split('.').last
+
     val spark = SparkSession
       .builder
-      .appName("SparkHdfsLR")
+      .appName("LR-" + input_size + "-" + args(4))
       .getOrCreate()
-    val t1 = System.nanoTime
 
-    val inputPath = args(0)
-    val lines = spark.read.textFile(inputPath).rdd
+    val t1 = System.nanoTime
+    val lines = new dpread_checker(spark.sparkContext.textFile(args(0)))
 
     val ITERATIONS = args(1).toInt
-    val D = args(2).toInt
-    val points = lines.map(p => parsePoint(p,D))
+    val D1 = args(2).toInt
+    val sr = args(4).toInt
+    val points = lines.mapDP(p => parsePoint(p,D1),sr)
 
     // Initialize w to a random value
     val r = scala.util.Random
-    var w = DenseVector.fill(D)(r.nextDouble)
-//    println("Initial w: " + w)
+    var w = DenseVector.fill(D1)(r.nextDouble)
+    //    println("Initial w: " + w)
 
     for (i <- 1 to ITERATIONS) {
-//      println("On iteration " + i)
-      val gradient = points.map { p =>
+      val gradient = points.mapDP { p =>
         p.x * (1 / (1 + exp(-p.y * (w.dot(p.x)))) - 1) * p.y
-      }.reduce(_ + _)
+      }.reduceDP_vector((a,b) => a + b)
       w -= gradient
     }
 
