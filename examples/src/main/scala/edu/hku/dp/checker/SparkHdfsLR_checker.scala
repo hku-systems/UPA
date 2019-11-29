@@ -16,23 +16,20 @@
  */
 
 // scalastyle:off println
-package edu.hku.dp
-
-import java.util.Random
+package edu.hku.dp.checker
 
 import breeze.linalg.{DenseVector, Vector}
-import edu.hku.cs.dp.dpread
 import org.apache.spark.sql.SparkSession
 
 import scala.math.exp
 
 /**
-  * Logistic regression based classification.
-  *
-  * This is an example implementation for learning how to use Spark. For more conventional use,
-  * please refer to org.apache.spark.ml.classification.LogisticRegression.
-  */
-object SparkHdfsLRDP {
+ * Logistic regression based classification.
+ *
+ * This is an example implementation for learning how to use Spark. For more conventional use,
+ * please refer to org.apache.spark.ml.classification.LogisticRegression.
+ */
+object SparkHdfsLR_checker {
   val rand = new Random(42)
 
   case class DataPoint(x: Vector[Double], y: Double)
@@ -65,39 +62,30 @@ object SparkHdfsLRDP {
 
     showWarning()
 
-    val input_size = args(0).split('.').last
-
     val spark = SparkSession
       .builder
-      .appName("LR-" + input_size + "-" + args(4))
+      .appName("SparkHdfsLR")
       .getOrCreate()
-
     val t1 = System.nanoTime
-    val lines = new dpread(spark.sparkContext.textFile(args(0)))
+
+    val inputPath = args(0)
+    val lines = spark.read.textFile(inputPath).rdd
 
     val ITERATIONS = args(1).toInt
-    val D1 = args(2).toInt
-    val sr = args(4).toInt
-    val points = lines.mapDP(p => parsePoint(p,D1),sr)
+    val D = args(2).toInt
+    val points = lines.map(p => parsePoint(p,D))
 
     // Initialize w to a random value
     val r = scala.util.Random
-    var w = DenseVector.fill(D1)(r.nextDouble)
-    //    println("Initial w: " + w)
+    var w = DenseVector.fill(D)(r.nextDouble)
+//    println("Initial w: " + w)
 
     for (i <- 1 to ITERATIONS) {
-      println("On iteration " + ITERATIONS)
-      println("On iteration " + i)
-      val gradient = points.mapDP { p =>
+//      println("On iteration " + i)
+      val gradient = points.map { p =>
         p.x * (1 / (1 + exp(-p.y * (w.dot(p.x)))) - 1) * p.y
-      }.reduceDP_vector((a,b) => a + b, args(3).toInt)
-
-      println("final output: " + gradient._1(0))
-      println("noise: " + gradient._2)
-      println("error: " + gradient._2/gradient._1)
-      println("min bound: " + gradient._3)
-      println("max bound: " + gradient._4)
-      w -= gradient._1
+      }.reduce(_ + _)
+      w -= gradient
     }
 
     val duration = (System.nanoTime - t1) / 1e9d

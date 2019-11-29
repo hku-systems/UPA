@@ -59,15 +59,15 @@ object SparkKMeansDP {
     val input_size = args(0).split('.').last
     val spark = SparkSession
       .builder
-      .appName("LR-" + input_size + "-" + args(6))
+      .appName("LR-" + input_size + "-" + args(5))
       .getOrCreate()
     val t1 = System.nanoTime
 
     val lines = new dpread(spark.sparkContext.textFile(args(0)))
-    val ITERATIONS = args(2).toInt
-    val K = args(3).toInt
-    val D = args(4).toInt
-    val sr = args(6).toInt
+    val ITERATIONS = args(1).toInt
+    val K = args(2).toInt
+    val D = args(3).toInt
+    val sr = args(5).toInt
     val b_D = spark.sparkContext.broadcast(D)
     val data = lines.mapDP(p => parseVector(p,b_D.value),sr)
 
@@ -87,7 +87,7 @@ object SparkKMeansDP {
         if(new_centroid.isEmptyDP()) {
           newPoints += (j -> kPoints(j))
         }else {
-          val value = new_centroid.mapDP(_._2).reduceDP_vector_km((a,b) => (a._1 + b._1,a._2 + b._2),args(5).toInt)
+          val value = new_centroid.mapDP(_._2).reduceDP_vector_km((a,b) => (a._1 + b._1,a._2 + b._2),args(4).toInt)
           newPoints += (j -> value._1._1.map(p => p / value._1._2))
           if(j == 0) {
             println("final output: " + value._1._1(0))

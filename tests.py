@@ -16,7 +16,7 @@ scale_c = [10,100,1000,10000]
 # lineitem_path = Path("/home/john/AutoDP/security.csv")
 # if not lineitem_path.is_file():
 f = open("security.csv","w+")
-f.write("10000,1,0")
+f.write("10,1,0")
 f.close()
 
 lineitem = "/home/john/tpch-dbgen/data/lineitem.tbl.original"
@@ -263,6 +263,36 @@ for sampleSize in sp:
             process = subprocess.Popen(cmd1,shell=True, stdout=output21, stderr=err21)
             output, error = process.communicate()
 
+    if wq == "km" or wq == "all" or wq == "upa":
+        if op == "sing":
+            ml_data = "/home/john/tpch-dbgen/data/ml." + str(sing)
+            output21 = open("outputkm-" + str(sing) + "," + str(sampleSize) + ".txt","w+")
+            err21 = open("errkm-" + str(sing) + "," + str(sampleSize) + ".txt","w+")
+            cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.SparkKMeansDP " + \
+                   "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
+                   "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
+                   "--driver-memory 50g --executor-memory 50g --conf spark.executor.extraJavaOptions='-Xms50g' --conf spark.driver.extraJavaOptions='-Xms50g' " + \
+                   "examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar " + \
+                   ml_data + " 2 3 10 " + \
+                   str(threshold) + " " + str(sampleSize)
+            #./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.TPCH21DP --conf "spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps" --conf "spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps" examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar
+            process = subprocess.Popen(cmd1,shell=True, stdout=output21, stderr=err21)
+            output, error = process.communicate()
+        elif op == "scal":
+            for i in scale:
+                ml_data = "/home/john/tpch-dbgen/data/ml." + str(i)
+                output21 = open("outputkm-" + str(i) + "," + str(sampleSize) + ".txt","w+")
+                err21 = open("errkm-" + str(i) + "," + str(sampleSize) + ".txt","w+")
+                cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.SparkKMeansDP " + \
+                       "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
+                       "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
+                       "--driver-memory 50g --executor-memory 50g --conf spark.executor.extraJavaOptions='-Xms50g' --conf spark.driver.extraJavaOptions='-Xms50g' " + \
+                       "examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar " + \
+                       ml_data + " 1 3 10 " + \
+                       str(threshold) + " " + str(sampleSize)
+            process = subprocess.Popen(cmd1,shell=True, stdout=output21, stderr=err21)
+            output, error = process.communicate()
+
 if wq == "1o" or wq == "all":
     if op == "sing":
         lineitem = "/home/john/tpch-dbgen/data/lineitem.tbl." + str(sing)
@@ -453,6 +483,66 @@ if wq == "21o" or wq == "all":
                    " " + order + " " + nation + " " + db
             process = subprocess.Popen(cmd1,shell=True, stdout=output21, stderr=err21)
             output, error = process.communicate()
+
+if wq == "lro" or wq == "all":
+    if op == "sing":
+        ml_data = "/home/john/tpch-dbgen/data/ml." + str(sing)
+        output21 = open("outputlr-" + str(sing) + "," + str(sampleSize) + ".txt","w+")
+        err21 = open("errlr-" + str(sing) + "," + str(sampleSize) + ".txt","w+")
+        cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.original.SparkHdfsLR " + \
+               "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
+               "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
+               "--driver-memory 50g --executor-memory 50g --conf spark.executor.extraJavaOptions='-Xms50g' --conf spark.driver.extraJavaOptions='-Xms50g' " + \
+               "examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar " + \
+               ml_data + " 1 9 " + \
+               str(threshold) + " " + str(sampleSize)
+        #./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.TPCH21DP --conf "spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps" --conf "spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps" examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar
+        process = subprocess.Popen(cmd1,shell=True, stdout=output21, stderr=err21)
+        output, error = process.communicate()
+    elif op == "scal":
+        for i in scale:
+            ml_data = "/home/john/tpch-dbgen/data/ml." + str(i)
+            output21 = open("outputlr-" + str(i) + "," + str(sampleSize) + ".txt","w+")
+            err21 = open("errlr-" + str(i) + "," + str(sampleSize) + ".txt","w+")
+            cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.original.SparkHdfsLR " + \
+                   "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
+                   "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
+                   "--driver-memory 50g --executor-memory 50g --conf spark.executor.extraJavaOptions='-Xms50g' --conf spark.driver.extraJavaOptions='-Xms50g' " + \
+                   "examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar " + \
+                   ml_data + " 1 9 " + \
+                   str(threshold) + " " + str(sampleSize)
+        process = subprocess.Popen(cmd1,shell=True, stdout=output21, stderr=err21)
+        output, error = process.communicate()
+
+if wq == "kmo" or wq == "all":
+    if op == "sing":
+        ml_data = "/home/john/tpch-dbgen/data/ml." + str(sing)
+        output21 = open("outputkm-" + str(sing) + "," + str(sampleSize) + ".txt","w+")
+        err21 = open("errkm-" + str(sing) + "," + str(sampleSize) + ".txt","w+")
+        cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.original.SparkKMeans " + \
+               "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
+               "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
+               "--driver-memory 50g --executor-memory 50g --conf spark.executor.extraJavaOptions='-Xms50g' --conf spark.driver.extraJavaOptions='-Xms50g' " + \
+               "examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar " + \
+               ml_data + " 1 3 10 " + \
+               str(threshold) + " " + str(sampleSize)
+        #./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.TPCH21DP --conf "spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps" --conf "spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps" examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar
+        process = subprocess.Popen(cmd1,shell=True, stdout=output21, stderr=err21)
+        output, error = process.communicate()
+    elif op == "scal":
+        for i in scale:
+            ml_data = "/home/john/tpch-dbgen/data/ml." + str(i)
+            output21 = open("outputkm-" + str(i) + "," + str(sampleSize) + ".txt","w+")
+            err21 = open("errkm-" + str(i) + "," + str(sampleSize) + ".txt","w+")
+            cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.original.SparkKMeans " + \
+                   "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
+                   "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
+                   "--driver-memory 50g --executor-memory 50g --conf spark.executor.extraJavaOptions='-Xms50g' --conf spark.driver.extraJavaOptions='-Xms50g' " + \
+                   "examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar " + \
+                   ml_data + " 1 3 10 " + \
+                   str(threshold) + " " + str(sampleSize)
+        process = subprocess.Popen(cmd1,shell=True, stdout=output21, stderr=err21)
+        output, error = process.communicate()
 
 for sampleSize in sp:
     if wq == "1c" or wq == "allc":
