@@ -16,7 +16,7 @@ scale_c = [10,100,1000,10000]
 # lineitem_path = Path("/home/john/AutoDP/security.csv")
 # if not lineitem_path.is_file():
 f = open("security.csv","w+")
-f.write("10,1,0")
+f.write("8,1,1")
 f.close()
 
 lineitem = "/home/john/tpch-dbgen/data/lineitem.tbl.original"

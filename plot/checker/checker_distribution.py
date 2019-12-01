@@ -9,7 +9,7 @@ def partitioning(num_p,dist,num_neighbour,num_data,interval,depth):
     p = np.zeros(num_p)
     return_depth = [depth]
     # num_neighbour = random.randint(9,100)
-    print(num_neighbour)
+    # print(num_neighbour)
     for i in range(0,num_neighbour):
         new_index = random.randint(0,num_data) // interval #the random number indicate
         p[new_index] = p[new_index] + 1
@@ -38,6 +38,10 @@ interval = 1600000000 // num_p
 all_depth = []
 for j in range(0,700): #700 rounds experiments
     all_depth.append(partitioning(num_p,dist,num_neighbour,num_data,interval,0))
+
 print(all_depth)
+np_a = np.array(all_depth)
+for num in range(6):
+    print(len(np.extract(np_a == num,np_a)))
 
 
