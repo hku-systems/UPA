@@ -42,8 +42,8 @@ object TPCH1 {
       //      .map(case (l_orderkey: Long, l_partkey: Long, l_suppkey: Long, l_linenumber: Long, l_quantity: Double, l_extendedprice: Double, l_discount:Double, l_tax:Double, l_returnflag:String, l_linestatus:String, l_shipdate:String, l_commitdate:String, l_receiptdate:String, l_shipinstruct:String, l_shipmode:String, l_comment:String))
       .filter(_._11 < "1998-09-02")
       .map(p => {
-        val inter = decrease(p._6,p._7)
-        inter
+//        val inter = decrease(p._6,p._7)
+        1.0
       })
 
     //    println("filtered_result original")

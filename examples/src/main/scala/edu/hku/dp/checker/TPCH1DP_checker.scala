@@ -42,8 +42,8 @@ object TPCH1DP_checker {
       (p(0).trim.toLong, p(1).trim.toLong, p(2).trim.toLong, p(3).trim.toLong, p(4).trim.toDouble, p(5).trim.toDouble, p(6).trim.toDouble, p(7).trim.toDouble, p(8).trim, p(9).trim, p(10).trim, p(11).trim, p(12).trim, p(13).trim, p(14).trim, p(15).trim))
       .filterDP(_._11 < "1998-09-02")
       .mapDP(p => {
-        val inter = decrease(p._6,p._7)
-        inter
+//        val inter = decrease(p._6,p._7)
+        1.0
       })
 
     filtered_result.reduceDP((a,b) => {

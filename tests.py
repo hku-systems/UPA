@@ -273,7 +273,7 @@ for sampleSize in sp:
                    "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
                    "--driver-memory 50g --executor-memory 50g --conf spark.executor.extraJavaOptions='-Xms50g' --conf spark.driver.extraJavaOptions='-Xms50g' " + \
                    "examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar " + \
-                   ml_data + " 2 3 10 " + \
+                   ml_data + " 1 3 10 " + \
                    str(threshold) + " " + str(sampleSize)
             #./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.TPCH21DP --conf "spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps" --conf "spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps" examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar
             process = subprocess.Popen(cmd1,shell=True, stdout=output21, stderr=err21)
@@ -787,7 +787,7 @@ for sampleSize in sp:
                    "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
                    "--driver-memory 50g --executor-memory 50g --conf spark.executor.extraJavaOptions='-Xms50g' --conf spark.driver.extraJavaOptions='-Xms50g' " + \
                    "examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar " + \
-                   ml_data + " 2 3 10 " + \
+                   ml_data + " 1 3 10 " + \
                    str(threshold) + " " + str(sampleSize)
             #./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.TPCH21DP --conf "spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps" --conf "spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps" examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar
             process = subprocess.Popen(cmd1,shell=True, stdout=output21, stderr=err21)
