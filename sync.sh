@@ -4,7 +4,8 @@ rsync -a -e "ssh -p 2212" --exclude=cmake-build-debug /Users/lionon/Documents/Au
 rsync -a -e "ssh -p 2212" --exclude=cmake-build-debug /Users/lionon/Documents/AutoDP/*.sh john@127.0.0.1:/home/john/AutoDP/
 rsync -a -e "ssh -p 2212" --exclude=cmake-build-debug /Users/lionon/Documents/AutoDP/*.py john@127.0.0.1:/home/john/AutoDP/
 rsync -a -e "ssh -p 2212" --exclude=cmake-build-debug /Users/lionon/Documents/AutoDP/hosts.txt john@127.0.0.1:/home/john/AutoDP/
-rsync -a -e "ssh -p 2212" --exclude=cmake-build-debug /Users/lionon/Documents/AutoDP/hosts.txt john@127.0.0.1:/home/john/AutoDP/
+rsync -a -e "ssh -p 2212" --exclude=cmake-build-debug /Users/lionon/Documents/AutoDP/plot/*.py john@127.0.0.1:/home/john/AutoDP/plot/
+
 
 
 #rsync -a -e "ssh -p 2206" --exclude=cmake-build-debug /Users/lionon/Documents/AutoDP/examples/src/main/scala/edu john@127.0.0.1:/home/john/AutoDP/examples/src/main/scala/

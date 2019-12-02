@@ -16,7 +16,7 @@ scale_c = [10,100,1000,10000]
 # lineitem_path = Path("/home/john/AutoDP/security.csv")
 # if not lineitem_path.is_file():
 f = open("security.csv","w+")
-f.write("8,1,1")
+f.write("8,1,0")
 f.close()
 
 lineitem = "/home/john/tpch-dbgen/data/lineitem.tbl.original"
@@ -260,8 +260,8 @@ for sampleSize in sp:
                        "examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar " + \
                        ml_data + " 1 9 " + \
                        str(threshold) + " " + str(sampleSize)
-            process = subprocess.Popen(cmd1,shell=True, stdout=output21, stderr=err21)
-            output, error = process.communicate()
+                process = subprocess.Popen(cmd1,shell=True, stdout=output21, stderr=err21)
+                output, error = process.communicate()
 
     if wq == "km" or wq == "all" or wq == "upa":
         if op == "sing":
@@ -281,8 +281,8 @@ for sampleSize in sp:
         elif op == "scal":
             for i in scale:
                 ml_data = "/home/john/tpch-dbgen/data/ml." + str(i)
-                output21 = open("outputkm-" + str(i) + "," + str(sampleSize) + ".txt","w+")
-                err21 = open("errkm-" + str(i) + "," + str(sampleSize) + ".txt","w+")
+                outputkm = open("outputkm-" + str(i) + "," + str(sampleSize) + ".txt","w+")
+                errkm = open("errkm-" + str(i) + "," + str(sampleSize) + ".txt","w+")
                 cmd1 = "./bin/spark-submit --master spark://10.22.1.3:7081 --class edu.hku.dp.SparkKMeansDP " + \
                        "--conf 'spark.executor.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
                        "--conf 'spark.driver.extraJavaOptions=-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps' " + \
@@ -290,8 +290,8 @@ for sampleSize in sp:
                        "examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar " + \
                        ml_data + " 1 3 10 " + \
                        str(threshold) + " " + str(sampleSize)
-            process = subprocess.Popen(cmd1,shell=True, stdout=output21, stderr=err21)
-            output, error = process.communicate()
+                process = subprocess.Popen(cmd1,shell=True, stdout=outputkm, stderr=errkm)
+                output, error = process.communicate()
 
 if wq == "1o" or wq == "all":
     if op == "sing":
@@ -511,8 +511,8 @@ if wq == "lro" or wq == "all":
                    "examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar " + \
                    ml_data + " 1 9 " + \
                    str(threshold) + " " + str(sampleSize)
-        process = subprocess.Popen(cmd1,shell=True, stdout=output21, stderr=err21)
-        output, error = process.communicate()
+            process = subprocess.Popen(cmd1,shell=True, stdout=output21, stderr=err21)
+            output, error = process.communicate()
 
 if wq == "kmo" or wq == "all":
     if op == "sing":
@@ -541,8 +541,8 @@ if wq == "kmo" or wq == "all":
                    "examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar " + \
                    ml_data + " 1 3 10 " + \
                    str(threshold) + " " + str(sampleSize)
-        process = subprocess.Popen(cmd1,shell=True, stdout=output21, stderr=err21)
-        output, error = process.communicate()
+            process = subprocess.Popen(cmd1,shell=True, stdout=output21, stderr=err21)
+            output, error = process.communicate()
 
 for sampleSize in sp:
     if wq == "1c" or wq == "allc":
@@ -774,8 +774,8 @@ for sampleSize in sp:
                        "examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar " + \
                        ml_data + " 1 9 " + \
                        str(threshold) + " " + str(sampleSize)
-            process = subprocess.Popen(cmd1,shell=True, stdout=output21, stderr=err21)
-            output, error = process.communicate()
+                process = subprocess.Popen(cmd1,shell=True, stdout=output21, stderr=err21)
+                output, error = process.communicate()
 
     if wq == "kmc" or wq == "all" or wq == "upa":
         if op == "sing":
@@ -804,5 +804,5 @@ for sampleSize in sp:
                        "examples/target/scala-2.11/jars/spark-examples_2.11-2.2.0.jar " + \
                        ml_data + " 1 3 10 " + \
                        str(threshold) + " " + str(sampleSize)
-            process = subprocess.Popen(cmd1,shell=True, stdout=output21, stderr=err21)
-            output, error = process.communicate()
+                process = subprocess.Popen(cmd1,shell=True, stdout=output21, stderr=err21)
+                output, error = process.communicate()
