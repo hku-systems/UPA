@@ -24,7 +24,7 @@ for sr in [1000,10000,100000,1000000]:
         print(sr - num_sample)
         samp_by_rate.append(samp + c_samp)
 
-colours = ['tab:blue','tab:green','tab:orange','grey', \
+colours = ['tab:red','tab:blue','tab:green','tab:orange', \
            'tab:purple','tab:brown','tab:pink','tab:gray', \
            'tab:olive','tab:cyan']
 labels = ['$10^3$','$10^4$','$10^5$','Ground truth','$10^7$']
@@ -33,31 +33,47 @@ target_samp = np.array(samp_by_rate[0])
 if sys.argv[1] == '1':
     target_samp = np.random.choice(samp_by_rate[1],1000)
 
-ax.hist(np.array(samp_by_rate[3]) + np.array(samp_by_rate[2]) + np.array(samp_by_rate[1]) + target_samp, bins='auto',color = colours[3],label = labels[3])
-for j in [2,1]:
-    ax.hist(samp_by_rate[j], bins='auto',color = colours[j],label = labels[j])
+all_samp = np.concatenate((np.array(samp_by_rate[3]),np.array(samp_by_rate[2]),np.array(samp_by_rate[1]),target_samp))
 
-ax.hist(target_samp, bins='auto',color = colours[0], label = '$10^3$',alpha=0.6)
+
+ax.hist(all_samp, bins=100,color = colours[3],label = labels[3],alpha=0.2)
+for j in [2,1]:
+    ax.hist(samp_by_rate[j], bins=100,color = colours[j],label = labels[j],alpha=0.4)
+ax.hist(target_samp, bins=100,color = colours[0], label = '$10^3$',alpha=0.4)
 
 #=========normal=============
+mu_all = []
+std_all = []
 mu, std = norm.fit(target_samp)
-max_bound = max(samp_by_rate[3])
-min_bound = min(samp_by_rate[3])
-x = np.linspace(mu - 4*std, mu + 4*std, 1000)
-p = norm.pdf(x, mu, std)
+mu_all.append(mu)
+std_all.append(std)
+for i in [1,2]:
+    mu, std = norm.fit(samp_by_rate[j])
+    mu_all.append(mu)
+    std_all.append(std)
+mu, std = norm.fit(all_samp)
+mu_all.append(mu)
+std_all.append(std)
 
-samp_max = max(p)
-samp_max = min(p)
-ax.plot(x, p, '--', linewidth=2, color = "tab:red",label = "UPA's inferred distribution")
+max_bound = max(all_samp)
+min_bound = min(all_samp)
+dash_sapce = [4,2,1]
+alpha_space = [1.0,0.5,0.5]
+for i in [2,1,0]:
+    x = np.linspace(mu_all[i] - 4*std_all[i], mu_all[i] + 4*std_all[i], 100)
+    p = norm.pdf(x, mu_all[i], std_all[i])
+    samp_max = max(p)
+    samp_max = min(p)
+    ax.plot(x, p,linestyle='--', dashes=(5, dash_sapce[i]), linewidth=2, color = colours[i],label = labels[i], alpha = alpha_space[i])
 #=========normal=============
 
 print("max_bound: " + str(max_bound))
 print("min_bound: " + str(min_bound))
-print("samp_max: " + str(mu + 4*std))
-print("samp_min: " + str(mu - 4*std))
+print("samp_max: " + str(mu_all[0] + 4*std_all[0]))
+print("samp_min: " + str(mu_all[0] - 4*std_all[0]))
 
-x_max = max(max_bound, mu + 4*std)
-x_min = min(min_bound, mu - 4*std)
+x_max = max(max_bound, mu_all[0] + 4*std_all[0])
+x_min = min(min_bound, mu_all[0] - 4*std_all[0])
 
 ax.set_ylabel("Frequency")
 ax.set_xlabel("Output values")
