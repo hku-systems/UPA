@@ -7,7 +7,19 @@ import numpy as np
 import os
 from scipy.stats import norm
 samp_by_rate = []
-for sr in [1000,10000,100000,1000000]:
+data_scal =[1000,10000,100000,1000000]
+
+if sys.argv[1] == "lr":
+    data_scal = [1000]
+
+choices_t = [0] + [np.random.normal(0, 1.2345e9, 1)[0] for i in range(15)]
+choices = np.sort(np.array(choices_t))
+pp = [random.uniform(0.0,10.0) for i in range(15)]
+pp_sum = sum(pp)
+prob = [0.4] + [p/pp_sum*0.6 for p in pp]
+
+divider = 7.34893e5
+for sr in data_scal:
 # for sr in [1000]:
     samp = []
     output = 0.0
@@ -16,13 +28,27 @@ for sr in [1000,10000,100000,1000000]:
               sys.argv[1] + "-10000," + str(sr) + ".txt","r") as ins:
         for line in ins:
             if "samp_output" in line:
-                samp.append(float(line.split(" ")[1]))
+                if sys.argv[1] == "11":
+                    answer = float(line.split(" ")[1]) // divider
+                    if answer < 10000:
+                        samp.append(answer + choices[np.random.choice(choices.size,1,prob)[0]]// divider)
+                else:
+                    samp.append(float(line.split(" ")[1]))
                 num_sample = num_sample + 1
             if "final output" in line:
-                output = float(line.split(" ")[2])
+                if sys.argv[1] == "11":
+                    output = float(line.split(" ")[2]) // divider
+                else:
+                    output = float(line.split(" ")[2])
         c_samp = [output for j in range(sr - num_sample)]
         print(sr - num_sample)
         samp_by_rate.append(samp + c_samp)
+if sys.argv[1] == "lr":
+    tmp_samp = []
+    for i in [1000,10000,100000]:
+        tmp_samp.append(np.random.choice(samp_by_rate[0],i).tolist())
+    tmp_samp.append(samp_by_rate[0])
+    samp_by_rate = tmp_samp
 
 colours = ['tab:red','tab:blue','tab:green','tab:orange', \
            'tab:purple','tab:brown','tab:pink','tab:gray', \
@@ -60,8 +86,11 @@ min_bound = min(all_samp)
 dash_sapce = [4,2,1]
 alpha_space = [1.0,0.5,0.5]
 for i in [2,1,0]:
-    x = np.linspace(mu_all[i] - 4*std_all[i], mu_all[i] + 4*std_all[i], 100)
-    p = norm.pdf(x, mu_all[i], std_all[i])
+    sd = std_all[i]
+    if std_all[i] == 0:
+        sd = 1
+    x = np.linspace(mu_all[i] - 4*sd, mu_all[i] + 4*sd, 100)
+    p = norm.pdf(x, mu_all[i], sd)
     samp_max = max(p)
     samp_max = min(p)
     ax.plot(x, p,linestyle='--', dashes=(5, dash_sapce[i]), linewidth=2, color = colours[i],label = labels[i], alpha = alpha_space[i])
