@@ -61,10 +61,15 @@ if sys.argv[1] == '1':
 
 all_samp = np.concatenate((np.array(samp_by_rate[3]),np.array(samp_by_rate[2]),np.array(samp_by_rate[1]),target_samp))
 
-ax.hist(all_samp, bins=100,color = colours[3],label = labels[3],alpha=0.2)
-for j in [2,1]:
-    ax.hist(samp_by_rate[j], bins=100,color = colours[j],label = labels[j],alpha=0.4)
-ax.hist(target_samp, bins=100,color = colours[0], label = '$10^3$',alpha=0.4)
+x_len = 100
+x = [random.randint(0,x_len) for i in range(samp_len)]
+
+# ax.scatter(x,)
+
+# ax.hist(all_samp, bins=100,color = colours[3],label = labels[3],alpha=0.2)
+# for j in [2,1]:
+#     ax.hist(samp_by_rate[j], bins=100,color = colours[j],label = labels[j],alpha=0.4)
+# ax.hist(target_samp, bins=100,color = colours[0], label = '$10^3$',alpha=0.4)
 
 #=========normal=============
 mu_all = []
