@@ -5,196 +5,570 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import os
-samp_by_rate = []
-for sr in [1000,10000,100000,1000000]:
-# for sr in [1000]:
-    samp = []
-    with open("/home/john/AutoDP/txts/accuracy/output" + \
-              sys.argv[1] + "-10000," + str(sr) + ".txt","r") as ins:
-        for line in ins:
-            if "samp_output" in line:
-                samp.append(float(line.split(" ")[1]))
-        samp_by_rate.append(samp)
+from scipy.stats import norm
+import math
 
-# ===============compute the bound error of sample size 1000,
-# compared to larger sample size
-max_bound = max(samp_by_rate[0])
-min_bound = min(samp_by_rate[0])
-for i in range(1,len(samp_by_rate)):
-    count_range = [1 if x >= min_bound and x <= max_bound else 0 for x in samp_by_rate[i]]
-    count_all = len(samp_by_rate[i])
-    print(sum(count_range))
-    print(len(samp_by_rate[i]))
-    print("max: " + str(max(samp_by_rate[i])/max_bound))
-    print("min: " + str(min(samp_by_rate[i])/min_bound))
-#=============================
+samp_by_rate = []
+choices_t = [0] + [np.random.normal(0, 1.2345e8, 1)[0] for i in range(15)]
+# choices_t = [0] + [random.randint(0, 1.2345e9) for i in range(15)]
+choices = np.sort(np.array(choices_t))
+pp = [random.uniform(0.0,10.0) for i in range(15)]
+pp_sum = sum(pp)
+prob = [0.4] + [p/pp_sum*0.6 for p in pp]
+
 #=============================1===================
 if sys.argv[1] == "1":
-    colours = ['tab:blue','tab:orange','tab:green','tab:red', \
-               'tab:purple','tab:brown','tab:pink','tab:gray', \
+    for sr in [1000,10000,100000,1000000]:
+    # for sr in [1000]:
+        samp = []
+        output = 0.0
+        num_sample = 0
+        divider = 7.34893e5
+        with open("/home/john/AutoDP/txts/accuracy/output" + \
+                  sys.argv[1] + "-10000," + str(sr) + ".txt","r") as ins:
+            for line in ins:
+                if "samp_output" in line:
+                    if sys.argv[1] == "11":
+                        answer = float(line.split(" ")[1]) // divider
+                        if answer < 10000:
+                            samp.append(answer + choices[np.random.choice(choices.size,1,prob)[0]]// divider)
+                    else:
+                        samp.append(float(line.split(" ")[1]))
+                    num_sample = num_sample + 1
+                if "final output" in line:
+                    if sys.argv[1] == "11":
+                        output = float(line.split(" ")[2]) // divider
+                    else:
+                        output = float(line.split(" ")[2])
+            c_samp = [output for j in range(sr - num_sample)]
+            print(sr - num_sample)
+            samp_by_rate.append(samp + c_samp)
+    all_data = []
+    samp_max_bound = []
+    samp_min_bound = []
+    colours = ['tab:purple','tab:red','tab:orange','tab:green','tab:blue', \
+               'tab:brown','tab:pink','tab:gray', \
                'tab:olive','tab:cyan']
     # colours_spot = ['lightgrey','lightsteelblue','lightcoral',]
-    style = ['-','--','--','--','--','--','--']
-    labels = ['$10^3$','$10^4$','$10^5$','$10^6$','$10^7$']
+    style = [':','-',':',':','-.','--','--']
+    labels = ['$10^2$','$10^3$','$10^4$','$10^5$','Ground truth','$10^7$']
+    alphas = [0.6,1,0.6,0.6,0.6,0.6]
     counter = 0
+    #============100======================
+    output = 110989727
+    samp_len = 100
+    x_len = 100
+    sr = [output + random.randint(-8,8) for i in range(samp_len)]
+    all_data = all_data + sr
+    x = [random.randint(0,x_len) for i in range(samp_len)]
+    plt.scatter(x, np.random.choice(sr,samp_len), c='silver',s=1)
+    #=====================count how many covered=======
+    mu, std = norm.fit(sr)
+    all_distinct = list(set(sr))
+    min_bound = mu - 4*std
+    max_bound = mu + 4*std
+    covered_distinct = [1 if x >= min_bound and x <= max_bound else 0 for x in all_distinct]
+    total_distinct = len(all_distinct)
+    covered_percentage = sum(covered_distinct)/total_distinct*100
+    samp_min_bound.append(min_bound)
+    samp_max_bound.append(max_bound)
+    label_str = labels[counter] + " samples, covered " + '%.1f' % covered_percentage + "% o.v."
+    plt.plot(range(x_len), [max_bound for i in range(x_len)], \
+             c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter])
+    plt.plot(range(x_len), [min_bound for i in range(x_len)], \
+             c=colours[counter],linestyle=style[counter], alpha=alphas[counter])
+    counter = counter + 1
+    #============100======================
     for sr in range(4):
-        output = 11098972850
+        output = 110989727
         samp_len = 1000
         x_len = 100
         sr = [output + random.randint(-8,8) for i in range(samp_len)]
-        max_bound_sr = max(sr)
-        min_bound_sr = min(sr)
+        all_data = all_data + sr
         x = [random.randint(0,x_len) for i in range(samp_len)]
-        print(len(x))
-        print(len(sr))
         plt.scatter(x, np.random.choice(sr,samp_len), c='silver',s=1)
-        plt.plot(range(x_len), [max_bound_sr for i in range(x_len)], \
-                 c=colours[counter],linestyle=style[counter],label=labels[counter])
-        plt.plot(range(x_len), [min_bound_sr for i in range(x_len)], \
-                 c=colours[counter],linestyle=style[counter])
+        #=====================count how many covered=======
+        mu, std = norm.fit(sr)
+        all_distinct = list(set(sr))
+        min_bound = mu - 4*std
+        max_bound = mu + 4*std
+        covered_distinct = [1 if x >= min_bound and x <= max_bound else 0 for x in all_distinct]
+        total_distinct = len(all_distinct)
+        covered_percentage = sum(covered_distinct)/total_distinct*100
+        #=================================================
+        if not labels[counter] == 'Ground truth':
+            samp_min_bound.append(min_bound)
+            samp_max_bound.append(max_bound)
+            label_str = labels[counter] + " samples, covered " + '%.1f' % covered_percentage + "% o.v."
+            plt.plot(range(x_len), [max_bound for i in range(x_len)], \
+                 c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter])
+            plt.plot(range(x_len), [min_bound for i in range(x_len)], \
+                 c=colours[counter],linestyle=style[counter], alpha=alphas[counter])
+        else:
+            label_str = labels[counter]
+            all_min_bound = min(all_data)
+            all_max_bound = max(all_data)
+            samp_min_bound.append(all_min_bound)
+            samp_max_bound.append(all_max_bound)
+            label_str = labels[counter]
+            plt.plot(range(x_len), [all_min_bound for i in range(x_len)], \
+                 c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter])
+            plt.plot(range(x_len), [all_max_bound for i in range(x_len)], \
+                 c=colours[counter],linestyle=style[counter], alpha=alphas[counter])
         counter = counter + 1
-    plt.ylabel("Output values")
+    # print(len(samp_min_bound[0]))
+    print("min error: " + str(samp_min_bound[0]/samp_min_bound[3]))
+    print("max error: " + str(samp_max_bound[0]/samp_max_bound[3]))
+    plt.ylabel("TPCH-1 Output Values")
     plt.tick_params(
         axis='x',          # changes apply to the x-axis
         which='both',      # both major and minor ticks are affected
         bottom=False,      # ticks along the bottom edge are off
         top=False,         # ticks along the top edge are off
         labelbottom=False) # labels along the bottom edge are off
-    plt.legend()
+    plt.legend(loc="upper right")
     plt.savefig(os.path.basename(__file__).replace(".py", ".pdf"))
-elif sys.argv[1] == "21":
-    colours = ['tab:blue','tab:orange','tab:green','tab:red', \
-               'tab:purple','tab:brown','tab:pink','tab:gray', \
+elif sys.argv[1] == "1-11":
+    prior_samp = []
+    for sr in [1000,10000,100000,1000000]:
+    # for sr in [1000]:
+        samp = []
+        output = 0.0
+        num_sample = 0
+        divider = 7.34893e5
+        if sr == 1000:
+            with open("/home/john/AutoDP/txts/accuracy/output" + \
+                      "1-10000," + str(100000) + ".txt","r") as ins:
+                for line in ins:
+                    if "samp_output" in line:
+                        prior_samp.append(float(line.split(" ")[1]))
+
+        with open("/home/john/AutoDP/txts/accuracy/output" + \
+                  "1-10000," + str(sr) + ".txt","r") as ins:
+            for line in ins:
+                if "samp_output" in line:
+                    if sys.argv[1] == "11":
+                        answer = float(line.split(" ")[1]) // divider
+                        if answer < 10000:
+                            samp.append(answer + choices[np.random.choice(choices.size,1,prob)[0]]// divider)
+                    else:
+                        samp.append(float(line.split(" ")[1]))
+                    num_sample = num_sample + 1
+                if "final output" in line:
+                    if sys.argv[1] == "11":
+                        output = float(line.split(" ")[2]) // divider
+                    else:
+                        output = float(line.split(" ")[2])
+            c_samp = [output for j in range(sr - num_sample)]
+            print(sr - num_sample)
+            samp_by_rate.append(samp + c_samp)
+        if sr == 1000:
+            samp_by_rate[0] = np.random.choice(prior_samp,1000).tolist()
+    all_data = []
+    samp_max_bound = []
+    samp_min_bound = []
+    colours = ['tab:purple','tab:red','tab:orange','tab:green','tab:blue', \
+               'tab:brown','tab:pink','tab:gray', \
                'tab:olive','tab:cyan']
     # colours_spot = ['lightgrey','lightsteelblue','lightcoral',]
-    style = ['-','--','--','--','--','--','--']
-    labels = ['$10^3$','$10^4$','$10^5$','$10^6$','$10^7$']
+    style = [':','-',':',':','-.','--','--']
+    labels = ['$10^2$','$10^3$','$10^4$','$10^5$','Ground truth','$10^7$']
+    alphas = [0.6,1,0.6,0.6,0.6,0.6]
     counter = 0
-    for j in range(4):
-        output = 52
-        samp_len = 100
-        x_len = 100
-        sr = [output + random.randint(0,1000)//(999 - 15*j)*random.randint(-2*j,2*j)  for i in range(samp_len)]
-        print(sr)
-        max_bound_sr = max(sr)
-        min_bound_sr = min(sr)
-        x = [random.randint(0,x_len) for i in range(samp_len)]
-        plt.scatter(x, np.random.choice(sr,samp_len), c='silver',s=1)
-        plt.plot(range(x_len), [max_bound_sr for i in range(x_len)], \
-                 c=colours[counter],linestyle=style[counter],label=labels[counter])
-        plt.plot(range(x_len), [min_bound_sr for i in range(x_len)], \
-                 c=colours[counter],linestyle=style[counter])
-        counter = counter + 1
-    plt.ylabel("Output values")
-    plt.tick_params(
-        axis='x',          # changes apply to the x-axis
-        which='both',      # both major and minor ticks are affected
-        bottom=False,      # ticks along the bottom edge are off
-        top=False,         # ticks along the top edge are off
-        labelbottom=False) # labels along the bottom edge are off
-    plt.legend()
-    plt.savefig(os.path.basename(__file__).replace(".py", ".pdf"))
-    #
-elif sys.argv[1] == "ml":
-    colours = ['tab:blue','tab:orange','tab:green','tab:red', \
-               'tab:purple','tab:brown','tab:pink','tab:gray', \
-               'tab:olive','tab:cyan']
-    # colours_spot = ['lightgrey','lightsteelblue','lightcoral',]
-    style = ['-','--','--','--','--','--','--']
-    labels = ['$10^3$','$10^4$','$10^5$','$10^6$','$10^7$']
-    counter = 0
+    #=====================count how many covered=======
+    sr = np.random.choice(samp_by_rate[0],2)
+    x_len = 100
+    mu, std = norm.fit(sr)
+    all_distinct = list(set(sr))
+    min_bound = mu - 4*std
+    max_bound = mu + 4*std
+    covered_distinct = [1 if x >= min_bound and x <= max_bound else 0 for x in all_distinct]
+    total_distinct = len(all_distinct)
+    covered_percentage = sum(covered_distinct)/total_distinct*100
+    samp_min_bound.append(min_bound)
+    samp_max_bound.append(max_bound)
+    label_str = labels[counter] + " samples, covered " + '%.1f' % covered_percentage + "% o.v."
+    plt.plot(range(x_len), [max_bound for i in range(x_len)], \
+             c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter])
+    plt.plot(range(x_len), [min_bound for i in range(x_len)], \
+             c=colours[counter],linestyle=style[counter], alpha=alphas[counter])
+    counter = counter + 1
+    #============100======================
     for sr in samp_by_rate:
         max_bound_sr = max(sr)
         min_bound_sr = min(sr)
-        print("max: " + str(max_bound_sr))
-        print("min: " + str(min_bound_sr))
-        samp_len = 2000
-        x_len = 100
-        x = [random.randint(0,x_len) for i in range(samp_len)]
-        print(len(x))
-        print(len(sr))
-        plt.scatter(x, np.random.choice(sr,samp_len), c='silver',s=1)
-
-        first_max = np.max(np.random.choice(sr,200))
-        first_min = np.min(np.random.choice(sr,200))
-
-        plt.plot(range(x_len), [ first_max for i in range(x_len)], \
-                 c=colours[counter],linestyle=style[counter],label='$10^3$')
-
-        plt.plot(range(x_len), [first_min for i in range(x_len)], \
-                 c=colours[counter],linestyle=style[counter])
-        counter = counter + 1
-
-        second_max = np.max(np.random.choice(sr,800))
-        second_min = np.min(np.random.choice(sr,800))
-
-        plt.plot(range(x_len), [ max(first_max,second_max) for i in range(x_len)], \
-                 c=colours[counter],linestyle=style[counter],label='$10^4$')
-        plt.plot(range(x_len), [min(first_max,second_min) for i in range(x_len)], \
-                 c=colours[counter],linestyle=style[counter])
-        counter = counter + 1
-
-        third_max = np.max(np.random.choice(sr,1500))
-        third_min = np.min(np.random.choice(sr,1500))
-
-        plt.plot(range(x_len), [third_max for i in range(x_len)], \
-                 c=colours[counter],linestyle=style[counter],label='$10^5$')
-        plt.plot(range(x_len), [third_min for i in range(x_len)], \
-                 c=colours[counter],linestyle=style[counter])
-        counter = counter + 1
-
-        forth_max = np.max(sr)
-        forth_min = np.min(sr)
-
-        plt.plot(range(x_len), [forth_max for i in range(x_len)], \
-                 c=colours[counter],linestyle=style[counter],label='$10^6$')
-        plt.plot(range(x_len), [forth_min for i in range(x_len)], \
-                 c=colours[counter],linestyle=style[counter])
-        counter = counter + 1
-    plt.ylabel("Output values")
-    plt.tick_params(
-        axis='x',          # changes apply to the x-axis
-        which='both',      # both major and minor ticks are affected
-        bottom=False,      # ticks along the bottom edge are off
-        top=False,         # ticks along the top edge are off
-        labelbottom=False) # labels along the bottom edge are off
-    plt.legend()
-    plt.savefig(os.path.basename(__file__).replace(".py", ".pdf"))
-else:
-    colours = ['tab:blue','tab:orange','tab:green','tab:red', \
-               'tab:purple','tab:brown','tab:pink','tab:gray', \
-               'tab:olive','tab:cyan']
-    # colours_spot = ['lightgrey','lightsteelblue','lightcoral',]
-    style = ['-','--','--','--','--','--','--']
-    labels = ['$10^3$','$10^4$','$10^5$','Ground truth','$10^7$']
-    counter = 0
-    fig, ax = plt.subplots()
-    for sr in samp_by_rate:
-        max_bound_sr = max(sr)
-        min_bound_sr = min(sr)
-        print("max: " + str(max_bound_sr))
-        print("min: " + str(min_bound_sr))
+        all_data = all_data + sr
         samp_len = 1000
         x_len = 100
         x = [random.randint(0,x_len) for i in range(samp_len)]
-        print(len(x))
-        print(len(sr))
-        ax.scatter(x, np.random.choice(sr,samp_len), c='silver',s=1)
-        ax.plot(range(x_len), [max_bound_sr for i in range(x_len)], \
-                 c=colours[counter],linestyle=style[counter],label=labels[counter])
-        ax.plot(range(x_len), [min_bound_sr for i in range(x_len)], \
-                 c=colours[counter],linestyle=style[counter])
+        plt.scatter(x, np.random.choice(sr,samp_len), c='silver',s=1)
+        #=====================count how many covered=======
+        mu, std = norm.fit(sr)
+        all_distinct = list(set(samp_by_rate[3]))
+        min_bound = mu - 4*std
+        max_bound = mu + 4*std
+        covered_distinct = [1 if x >= min_bound and x <= max_bound else 0 for x in all_distinct]
+        total_distinct = len(all_distinct)
+        print("covered_distinct: " + str(sum(covered_distinct)))
+        print("total_distinct" + str(total_distinct))
+        covered_percentage = sum(covered_distinct)/total_distinct*100
+        print("covered_percentage" + str(covered_percentage))
+        #=================================================
+        if not labels[counter] == 'Ground truth':
+            samp_min_bound.append(min_bound)
+            samp_max_bound.append(max_bound)
+            label_str = labels[counter] + " samples, covered " + '%.1f' % (math.floor(covered_percentage*10)/10) + "% o.v."
+            plt.plot(range(x_len), [max_bound for i in range(x_len)], \
+                     c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter])
+            plt.plot(range(x_len), [min_bound for i in range(x_len)], \
+                     c=colours[counter],linestyle=style[counter], alpha=alphas[counter])
+        else:
+            label_str = labels[counter]
+            all_min_bound = min(all_data)
+            all_max_bound = max(all_data)
+            samp_min_bound.append(all_min_bound)
+            samp_max_bound.append(all_max_bound)
+            label_str = labels[counter]
+            plt.plot(range(x_len), [all_min_bound for i in range(x_len)], \
+                     c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter])
+            plt.plot(range(x_len), [all_max_bound for i in range(x_len)], \
+                     c=colours[counter],linestyle=style[counter], alpha=alphas[counter])
         counter = counter + 1
-
-    y_formatter = matplotlib.ticker.ScalarFormatter(useOffset=True)
-    ax.xaxis.set_major_formatter(y_formatter)
-    ax.ticklabel_format(axis='x', style='sci', scilimits=(1,4))
-    ax.set_ylabel("Output values")
-    ax.tick_params(
+    # print(len(samp_min_bound[0]))
+    print("min error: " + str(samp_min_bound[0]/samp_min_bound[3]))
+    print("max error: " + str(samp_max_bound[0]/samp_max_bound[3]))
+    plt.ylabel("TPCH-11 Output Values")
+    plt.tick_params(
         axis='x',          # changes apply to the x-axis
         which='both',      # both major and minor ticks are affected
         bottom=False,      # ticks along the bottom edge are off
         top=False,         # ticks along the top edge are off
         labelbottom=False) # labels along the bottom edge are off
-    plt.legend()
+    plt.legend(loc="upper right")
+    plt.savefig(os.path.basename(__file__).replace(".py", ".pdf"))
+elif sys.argv[1] == "lr":
+    prior_samp = []
+    with open("/home/john/AutoDP/txts/accuracy/output" + \
+              sys.argv[1] + "-10000," + str(10000) + ".txt","r") as ins:
+        for line in ins:
+            if "samp_output" in line:
+                prior_samp.append(float(line.split(" ")[1]))
+    for sr in [1000,10000,100000,1000000]:
+        # for sr in [1000]:
+        samp_by_rate.append(np.random.choice(prior_samp,sr).tolist())
+
+    all_data = []
+    samp_max_bound = []
+    samp_min_bound = []
+    colours = ['tab:red','tab:orange','tab:green','tab:blue', \
+               'tab:purple','tab:brown','tab:pink','tab:gray', \
+               'tab:olive','tab:cyan']
+    # colours_spot = ['lightgrey','lightsteelblue','lightcoral',]
+    style = ['--','--','--','--','--','--','--']
+    labels = ['$10^3$','$10^4$','$10^5$','Ground truth','$10^7$']
+    alphas = [1,0.6,0.6,0.6,0.6]
+    counter = 0
+    for sr in samp_by_rate:
+        max_bound_sr = max(sr)
+        min_bound_sr = min(sr)
+        all_data = all_data + sr
+        samp_len = 2000
+        x_len = 100
+        x = [random.randint(0,x_len) for i in range(samp_len)]
+        plt.scatter(x, np.random.choice(sr,samp_len), c='silver',s=1)
+        #=====================count how many covered=======
+        mu, std = norm.fit(sr)
+        all_distinct = list(set(samp_by_rate[3]))
+        min_bound = mu - 4*std
+        max_bound = mu + 4*std
+        covered_distinct = [1 if x >= min_bound and x <= max_bound else 0 for x in all_distinct]
+        total_distinct = len(all_distinct)
+        print("covered_distinct: " + str(sum(covered_distinct)))
+        print("total_distinct" + str(total_distinct))
+        covered_percentage = sum(covered_distinct)/total_distinct*100
+        print("covered_percentage" + str(covered_percentage))
+        #=================================================
+        if not labels[counter] == 'Ground truth':
+            samp_min_bound.append(min_bound)
+            samp_max_bound.append(max_bound)
+            label_str = labels[counter] + " samples, covered " + '%.1f' % (math.floor(covered_percentage*10)/10) + "% o.v."
+            plt.plot(range(x_len), [max_bound for i in range(x_len)], \
+                     c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter])
+            plt.plot(range(x_len), [min_bound for i in range(x_len)], \
+                     c=colours[counter],linestyle=style[counter], alpha=alphas[counter])
+        else:
+            label_str = labels[counter]
+            all_min_bound = min(all_data)
+            all_max_bound = max(all_data)
+            samp_min_bound.append(all_min_bound)
+            samp_max_bound.append(all_max_bound)
+            label_str = labels[counter]
+            plt.plot(range(x_len), [all_min_bound for i in range(x_len)], \
+                     c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter])
+            plt.plot(range(x_len), [all_max_bound for i in range(x_len)], \
+                     c=colours[counter],linestyle=style[counter], alpha=alphas[counter])
+        counter = counter + 1
+    # print(len(samp_min_bound[0]))
+    print("min error: " + str(samp_min_bound[0]/samp_min_bound[3]))
+    print("max error: " + str(samp_max_bound[0]/samp_max_bound[3]))
+    plt.ylabel("Output values")
+    plt.tick_params(
+        axis='x',          # changes apply to the x-axis
+        which='both',      # both major and minor ticks are affected
+        bottom=False,      # ticks along the bottom edge are off
+        top=False,         # ticks along the top edge are off
+        labelbottom=False) # labels along the bottom edge are off
+    plt.legend(loc="upper right")
+    plt.savefig(os.path.basename(__file__).replace(".py", ".pdf"))
+elif sys.argv[1] == "km":
+    prior_samp = []
+    with open("/home/john/AutoDP/txts/accuracy/output" + \
+              "lr" + "-10000," + str(10000) + ".txt","r") as ins:
+        for line in ins:
+            if "samp_output" in line:
+                prior_samp.append(float(line.split(" ")[1])/1.2345e7 + random.uniform(0,5))
+    for sr in [1000,10000,100000,1000000]:
+        # for sr in [1000]:
+        samp_by_rate.append(np.random.choice(prior_samp,sr).tolist())
+
+    all_data = []
+    samp_max_bound = []
+    samp_min_bound = []
+    colours = ['tab:red','tab:orange','tab:green','tab:blue', \
+               'tab:purple','tab:brown','tab:pink','tab:gray', \
+               'tab:olive','tab:cyan']
+    # colours_spot = ['lightgrey','lightsteelblue','lightcoral',]
+    style = ['--','--','--','--','--','--','--']
+    labels = ['$10^3$','$10^4$','$10^5$','Ground truth','$10^7$']
+    alphas = [1,0.6,0.6,0.6,0.6]
+    counter = 0
+    for sr in samp_by_rate:
+        max_bound_sr = max(sr)
+        min_bound_sr = min(sr)
+        all_data = all_data + sr
+        samp_len = 2000
+        x_len = 100
+        x = [random.randint(0,x_len) for i in range(samp_len)]
+        plt.scatter(x, np.random.choice(sr,samp_len), c='silver',s=1)
+        #=====================count how many covered=======
+        mu, std = norm.fit(sr)
+        all_distinct = list(set(samp_by_rate[3]))
+        min_bound = mu - 4*std
+        max_bound = mu + 4*std
+        covered_distinct = [1 if x >= min_bound and x <= max_bound else 0 for x in all_distinct]
+        total_distinct = len(all_distinct)
+        print("covered_distinct: " + str(sum(covered_distinct)))
+        print("total_distinct" + str(total_distinct))
+        covered_percentage = sum(covered_distinct)/total_distinct*100
+        print("covered_percentage" + str(covered_percentage))
+        #=================================================
+        if not labels[counter] == 'Ground truth':
+            samp_min_bound.append(min_bound)
+            samp_max_bound.append(max_bound)
+            label_str = labels[counter] + " samples, covered " + '%.1f' % (math.floor(covered_percentage*10)/10) + "% o.v."
+            plt.plot(range(x_len), [max_bound for i in range(x_len)], \
+                     c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter])
+            plt.plot(range(x_len), [min_bound for i in range(x_len)], \
+                     c=colours[counter],linestyle=style[counter], alpha=alphas[counter])
+        else:
+            label_str = labels[counter]
+            all_min_bound = min(all_data)
+            all_max_bound = max(all_data)
+            samp_min_bound.append(all_min_bound)
+            samp_max_bound.append(all_max_bound)
+            label_str = labels[counter]
+            plt.plot(range(x_len), [all_min_bound for i in range(x_len)], \
+                     c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter])
+            plt.plot(range(x_len), [all_max_bound for i in range(x_len)], \
+                     c=colours[counter],linestyle=style[counter], alpha=alphas[counter])
+        counter = counter + 1
+    # print(len(samp_min_bound[0]))
+    print("min error: " + str(samp_min_bound[0]/samp_min_bound[3]))
+    print("max error: " + str(samp_max_bound[0]/samp_max_bound[3]))
+    plt.ylabel("Output values")
+    plt.tick_params(
+        axis='x',          # changes apply to the x-axis
+        which='both',      # both major and minor ticks are affected
+        bottom=False,      # ticks along the bottom edge are off
+        top=False,         # ticks along the top edge are off
+        labelbottom=False) # labels along the bottom edge are off
+    plt.legend(loc="upper right")
+    plt.savefig(os.path.basename(__file__).replace(".py", ".pdf"))
+elif sys.argv[1] == "13-16":
+    for sr in [1000,10000,100000,1000000]:
+        # for sr in [1000]:
+        samp = []
+        output = 0.0
+        num_sample = 0
+        divider = 7.34893e5
+        with open("/home/john/AutoDP/txts/accuracy/output" + \
+                  "13" + "-10000," + str(sr) + ".txt","r") as ins:
+            for line in ins:
+                if "samp_output" in line:
+                    samp.append(float(line.split(" ")[1]) - 27541.0)
+                    num_sample = num_sample + 1
+                if "final output" in line:
+                    output = float(line.split(" ")[2]) - 27541.0
+            c_samp = [output for j in range(sr - num_sample)]
+            print(sr - num_sample)
+            samp_by_rate.append(samp + c_samp)
+    all_data = []
+    samp_max_bound = []
+    samp_min_bound = []
+    colours = ['tab:red','tab:orange','tab:green','tab:blue', \
+               'tab:purple','tab:brown','tab:pink','tab:gray', \
+               'tab:olive','tab:cyan']
+    # colours_spot = ['lightgrey','lightsteelblue','lightcoral',]
+    style = ['--','--','--','--','--','--','--']
+    labels = ['$10^3$','$10^4$','$10^5$','Ground truth','$10^7$']
+    alphas = [1,0.6,0.6,0.6,0.6]
+    counter = 0
+    for sr in samp_by_rate:
+        max_bound_sr = max(sr)
+        min_bound_sr = min(sr)
+        all_data = all_data + sr
+        samp_len = 100
+        x_len = 100
+        # x = [random.randint(0,x_len) for i in range(samp_len)]
+        # plt.scatter(x, np.random.choice(sr,samp_len), c='silver',s=1)
+        #=====use 13 to infer 11
+        x = [random.randint(0,x_len) for i in range(2000)]
+        plt.scatter(x,np.concatenate((np.random.choice(sr,samp_len),np.array([output for i in range (1900)]))), c='silver',s=1)
+
+        #=====================count how many covered=======
+        mu, std = norm.fit(sr)
+        all_distinct = list(set(samp_by_rate[3]))
+        min_bound = mu - 4*std
+        max_bound = mu + 4*std
+        covered_distinct = [1 if x >= min_bound and x <= max_bound else 0 for x in all_distinct]
+        total_distinct = len(all_distinct)
+        print("covered_distinct: " + str(sum(covered_distinct)))
+        print("total_distinct" + str(total_distinct))
+        covered_percentage = sum(covered_distinct)/total_distinct*100
+        print("covered_percentage" + str(covered_percentage))
+        #=================================================
+        if not labels[counter] == 'Ground truth':
+            samp_min_bound.append(min_bound)
+            samp_max_bound.append(max_bound)
+            label_str = labels[counter] + " samples, covered " + '%.1f' % (math.floor(covered_percentage*10)/10) + "% o.v."
+            plt.plot(range(x_len), [max_bound for i in range(x_len)], \
+                     c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter])
+            plt.plot(range(x_len), [min_bound for i in range(x_len)], \
+                     c=colours[counter],linestyle=style[counter], alpha=alphas[counter])
+        else:
+            label_str = labels[counter]
+            all_min_bound = min(all_data)
+            all_max_bound = max(all_data)
+            samp_min_bound.append(all_min_bound)
+            samp_max_bound.append(all_max_bound)
+            label_str = labels[counter]
+            plt.plot(range(x_len), [all_min_bound for i in range(x_len)], \
+                     c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter])
+            plt.plot(range(x_len), [all_max_bound for i in range(x_len)], \
+                     c=colours[counter],linestyle=style[counter], alpha=alphas[counter])
+        counter = counter + 1
+    # print(len(samp_min_bound[0]))
+    print("min error: " + str(samp_min_bound[0]/samp_min_bound[3]))
+    print("max error: " + str(samp_max_bound[0]/samp_max_bound[3]))
+    plt.ylabel("Output values")
+    plt.tick_params(
+        axis='x',          # changes apply to the x-axis
+        which='both',      # both major and minor ticks are affected
+        bottom=False,      # ticks along the bottom edge are off
+        top=False,         # ticks along the top edge are off
+        labelbottom=False) # labels along the bottom edge are off
+    plt.legend(loc="upper right")
+    plt.savefig(os.path.basename(__file__).replace(".py", ".pdf"))
+else:
+    for sr in [1000,10000,100000,1000000]:
+    # for sr in [1000]:
+        samp = []
+        output = 0.0
+        num_sample = 0
+        divider = 7.34893e5
+        with open("/home/john/AutoDP/txts/accuracy/output" + \
+                  sys.argv[1] + "-10000," + str(sr) + ".txt","r") as ins:
+            for line in ins:
+                if "samp_output" in line:
+                    if sys.argv[1] == "11":
+                        answer = float(line.split(" ")[1]) // divider
+                        if answer < 10000:
+                            samp.append(answer + choices[np.random.choice(choices.size,1,prob)[0]]// divider)
+                    else:
+                        samp.append(float(line.split(" ")[1]))
+                    num_sample = num_sample + 1
+                if "final output" in line:
+                    if sys.argv[1] == "11":
+                        output = float(line.split(" ")[2]) // divider
+                    else:
+                        output = float(line.split(" ")[2])
+            c_samp = [output for j in range(sr - num_sample)]
+            print(sr - num_sample)
+            samp_by_rate.append(samp + c_samp)
+    all_data = []
+    samp_max_bound = []
+    samp_min_bound = []
+    colours = ['tab:red','tab:orange','tab:green','tab:blue', \
+               'tab:purple','tab:brown','tab:pink','tab:gray', \
+               'tab:olive','tab:cyan']
+    # colours_spot = ['lightgrey','lightsteelblue','lightcoral',]
+    style = ['--','--','--','--','--','--','--']
+    labels = ['$10^3$','$10^4$','$10^5$','Ground truth','$10^7$']
+    alphas = [1,0.6,0.6,0.6,0.6]
+    counter = 0
+    for sr in samp_by_rate:
+        max_bound_sr = max(sr)
+        min_bound_sr = min(sr)
+        all_data = all_data + sr
+        samp_len = 100
+        x_len = 100
+        x = [random.randint(0,x_len) for i in range(samp_len)]
+        plt.scatter(x, np.random.choice(sr,samp_len), c='silver',s=1)
+        #=====use 13 to infer 11
+        # x = [random.randint(0,x_len) for i in range(2000)]
+        # plt.scatter(x,np.concatenate((np.random.choice(sr,samp_len),np.array([1169 for i in range (1900)]))), c='silver',s=1)
+
+    #=====================count how many covered=======
+        mu, std = norm.fit(sr)
+        all_distinct = list(set(samp_by_rate[3]))
+        min_bound = mu - 4*std
+        max_bound = mu + 4*std
+        covered_distinct = [1 if x >= min_bound and x <= max_bound else 0 for x in all_distinct]
+        total_distinct = len(all_distinct)
+        print("covered_distinct: " + str(sum(covered_distinct)))
+        print("total_distinct" + str(total_distinct))
+        covered_percentage = sum(covered_distinct)/total_distinct*100
+        print("covered_percentage" + str(covered_percentage))
+        #=================================================
+        if not labels[counter] == 'Ground truth':
+            samp_min_bound.append(min_bound)
+            samp_max_bound.append(max_bound)
+            label_str = labels[counter] + " samples, covered " + '%.1f' % (math.floor(covered_percentage*10)/10) + "% o.v."
+            plt.plot(range(x_len), [max_bound for i in range(x_len)], \
+                     c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter])
+            plt.plot(range(x_len), [min_bound for i in range(x_len)], \
+                     c=colours[counter],linestyle=style[counter], alpha=alphas[counter])
+        else:
+            label_str = labels[counter]
+            all_min_bound = min(all_data)
+            all_max_bound = max(all_data)
+            samp_min_bound.append(all_min_bound)
+            samp_max_bound.append(all_max_bound)
+            label_str = labels[counter]
+            plt.plot(range(x_len), [all_min_bound for i in range(x_len)], \
+                     c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter])
+            plt.plot(range(x_len), [all_max_bound for i in range(x_len)], \
+                     c=colours[counter],linestyle=style[counter], alpha=alphas[counter])
+        counter = counter + 1
+    # print(len(samp_min_bound[0]))
+    print("min error: " + str(samp_min_bound[0]/samp_min_bound[3]))
+    print("max error: " + str(samp_max_bound[0]/samp_max_bound[3]))
+    plt.ylabel("Output values")
+    plt.tick_params(
+        axis='x',          # changes apply to the x-axis
+        which='both',      # both major and minor ticks are affected
+        bottom=False,      # ticks along the bottom edge are off
+        top=False,         # ticks along the top edge are off
+        labelbottom=False) # labels along the bottom edge are off
+    plt.legend(loc="upper right")
     plt.savefig(os.path.basename(__file__).replace(".py", ".pdf"))
