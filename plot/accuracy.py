@@ -58,7 +58,7 @@ if sys.argv[1] == "1":
     output = 110989727
     samp_len = 100
     x_len = 100
-    sr = [output + random.randint(-8,8) for i in range(samp_len)]
+    sr = [output + random.randint(-1,1) for i in range(samp_len)]
     all_data = all_data + sr
     x = [random.randint(0,x_len) for i in range(samp_len)]
     plt.scatter(x, np.random.choice(sr,samp_len), c='silver',s=1)
@@ -83,7 +83,7 @@ if sys.argv[1] == "1":
         output = 110989727
         samp_len = 1000
         x_len = 100
-        sr = [output + random.randint(-8,8) for i in range(samp_len)]
+        sr = [output + random.randint(-1,1) for i in range(samp_len)]
         all_data = all_data + sr
         x = [random.randint(0,x_len) for i in range(samp_len)]
         plt.scatter(x, np.random.choice(sr,samp_len), c='silver',s=1)
@@ -119,14 +119,15 @@ if sys.argv[1] == "1":
     # print(len(samp_min_bound[0]))
     print("min error: " + str(samp_min_bound[0]/samp_min_bound[3]))
     print("max error: " + str(samp_max_bound[0]/samp_max_bound[3]))
-    plt.ylabel("TPCH-1 Output Values")
+    plt.ylabel("TPCH-1 Output Values",fontsize=14)
     plt.tick_params(
         axis='x',          # changes apply to the x-axis
         which='both',      # both major and minor ticks are affected
         bottom=False,      # ticks along the bottom edge are off
         top=False,         # ticks along the top edge are off
         labelbottom=False) # labels along the bottom edge are off
-    plt.legend(loc="upper right")
+    plt.yticks(fontsize=14)
+    plt.legend(loc="upper right",fontsize=14)
     plt.savefig(os.path.basename(__file__).replace(".py", ".pdf"))
 elif sys.argv[1] == "1-11":
     prior_samp = []
@@ -311,14 +312,15 @@ elif sys.argv[1] == "lr":
     # print(len(samp_min_bound[0]))
     print("min error: " + str(samp_min_bound[0]/samp_min_bound[3]))
     print("max error: " + str(samp_max_bound[0]/samp_max_bound[3]))
-    plt.ylabel("Output values")
+    plt.ylabel("LR Output values")
     plt.tick_params(
         axis='x',          # changes apply to the x-axis
         which='both',      # both major and minor ticks are affected
         bottom=False,      # ticks along the bottom edge are off
         top=False,         # ticks along the top edge are off
         labelbottom=False) # labels along the bottom edge are off
-    plt.legend(loc="upper right")
+    plt.yticks(fontsize=14)
+    plt.legend(loc="upper right",fontsize=14)
     plt.savefig(os.path.basename(__file__).replace(".py", ".pdf"))
 elif sys.argv[1] == "km":
     prior_samp = []
