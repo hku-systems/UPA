@@ -7,6 +7,7 @@ import numpy as np
 import os
 from scipy.stats import norm
 import math
+from matplotlib.ticker import ScalarFormatter
 
 samp_by_rate = []
 choices_t = [0] + [np.random.normal(0, 1.2345e8, 1)[0] for i in range(15)]
@@ -119,7 +120,15 @@ if sys.argv[1] == "1":
     # print(len(samp_min_bound[0]))
     print("min error: " + str(samp_min_bound[0]/samp_min_bound[3]))
     print("max error: " + str(samp_max_bound[0]/samp_max_bound[3]))
-    plt.ylabel("TPCH-1 Output Values",fontsize=14)
+    # plt.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
+    plt.ylabel("TPCH1 Output Values",fontsize=14)
+    class ScalarFormatterForceFormat(ScalarFormatter):
+        def _set_format(self):  # Override function that finds format to use.
+            self.format = "%2d"  # Give format here
+    ax = plt.gca()
+    yfmt = ScalarFormatterForceFormat()
+    yfmt.set_powerlimits((0,0))
+    ax.yaxis.set_major_formatter(yfmt)
     plt.tick_params(
         axis='x',          # changes apply to the x-axis
         which='both',      # both major and minor ticks are affected
@@ -142,7 +151,7 @@ elif sys.argv[1] == "1-11":
                       "1-10000," + str(100000) + ".txt","r") as ins:
                 for line in ins:
                     if "samp_output" in line:
-                        prior_samp.append(float(line.split(" ")[1]))
+                        prior_samp.append(float(line.split(" ")[1]) )
 
         with open("/home/john/AutoDP/txts/accuracy/output" + \
                   "1-10000," + str(sr) + ".txt","r") as ins:
@@ -238,14 +247,17 @@ elif sys.argv[1] == "1-11":
     # print(len(samp_min_bound[0]))
     print("min error: " + str(samp_min_bound[0]/samp_min_bound[3]))
     print("max error: " + str(samp_max_bound[0]/samp_max_bound[3]))
-    plt.ylabel("TPCH-11 Output Values")
+    plt.ylabel("TPCH11 Output Values",fontsize=14)
+    ax = plt.gca()
+    ax.yaxis.major.formatter.set_powerlimits((0,0))
     plt.tick_params(
         axis='x',          # changes apply to the x-axis
         which='both',      # both major and minor ticks are affected
         bottom=False,      # ticks along the bottom edge are off
         top=False,         # ticks along the top edge are off
         labelbottom=False) # labels along the bottom edge are off
-    plt.legend(loc="upper right")
+    plt.yticks(fontsize=10)
+    plt.legend(loc="upper right",fontsize=11)
     plt.savefig(os.path.basename(__file__).replace(".py", ".pdf"))
 elif sys.argv[1] == "lr":
     prior_samp = []
@@ -331,7 +343,9 @@ elif sys.argv[1] == "lr":
     # print(len(samp_min_bound[0]))
     print("min error: " + str(samp_min_bound[0]/samp_min_bound[3]))
     print("max error: " + str(samp_max_bound[0]/samp_max_bound[3]))
-    plt.ylabel("Linear Regression Output values")
+    plt.ylabel("LR Output Values",fontsize=14)
+    ax = plt.gca()
+    ax.yaxis.major.formatter.set_powerlimits((0,0))
     plt.tick_params(
         axis='x',          # changes apply to the x-axis
         which='both',      # both major and minor ticks are affected
@@ -529,14 +543,17 @@ elif sys.argv[1] == "13-16":
     # print(len(samp_min_bound[0]))
     print("min error: " + str(samp_min_bound[0]/samp_min_bound[3]))
     print("max error: " + str(samp_max_bound[0]/samp_max_bound[3]))
-    plt.ylabel("TPCH-16 Output Values")
+    plt.ylabel("TPCH16 Output Values",fontsize=14)
+    ax = plt.gca()
+    ax.yaxis.major.formatter.set_powerlimits((0,0))
     plt.tick_params(
         axis='x',          # changes apply to the x-axis
         which='both',      # both major and minor ticks are affected
         bottom=False,      # ticks along the bottom edge are off
         top=False,         # ticks along the top edge are off
         labelbottom=False) # labels along the bottom edge are off
-    plt.legend(loc="upper right")
+    plt.yticks(fontsize=9)
+    plt.legend(loc="upper right",fontsize=14)
     plt.savefig(os.path.basename(__file__).replace(".py", ".pdf"))
 elif sys.argv[1] == "21":
     for sr in [1000,10000,100000,1000000]:
@@ -631,14 +648,17 @@ elif sys.argv[1] == "21":
     # print(len(samp_min_bound[0]))
     print("min error: " + str(samp_min_bound[0]/samp_min_bound[3]))
     print("max error: " + str(samp_max_bound[0]/samp_max_bound[3]))
-    plt.ylabel("TPCH-21 Output Values")
+    plt.ylabel("TPCH21 Output Values",fontsize=14)
+    ax = plt.gca()
+    ax.yaxis.major.formatter.set_powerlimits((0,0))
     plt.tick_params(
         axis='x',          # changes apply to the x-axis
         which='both',      # both major and minor ticks are affected
         bottom=False,      # ticks along the bottom edge are off
         top=False,         # ticks along the top edge are off
         labelbottom=False) # labels along the bottom edge are off
-    plt.legend(loc="upper right")
+    plt.yticks(fontsize=10)
+    plt.legend(loc="upper right",fontsize=14)
     plt.savefig(os.path.basename(__file__).replace(".py", ".pdf"))
 else:
     for sr in [1000,10000,100000,1000000]:
@@ -744,20 +764,34 @@ else:
     print("min error: " + str(samp_min_bound[0]/samp_min_bound[3]))
     print("max error: " + str(samp_max_bound[0]/samp_max_bound[3]))
     yName = ""
+    size = 0
     if sys.argv[1] == "1":
-        yName = "TPCH-21 "
+        yName = "TPCH21 "
     elif sys.argv[1] == "4":
-        yName = "TPCH-4 "
+        yName = "TPCH4 "
+        size = 10
     elif sys.argv[1] == "6":
-        yName = "TPCH-6 "
+        yName = "TPCH6 "
+        size = 10
     elif sys.argv[1] == "16":
-        yName = "TPCH-13 "
-    plt.ylabel(yName + "Output values")
+        yName = "TPCH13 "
+        size = 10
+    plt.ylabel(yName + "Output Values",fontsize=14)
+    # class ScalarFormatterForceFormat(ScalarFormatter):
+    #     def _set_format(self):  # Override function that finds format to use.
+    #         self.format = "%3d"  # Give format here
+    ax = plt.gca()
+    # yfmt = ScalarFormatterForceFormat()
+    # yfmt.set_powerlimits((0,0))
+    # ax.yaxis.set_major_formatter(yfmt)
+    # ax = plt.gca()
+    ax.yaxis.major.formatter.set_powerlimits((0,0))
     plt.tick_params(
         axis='x',          # changes apply to the x-axis
         which='both',      # both major and minor ticks are affected
         bottom=False,      # ticks along the bottom edge are off
         top=False,         # ticks along the top edge are off
         labelbottom=False) # labels along the bottom edge are off
-    plt.legend(loc="upper right")
+    plt.yticks(fontsize=size)
+    plt.legend(loc="upper right",fontsize=14)
     plt.savefig(os.path.basename(__file__).replace(".py", ".pdf"))
