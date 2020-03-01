@@ -42,7 +42,7 @@ object TPCH21 {
       .map(p =>
         ( p(0).trim.toLong, (p(2).trim.toLong,  p(12).trim, p(11).trim, 1)))
       .reduceByKey((a,b) => (max(a._1, b._1), a._2, a._3, a._4 + b._4))
-      .map(p => (p._1,(p._2._4,p._2._1)))
+      .map(p => (p._1,(p._2._4,p._2._1))).filter(p => p._2._1 > 1)
 
     val order_input = spark.sparkContext.textFile(args(3))
       .map(_.split('|'))
@@ -73,7 +73,8 @@ object TPCH21 {
     //(l_orderkey,(((s_suppkey, s_name),o_orderstatus),(suppkey_count, max)))
 
     val final_result_before_reduce = line1join
-      .filter(p => p._2._2._1 > 1 || (p._2._2._1 == 1 && p._2._1._1 == p._2._2._2))
+//      .filter(p => p._2._2._1 > 1 || p._2._2._1 == 1)
+      //suppkey_count > 1 || suppkey_count == 1
       .map(p => (p._2._1._1._2, (p._1,p._2._1._1._1,p._2._2._1,p._2._2._2)))
       //          //$"s_name", ($"l_orderkey", $"l_suppkey", $"suppkey_count", $"suppkey_max")
       //          .filterDP(p => p._2._3 == 1 && p._2._2 == p._2._4)

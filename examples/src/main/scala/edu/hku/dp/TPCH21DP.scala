@@ -69,7 +69,7 @@ object TPCH21DP {
         //(l_orderkey,(((s_suppkey, s_name),o_orderstatus),(suppkey_count, max)))
 
         val final_result_before_reduce = line1join
-          .filterDP(p => p._2._2._1 > 1 || (p._2._2._1 == 1 && p._2._1._1 == p._2._2._2))
+//          .filterDP(p => p._2._2._1 > 1 || p._2._2._1 == 1)
           .mapDP(p => (p._2._1._1._2, (p._1,p._2._1._1._1,p._2._2._1,p._2._2._2)))
 //          //$"s_name", ($"l_orderkey", $"l_suppkey", $"suppkey_count", $"suppkey_max")
 //          .filterDP(p => p._2._3 == 1 && p._2._2 == p._2._4)

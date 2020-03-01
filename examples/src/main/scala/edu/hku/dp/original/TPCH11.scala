@@ -31,7 +31,7 @@ object TPCH11 {
       .map(_.split('|'))
       .map(p =>
         (p(0).trim.toLong, p(1).trim))
-      .filter(p => p._2 == "GERMANY")
+//      .filter(p => p._2 == "GERMANY")
       .map(p => p)
     //n_nationkey, n_name
 
