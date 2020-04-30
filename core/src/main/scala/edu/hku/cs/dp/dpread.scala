@@ -45,4 +45,8 @@ class dpread[T: ClassTag](
       else
         new dpobjectKV(sampling.map(f), advance_sampling.map(f), main.map(f))
     }
+
+  def mapfilter[U: ClassTag](f: T => U, rate: Int): dpfilter[U]= {
+    new dpfilter(main.map(f))
+  }
 }

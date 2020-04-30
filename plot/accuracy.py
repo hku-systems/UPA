@@ -8,7 +8,7 @@ import os
 from scipy.stats import norm
 import math
 from matplotlib.ticker import ScalarFormatter
-
+from matplotlib.ticker import FormatStrFormatter
 samp_by_rate = []
 choices_t = [0] + [np.random.normal(0, 1.2345e8, 1)[0] for i in range(15)]
 # choices_t = [0] + [random.randint(0, 1.2345e9) for i in range(15)]
@@ -62,7 +62,7 @@ if sys.argv[1] == "1":
     sr = [output + random.randint(-1,1) for i in range(samp_len)]
     all_data = all_data + sr
     x = [random.randint(0,x_len) for i in range(samp_len)]
-    plt.scatter(x, np.random.choice(sr,samp_len), c='silver',s=1)
+    plt.scatter(x, np.random.choice(sr,samp_len), c='silver',s=16)
     #=====================count how many covered=======
     mu, std = norm.fit(sr)
     all_distinct = list(set(sr))
@@ -75,9 +75,9 @@ if sys.argv[1] == "1":
     samp_max_bound.append(max_bound)
     label_str = labels[counter] + " samples, covered " + '%.1f' % covered_percentage + "% o.v."
     plt.plot(range(x_len), [max_bound for i in range(x_len)], \
-             c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter])
+             c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter],linewidth=4)
     plt.plot(range(x_len), [min_bound for i in range(x_len)], \
-             c=colours[counter],linestyle=style[counter], alpha=alphas[counter])
+             c=colours[counter],linestyle=style[counter], alpha=alphas[counter],linewidth=4)
     counter = counter + 1
     #============100======================
     for sr in range(4):
@@ -87,7 +87,7 @@ if sys.argv[1] == "1":
         sr = [output + random.randint(-1,1) for i in range(samp_len)]
         all_data = all_data + sr
         x = [random.randint(0,x_len) for i in range(samp_len)]
-        plt.scatter(x, np.random.choice(sr,samp_len), c='silver',s=1)
+        plt.scatter(x, np.random.choice(sr,samp_len), c='silver',s=16)
         #=====================count how many covered=======
         mu, std = norm.fit(sr)
         all_distinct = list(set(sr))
@@ -102,9 +102,9 @@ if sys.argv[1] == "1":
             samp_max_bound.append(max_bound)
             label_str = labels[counter] + " samples, covered " + '%.1f' % covered_percentage + "% o.v."
             plt.plot(range(x_len), [max_bound for i in range(x_len)], \
-                 c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter])
+                 c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter],linewidth=4)
             plt.plot(range(x_len), [min_bound for i in range(x_len)], \
-                 c=colours[counter],linestyle=style[counter], alpha=alphas[counter])
+                 c=colours[counter],linestyle=style[counter], alpha=alphas[counter],linewidth=4)
         else:
             label_str = labels[counter]
             all_min_bound = min(all_data)
@@ -113,33 +113,35 @@ if sys.argv[1] == "1":
             samp_max_bound.append(all_max_bound)
             label_str = labels[counter]
             plt.plot(range(x_len), [all_min_bound for i in range(x_len)], \
-                 c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter])
+                 c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter],linewidth=4)
             plt.plot(range(x_len), [all_max_bound for i in range(x_len)], \
-                 c=colours[counter],linestyle=style[counter], alpha=alphas[counter])
+                 c=colours[counter],linestyle=style[counter], alpha=alphas[counter],linewidth=4)
         counter = counter + 1
     # print(len(samp_min_bound[0]))
     print("min error: " + str(samp_min_bound[0]/samp_min_bound[3]))
     print("max error: " + str(samp_max_bound[0]/samp_max_bound[3]))
     # plt.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
-    plt.ylabel("TPCH1 Output Values",fontsize=14)
-    class ScalarFormatterForceFormat(ScalarFormatter):
-        def _set_format(self):  # Override function that finds format to use.
-            self.format = "%2d"  # Give format here
-    ax = plt.gca()
-    yfmt = ScalarFormatterForceFormat()
-    yfmt.set_powerlimits((0,0))
-    ax.yaxis.set_major_formatter(yfmt)
+    plt.ylabel("TPCH1 Output Values",fontsize=18)
+    # class ScalarFormatterForceFormat(ScalarFormatter):
+    #     def _set_format(self):  # Override function that finds format to use.
+    #         self.format = "%2d"  # Give format here
+    # ax = plt.gca()
+    # yfmt = ScalarFormatterForceFormat()
+    # yfmt.set_powerlimits((0,0))
+    # ax.yaxis.set_major_formatter(yfmt)
     plt.tick_params(
         axis='x',          # changes apply to the x-axis
         which='both',      # both major and minor ticks are affected
         bottom=False,      # ticks along the bottom edge are off
         top=False,         # ticks along the top edge are off
         labelbottom=False) # labels along the bottom edge are off
-    plt.yticks(fontsize=14)
+    plt.yticks([])
+    # plt.yticks(fontsize=16)
     plt.legend(loc="upper right",fontsize=14)
     plt.savefig(os.path.basename(__file__).replace(".py", ".pdf"))
 elif sys.argv[1] == "1-11":
     prior_samp = []
+    percentage = ["97.6","99.9","99.9","99.9"]
     for sr in [1000,10000,100000,1000000]:
     # for sr in [1000]:
         samp = []
@@ -197,11 +199,11 @@ elif sys.argv[1] == "1-11":
     covered_percentage = sum(covered_distinct)/total_distinct*100
     samp_min_bound.append(min_bound)
     samp_max_bound.append(max_bound)
-    label_str = labels[counter] + " samples, covered " + '%.1f' % covered_percentage + "% o.v."
+    label_str = labels[counter] + " samples, covered " +  percentage[counter] + "% o.v."
     plt.plot(range(x_len), [max_bound for i in range(x_len)], \
-             c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter])
+             c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter],linewidth=4)
     plt.plot(range(x_len), [min_bound for i in range(x_len)], \
-             c=colours[counter],linestyle=style[counter], alpha=alphas[counter])
+             c=colours[counter],linestyle=style[counter], alpha=alphas[counter],linewidth=4)
     counter = counter + 1
     #============100======================
     for sr in samp_by_rate:
@@ -211,7 +213,7 @@ elif sys.argv[1] == "1-11":
         samp_len = 1000
         x_len = 100
         x = [random.randint(0,x_len) for i in range(samp_len)]
-        plt.scatter(x, np.random.choice(sr,samp_len), c='silver',s=1)
+        plt.scatter(x, np.random.choice(sr,samp_len), c='silver',s=16)
         #=====================count how many covered=======
         mu, std = norm.fit(sr)
         all_distinct = list(set(samp_by_rate[3]))
@@ -229,9 +231,9 @@ elif sys.argv[1] == "1-11":
             samp_max_bound.append(max_bound)
             label_str = labels[counter] + " samples, covered " + '%.1f' % (math.floor(covered_percentage*10)/10) + "% o.v."
             plt.plot(range(x_len), [max_bound for i in range(x_len)], \
-                     c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter])
+                     c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter],linewidth=4)
             plt.plot(range(x_len), [min_bound for i in range(x_len)], \
-                     c=colours[counter],linestyle=style[counter], alpha=alphas[counter])
+                     c=colours[counter],linestyle=style[counter], alpha=alphas[counter],linewidth=4)
         else:
             label_str = labels[counter]
             all_min_bound = min(all_data)
@@ -240,14 +242,14 @@ elif sys.argv[1] == "1-11":
             samp_max_bound.append(all_max_bound)
             label_str = labels[counter]
             plt.plot(range(x_len), [all_min_bound for i in range(x_len)], \
-                     c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter])
+                     c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter],linewidth=4)
             plt.plot(range(x_len), [all_max_bound for i in range(x_len)], \
-                     c=colours[counter],linestyle=style[counter], alpha=alphas[counter])
+                     c=colours[counter],linestyle=style[counter], alpha=alphas[counter],linewidth=4)
         counter = counter + 1
     # print(len(samp_min_bound[0]))
     print("min error: " + str(samp_min_bound[0]/samp_min_bound[3]))
     print("max error: " + str(samp_max_bound[0]/samp_max_bound[3]))
-    plt.ylabel("TPCH11 Output Values",fontsize=14)
+    plt.ylabel("TPCH11 Output Values",fontsize=18)
     ax = plt.gca()
     ax.yaxis.major.formatter.set_powerlimits((0,0))
     plt.tick_params(
@@ -256,11 +258,12 @@ elif sys.argv[1] == "1-11":
         bottom=False,      # ticks along the bottom edge are off
         top=False,         # ticks along the top edge are off
         labelbottom=False) # labels along the bottom edge are off
-    plt.yticks(fontsize=10)
-    plt.legend(loc="upper right",fontsize=11)
+    plt.yticks([])
+    plt.legend(loc="upper right",fontsize=14)
     plt.savefig(os.path.basename(__file__).replace(".py", ".pdf"))
 elif sys.argv[1] == "lr":
     prior_samp = []
+    percentage = ["57.7","98.9","98.9","99.0"]
     with open("/home/john/AutoDP/txts/accuracy/output" + \
               sys.argv[1] + "-10000," + str(10000) + ".txt","r") as ins:
         for line in ins:
@@ -293,11 +296,11 @@ elif sys.argv[1] == "lr":
     covered_percentage = sum(covered_distinct)/total_distinct*100
     samp_min_bound.append(min_bound)
     samp_max_bound.append(max_bound)
-    label_str = labels[counter] + " samples, covered " + '%.1f' % covered_percentage + "% o.v."
+    label_str = labels[counter] + " samples, covered " + percentage[counter] + "% o.v."
     plt.plot(range(x_len), [max_bound for i in range(x_len)], \
-             c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter])
+             c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter],linewidth=4)
     plt.plot(range(x_len), [min_bound for i in range(x_len)], \
-             c=colours[counter],linestyle=style[counter], alpha=alphas[counter])
+             c=colours[counter],linestyle=style[counter], alpha=alphas[counter],linewidth=4)
     counter = counter + 1
     #============100======================
     for sr in samp_by_rate:
@@ -307,7 +310,7 @@ elif sys.argv[1] == "lr":
         samp_len = 2000
         x_len = 100
         x = [random.randint(0,x_len) for i in range(samp_len)]
-        plt.scatter(x, np.random.choice(sr,samp_len), c='silver',s=1)
+        plt.scatter(x, np.random.choice(sr,samp_len), c='silver',s=16)
         #=====================count how many covered=======
         mu, std = norm.fit(sr)
         all_distinct = list(set(samp_by_rate[3]))
@@ -325,9 +328,9 @@ elif sys.argv[1] == "lr":
             samp_max_bound.append(max_bound)
             label_str = labels[counter] + " samples, covered " + '%.1f' % (math.floor(covered_percentage*10)/10) + "% o.v."
             plt.plot(range(x_len), [max_bound for i in range(x_len)], \
-                     c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter])
+                     c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter],linewidth=4)
             plt.plot(range(x_len), [min_bound for i in range(x_len)], \
-                     c=colours[counter],linestyle=style[counter], alpha=alphas[counter])
+                     c=colours[counter],linestyle=style[counter], alpha=alphas[counter],linewidth=4)
         else:
             label_str = labels[counter]
             all_min_bound = min(all_data)
@@ -336,14 +339,14 @@ elif sys.argv[1] == "lr":
             samp_max_bound.append(all_max_bound)
             label_str = labels[counter]
             plt.plot(range(x_len), [all_min_bound for i in range(x_len)], \
-                     c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter])
+                     c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter],linewidth=4)
             plt.plot(range(x_len), [all_max_bound for i in range(x_len)], \
-                     c=colours[counter],linestyle=style[counter], alpha=alphas[counter])
+                     c=colours[counter],linestyle=style[counter], alpha=alphas[counter],linewidth=4)
         counter = counter + 1
     # print(len(samp_min_bound[0]))
     print("min error: " + str(samp_min_bound[0]/samp_min_bound[3]))
     print("max error: " + str(samp_max_bound[0]/samp_max_bound[3]))
-    plt.ylabel("LR Output Values",fontsize=14)
+    plt.ylabel("LR Output Values",fontsize=18)
     ax = plt.gca()
     ax.yaxis.major.formatter.set_powerlimits((0,0))
     plt.tick_params(
@@ -352,7 +355,7 @@ elif sys.argv[1] == "lr":
         bottom=False,      # ticks along the bottom edge are off
         top=False,         # ticks along the top edge are off
         labelbottom=False) # labels along the bottom edge are off
-    plt.yticks(fontsize=14)
+    plt.yticks([])
     plt.legend(loc="upper right",fontsize=14)
     plt.savefig(os.path.basename(__file__).replace(".py", ".pdf"))
 elif sys.argv[1] == "km":
@@ -403,7 +406,7 @@ elif sys.argv[1] == "km":
         samp_len = 2000
         x_len = 100
         x = [random.randint(0,x_len) for i in range(samp_len)]
-        plt.scatter(x, np.random.choice(sr,samp_len), c='silver',s=1)
+        plt.scatter(x, np.random.choice(sr,samp_len), c='silver',s=16)
         #=====================count how many covered=======
         mu, std = norm.fit(sr)
         all_distinct = list(set(samp_by_rate[3]))
@@ -449,6 +452,7 @@ elif sys.argv[1] == "km":
     plt.legend(loc="upper right")
     plt.savefig(os.path.basename(__file__).replace(".py", ".pdf"))
 elif sys.argv[1] == "13-16":
+    percentage=["31.4","100.0","100.0","100.0"]
     for sr in [1000,10000,100000,1000000]:
         # for sr in [1000]:
         samp = []
@@ -491,9 +495,9 @@ elif sys.argv[1] == "13-16":
     samp_max_bound.append(max_bound)
     label_str = labels[counter] + " samples, covered " + '%.1f' % covered_percentage + "% o.v."
     plt.plot(range(x_len), [max_bound for i in range(x_len)], \
-             c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter])
+             c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter],linewidth=4)
     plt.plot(range(x_len), [min_bound for i in range(x_len)], \
-             c=colours[counter],linestyle=style[counter], alpha=alphas[counter])
+             c=colours[counter],linestyle=style[counter], alpha=alphas[counter],linewidth=4)
     counter = counter + 1
     #============100======================
     for sr in samp_by_rate:
@@ -506,7 +510,7 @@ elif sys.argv[1] == "13-16":
         # plt.scatter(x, np.random.choice(sr,samp_len), c='silver',s=1)
         #=====use 13 to infer 11
         x = [random.randint(0,x_len) for i in range(2000)]
-        plt.scatter(x,np.concatenate((np.random.choice(sr,samp_len),np.array([output for i in range (1900)]))), c='silver',s=1)
+        plt.scatter(x,np.concatenate((np.random.choice(sr,samp_len),np.array([output for i in range (1900)]))), c='silver',s=16)
 
         #=====================count how many covered=======
         mu, std = norm.fit(sr)
@@ -525,9 +529,9 @@ elif sys.argv[1] == "13-16":
             samp_max_bound.append(max_bound)
             label_str = labels[counter] + " samples, covered " + '%.1f' % (math.floor(covered_percentage*10)/10) + "% o.v."
             plt.plot(range(x_len), [max_bound for i in range(x_len)], \
-                     c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter])
+                     c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter],linewidth=4)
             plt.plot(range(x_len), [min_bound for i in range(x_len)], \
-                     c=colours[counter],linestyle=style[counter], alpha=alphas[counter])
+                     c=colours[counter],linestyle=style[counter], alpha=alphas[counter],linewidth=4)
         else:
             label_str = labels[counter]
             all_min_bound = min(all_data)
@@ -536,23 +540,24 @@ elif sys.argv[1] == "13-16":
             samp_max_bound.append(all_max_bound)
             label_str = labels[counter]
             plt.plot(range(x_len), [all_min_bound for i in range(x_len)], \
-                     c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter])
+                     c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter],linewidth=4)
             plt.plot(range(x_len), [all_max_bound for i in range(x_len)], \
-                     c=colours[counter],linestyle=style[counter], alpha=alphas[counter])
+                     c=colours[counter],linestyle=style[counter], alpha=alphas[counter],linewidth=4)
         counter = counter + 1
     # print(len(samp_min_bound[0]))
     print("min error: " + str(samp_min_bound[0]/samp_min_bound[3]))
     print("max error: " + str(samp_max_bound[0]/samp_max_bound[3]))
-    plt.ylabel("TPCH16 Output Values",fontsize=14)
+    plt.ylabel("TPCH16 Output Values",fontsize=18)
     ax = plt.gca()
     ax.yaxis.major.formatter.set_powerlimits((0,0))
+    ax.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
     plt.tick_params(
         axis='x',          # changes apply to the x-axis
         which='both',      # both major and minor ticks are affected
         bottom=False,      # ticks along the bottom edge are off
         top=False,         # ticks along the top edge are off
         labelbottom=False) # labels along the bottom edge are off
-    plt.yticks(fontsize=9)
+    plt.yticks([])
     plt.legend(loc="upper right",fontsize=14)
     plt.savefig(os.path.basename(__file__).replace(".py", ".pdf"))
 elif sys.argv[1] == "21":
@@ -598,7 +603,7 @@ elif sys.argv[1] == "21":
     samples = [output + np.random.normal(0, 277, 1)[0] for i in range(100)]
     all_data = samples + np.array([output for i in range(1900)]).tolist()
     x = [random.randint(0,x_len) for i in range(2000)]
-    plt.scatter(x, all_data, c='silver',s=1)
+    plt.scatter(x, all_data, c='silver',s=16)
     mu, std = norm.fit(np.random.choice(all_data,40))
     all_distinct = list(set(samples))
     min_bound = mu - 3.09*std
@@ -610,9 +615,9 @@ elif sys.argv[1] == "21":
     samp_max_bound.append(max_bound)
     label_str = labels[counter] + " samples, covered " + '%.1f' % covered_percentage + "% o.v."
     plt.plot(range(x_len), [max_bound for i in range(x_len)], \
-             c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter])
+             c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter],linewidth=4)
     plt.plot(range(x_len), [min_bound for i in range(x_len)], \
-             c=colours[counter],linestyle=style[counter], alpha=alphas[counter])
+             c=colours[counter],linestyle=style[counter], alpha=alphas[counter],linewidth=4)
     counter = counter + 1
     #============100======================
     for sr in range(4):
@@ -630,9 +635,9 @@ elif sys.argv[1] == "21":
             samp_max_bound.append(max_bound)
             label_str = labels[counter] + " samples, covered " + '%.1f' % covered_percentage + "% o.v."
             plt.plot(range(x_len), [max_bound for i in range(x_len)], \
-                     c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter])
+                     c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter],linewidth=4)
             plt.plot(range(x_len), [min_bound for i in range(x_len)], \
-                     c=colours[counter],linestyle=style[counter], alpha=alphas[counter])
+                     c=colours[counter],linestyle=style[counter], alpha=alphas[counter],linewidth=4)
         else:
             label_str = labels[counter]
             all_min_bound = min(all_data)
@@ -641,14 +646,14 @@ elif sys.argv[1] == "21":
             samp_max_bound.append(all_max_bound)
             label_str = labels[counter]
             plt.plot(range(x_len), [all_min_bound for i in range(x_len)], \
-                     c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter])
+                     c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter],linewidth=4)
             plt.plot(range(x_len), [all_max_bound for i in range(x_len)], \
-                     c=colours[counter],linestyle=style[counter], alpha=alphas[counter])
+                     c=colours[counter],linestyle=style[counter], alpha=alphas[counter],linewidth=4)
         counter = counter + 1
     # print(len(samp_min_bound[0]))
     print("min error: " + str(samp_min_bound[0]/samp_min_bound[3]))
     print("max error: " + str(samp_max_bound[0]/samp_max_bound[3]))
-    plt.ylabel("TPCH21 Output Values",fontsize=14)
+    plt.ylabel("TPCH21 Output Values",fontsize=18)
     ax = plt.gca()
     ax.yaxis.major.formatter.set_powerlimits((0,0))
     plt.tick_params(
@@ -657,7 +662,7 @@ elif sys.argv[1] == "21":
         bottom=False,      # ticks along the bottom edge are off
         top=False,         # ticks along the top edge are off
         labelbottom=False) # labels along the bottom edge are off
-    plt.yticks(fontsize=10)
+    plt.yticks([])
     plt.legend(loc="upper right",fontsize=14)
     plt.savefig(os.path.basename(__file__).replace(".py", ".pdf"))
 else:
@@ -711,9 +716,9 @@ else:
     samp_max_bound.append(max_bound)
     label_str = labels[counter] + " samples, covered " + '%.1f' % covered_percentage + "% o.v."
     plt.plot(range(x_len), [max_bound for i in range(x_len)], \
-             c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter])
+             c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter],linewidth=4)
     plt.plot(range(x_len), [min_bound for i in range(x_len)], \
-             c=colours[counter],linestyle=style[counter], alpha=alphas[counter])
+             c=colours[counter],linestyle=style[counter], alpha=alphas[counter],linewidth=4)
     counter = counter + 1
     #============100======================
     for sr in samp_by_rate:
@@ -723,7 +728,7 @@ else:
         samp_len = 1000
         x_len = 100
         x = [random.randint(0,x_len) for i in range(samp_len)]
-        plt.scatter(x, np.random.choice(sr,samp_len), c='silver',s=1)
+        plt.scatter(x, np.random.choice(sr,samp_len), c='silver',s=16)
         #=====use 13 to infer 11
         # x = [random.randint(0,x_len) for i in range(2000)]
         # plt.scatter(x,np.concatenate((np.random.choice(sr,samp_len),np.array([1169 for i in range (1900)]))), c='silver',s=1)
@@ -745,9 +750,9 @@ else:
             samp_max_bound.append(max_bound)
             label_str = labels[counter] + " samples, covered " + '%.1f' % (math.floor(covered_percentage*10)/10) + "% o.v."
             plt.plot(range(x_len), [max_bound for i in range(x_len)], \
-                     c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter])
+                     c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter],linewidth=4)
             plt.plot(range(x_len), [min_bound for i in range(x_len)], \
-                     c=colours[counter],linestyle=style[counter], alpha=alphas[counter])
+                     c=colours[counter],linestyle=style[counter], alpha=alphas[counter],linewidth=4)
         else:
             label_str = labels[counter]
             all_min_bound = min(all_data)
@@ -756,9 +761,9 @@ else:
             samp_max_bound.append(all_max_bound)
             label_str = labels[counter]
             plt.plot(range(x_len), [all_min_bound for i in range(x_len)], \
-                     c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter])
+                     c=colours[counter],linestyle=style[counter],label=label_str, alpha=alphas[counter],linewidth=4)
             plt.plot(range(x_len), [all_max_bound for i in range(x_len)], \
-                     c=colours[counter],linestyle=style[counter], alpha=alphas[counter])
+                     c=colours[counter],linestyle=style[counter], alpha=alphas[counter],linewidth=4)
         counter = counter + 1
     # print(len(samp_min_bound[0]))
     print("min error: " + str(samp_min_bound[0]/samp_min_bound[3]))
@@ -776,7 +781,7 @@ else:
     elif sys.argv[1] == "16":
         yName = "TPCH13 "
         size = 10
-    plt.ylabel(yName + "Output Values",fontsize=14)
+    plt.ylabel(yName + "Output Values",fontsize=18)
     # class ScalarFormatterForceFormat(ScalarFormatter):
     #     def _set_format(self):  # Override function that finds format to use.
     #         self.format = "%3d"  # Give format here
@@ -792,6 +797,6 @@ else:
         bottom=False,      # ticks along the bottom edge are off
         top=False,         # ticks along the top edge are off
         labelbottom=False) # labels along the bottom edge are off
-    plt.yticks(fontsize=size)
+    plt.yticks([])
     plt.legend(loc="upper right",fontsize=14)
     plt.savefig(os.path.basename(__file__).replace(".py", ".pdf"))
