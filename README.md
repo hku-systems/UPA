@@ -26,13 +26,10 @@ the partitioned dataset is `$HOME/test/dataset.txt.upa` and to be read by UPA.
 
 3.Running query an example query: 
 
-`python tests.py --wq simple --path $HOME/test/dataset.txt.upa --attack yes`
+`python tests.py --wq simple --path $HOME/test/dataset.txt.upa --attack yes --sp 1111`
 
 By setting `--attack yes`, a differential attack is conducted by running the same query twice, 
 whose input datasets differ by only one data record (a data record is randomly removed from the input 
-dataset). UPA will detect and avoid the attack ("differential attack is detected and avoided" is printed), 
-and outputs the noisy computation result.
-
-By setting `--attack yes`, a differential attack is not conducted so UPA simply outputs 
-the noisy computation result.
+dataset). UPA will detect and avoid the attack (the message "Differential attack is detected and avoided" will be printed), 
+and output a noisy computation result.
 

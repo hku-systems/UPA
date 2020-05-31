@@ -14,12 +14,12 @@ import scala.collection.mutable.ArrayBuffer
 import scala.math.{exp, log, pow}
 import scala.util.Random
 /**
-  * Created by lionon on 10/22/18.
-  */
+ * Created by lionon on 10/22/18.
+ */
 class dpobject_c[T: ClassTag](
-                             var inputsample : RDD[(T,Long)],
-                             var inputsample_advance : RDD[T],
-                             var inputoriginal : RDD[(T,Long)]) {
+                               var inputsample : RDD[(T,Long)],
+                               var inputsample_advance : RDD[T],
+                               var inputoriginal : RDD[(T,Long)]) {
 
   var sample = inputsample //for each element, sample refers to "if this element exists"
   var sample_advance = inputsample_advance
@@ -59,7 +59,7 @@ class dpobject_c[T: ClassTag](
     val delta = 1
     val k_distance_double = 1 / epsilon
     val k_distance = parameters(0).toInt
-//    val beta = epsilon / (2 * scala.math.log(2 / delta))
+    //    val beta = epsilon / (2 * scala.math.log(2 / delta))
     var diff_attack = 0
     //The "sample" field carries the aggregated result already
     assert(!original.isEmpty)
@@ -67,12 +67,23 @@ class dpobject_c[T: ClassTag](
       .asInstanceOf[RDD[(Double, Long)]].map(p => (p._2, p._1))
       .reduceByKey(f).collect
 
+    //    print("Original parition size: ")
+    //    original.collect.groupBy(_._2).toArray.foreach(p => {
+    //      println(p._2.size)
+    //    })
+
     val s_collect_windex = sample
       .asInstanceOf[RDD[(Double, Long)]]
       .collect.groupBy(_._2).toArray
 
+    //    print("Sample parition size: ")
+    //    s_collect_windex.foreach(p => {
+    //      println(p._2.size)
+    //    })
+
     val agg = s_collect_windex.map(p => { //compute output value with sample item, accumulatively
       val result_val = result.filter(q => q._1 == p._1)
+      assert(result_val.size == 1)
       val p2_size = p._2.size
       var acc = new Array[Double](p2_size)
       for (i <- 0 until p2_size) {
@@ -84,6 +95,30 @@ class dpobject_c[T: ClassTag](
       assert(result_val.size == 1) //may equal zero (the whole original partition get filtered out), but lets handle this later
       (p._1, acc.map(q => f(q, result_val.head._2)))
     })
+
+    //    val agg = result.map(p => { //compute output value with sample item, accumulatively
+    //      val result_val = s_collect_windex.filter(q => q._1 == p._1)
+    //      assert(result_val.size == 1)//only partition exists
+    //      var array_size = result_val.head._2.size
+    //      if(array_size == 0)
+    //        array_size = 1
+    //      var acc = new Array[Double](array_size)
+    //      if(result_val.size > 0) {
+    //        assert(result_val.size == 1)
+    //        for (i <- 0 until result_val.size) {
+    //          if (i == 0)
+    //            acc(i) = f(p._2,result_val.head._2(i)._1)
+    //          else
+    //            acc(i) =  f(acc(i - 1), result_val.head._2(i)._1)
+    //
+    //        }
+    //      }else
+    //      {
+    //        acc(0) = p._2
+    //      }
+    //      (p._1, acc)
+    //    })
+
     //agg//accumulative output values of samples
     val sample_collect_size = s_collect_windex.size
     var all_hist = List[(Long, Double)]()
@@ -97,17 +132,19 @@ class dpobject_c[T: ClassTag](
     val hist_group = all_hist.groupBy(_._1).toArray
     val comp = agg.map(p => { //see if each partition of sample matched previous output, if yes, then set back for one step and retry
       val p_val = hist_group.filter(q => q._1 == p._1)
-      val p2size = p._2.size
-//      assert(p_val.size > 0)
+      val p2size = p._2.size - 1
+      //      assert(p_val.size > 0)
       if (p_val.size > 0) {
         assert(p_val.size == 1) //this is always true as items of the same key only grouped in one group
         var min_i = p2size
-//        print("p._2.size: " + p._2.size)
+        //        print("p._2.size: " + p._2.size)
         var found_diff = 0
         var i = p2size - 1
         val cmp_list = p_val.head._2.map(_._2)
         while (found_diff == 0 && i >= 0) {
-//        for (i <- p._2.size - 1 to 0 by -1) {
+          if(i < p2size - 1 && diff_attack ==0)
+            diff_attack = 1
+          //        for (i <- p._2.size - 1 to 0 by -1) {
           if (!cmp_list.contains(p._2(i))) {//p_val.head._2 is the historical output of the same key, p._2 is the current same acc output
             min_i = i
             found_diff = 1
@@ -115,8 +152,6 @@ class dpobject_c[T: ClassTag](
           i = i - 1
         }
         assert(found_diff == 1)//found a method to change the output of a partition
-        if(min_i < p2size - 1)
-          diff_attack = 1
         (p._1, p._2(min_i),min_i) //the accumulate output of index min_i is chosen
       } else {
         (p._1, p._2.last,p._2.size)//min_i and p._2.size are used for selecting sample below
@@ -134,7 +169,6 @@ class dpobject_c[T: ClassTag](
         append_str = append_str + comp(j)._1.toString + ":" + comp(j)._2.toString + "\n"
       }
     }
-    append_str
     scala.tools.nsc.io.File("histoutputs.csv").appendAll(append_str)
     var aggregatedResult = result.map(_._2).reduce(f)
     val result_b = original.sparkContext.broadcast(aggregatedResult)
@@ -227,7 +261,7 @@ class dpobject_c[T: ClassTag](
     }
     val duration = (System.nanoTime - t1) / 1e9d
     if(diff_attack == 1)
-      print("differential attack is detected and avoided\n")
+      println("Differential attack is detected and avoided")
 
     (sample_array.map(_._2), sample_array_advance, aggregatedResult, epsilon)
   }
@@ -260,11 +294,11 @@ class dpobject_c[T: ClassTag](
   }
 
   def filterDP(f: T => Boolean) : dpobject_c[T] = {
-//    val t1 = System.nanoTime
+    //    val t1 = System.nanoTime
     val r1 = inputsample.filter(p => f(p._1))
     val r2 = inputsample_advance.filter(f)
     val r3 = inputoriginal.filter(p => f(p._1))
-//    val duration = (System.nanoTime - t1) / 1e9d
+    //    val duration = (System.nanoTime - t1) / 1e9d
     new dpobject_c(r1,r2,r3)
   }
 }
