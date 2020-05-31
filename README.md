@@ -19,7 +19,7 @@ This will create a dataset for testing under `$HOME/test/dataset.txt`
 
 2.Parition the dataset:
 
-`python indexing.py --wq index --path $HOME/test/dataset.txt`
+`touch histoutputs.csv; python indexing.py --wq index --path $HOME/test/dataset.txt`
 
 This will partition the dataset (`$HOME/test/dataset.txt`) into two partitions, 
 the partitioned dataset is `$HOME/test/dataset.txt.upa` and to be read by UPA.
