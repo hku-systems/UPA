@@ -24,7 +24,7 @@ This will create a dataset for testing under `$HOME/test/dataset.txt`
 This will partition the dataset (`$HOME/test/dataset.txt`) into two partitions, 
 the partitioned dataset is `$HOME/test/dataset.txt.upa` and to be read by UPA.
 
-3.Running query an example query: 
+3.Running an example query: 
 
 `python tests.py --wq simple --path $HOME/test/dataset.txt.upa --attack yes --sp 1111`
 
