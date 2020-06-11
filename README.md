@@ -3,6 +3,10 @@
 UPA is a big-data system that automatically infers a sensitivity value for enforcing Differential Privacy. 
 Below shows a simple example demonstrating the functionalities of UPA.
 
+##core dependencies
+
+`sudo apt-get insall openjdk-8-jdk maven`
+
 ## How to build UPA
 
 UPA is built in the same way of Apache Spark i.e., by running:
@@ -15,21 +19,33 @@ UPA is built in the same way of Apache Spark i.e., by running:
 
 `mkdir $HOME/test; python gen_data.py --wq simple --path $HOME/test/dataset.txt --s 100000`
 
-This will create a dataset for testing under `$HOME/test/dataset.txt`
+This will create a dataset of 100000 records for testing under `$HOME/test/dataset.txt`
 
 2.Parition the dataset:
 
-`touch histoutputs.csv; python indexing.py --wq index --path $HOME/test/dataset.txt`
+`python indexing.py --wq index --path $HOME/test/dataset.txt`
 
 This will partition the dataset (`$HOME/test/dataset.txt`) into two partitions, 
 the partitioned dataset is `$HOME/test/dataset.txt.upa` and to be read by UPA.
 
-3.Running query an example query: 
+3.Running an example: 
 
-`python tests.py --wq simple --path $HOME/test/dataset.txt.upa --attack yes --sp 1111`
+`./demo_attack.sh`
 
-By setting `--attack yes`, a differential attack is conducted by running the same query twice, 
-whose input datasets differ by only one data record (a data record is randomly removed from the input 
-dataset). UPA will detect and avoid the attack (the message "Differential attack is detected and avoided" will be printed), 
-and output a noisy computation result.
+Detailed description can be found in the shell file
+
+##Run UPA in cluster mode
+
+First start a master by running the following command on a master computer:
+
+`./sbin/start-master.sh -h <ip address of master> -p <port to be used>`
+
+Then start workers by running the following command on a worker computer:
+
+`./sbin/start-slave.sh spark://<ip address of master>:<port to be used>`
+
+Then running `./demo_attack.sh` on the master computer. Note that the input dataset has to be replicated on both master and workers. 
+After finishing testing, stop the master and workers by running `./sbin/stop-master.sh` and `./sbin/stop-slave.sh` on master and worker respectively, to release network resources.
+
+
 
