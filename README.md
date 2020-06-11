@@ -32,7 +32,7 @@ the partitioned dataset is `$HOME/test/dataset.txt.upa` and to be read by UPA.
 
 `./demo_attack.sh`
 
-Detailed description can be found in the shell file
+The outputs are in `output.txt`. Detailed description can be found in the shell file
 
 ## Run UPA in cluster mode
 
