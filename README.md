@@ -34,7 +34,7 @@ the partitioned dataset is `$HOME/test/dataset.txt.upa` and to be read by UPA.
 
 Detailed description can be found in the shell file
 
-##Run UPA in cluster mode
+## Run UPA in cluster mode
 
 First start a master by running the following command on a master computer:
 
