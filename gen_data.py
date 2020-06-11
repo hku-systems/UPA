@@ -96,3 +96,5 @@ if wq == "simple":
         for rows in range(s):
             # print(str(random.randint(0,10)))\
             writer1.writerow([str(random.randint(1,10))])
+        for i in range(11,1000):
+            writer1.writerow([str(i)])

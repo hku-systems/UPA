@@ -25,10 +25,10 @@ class dpread_c[T: ClassTag](
     val sampling = main.sparkContext.parallelize(main.take(rate))
 //    val sampling = main.sparkContext.parallelize(main.take(rate))
     val duration = (System.nanoTime - t1) / 1e9d
-    if(parameters(2).toInt == 1)// 1 means tune accuracy
-      new dpobject_c(sampling.map(p => (f(p._1),p._2)), advance_sampling.map(p => f(p._1)), main.subtract(sampling).map(p => (f(p._1),p._2)))
-    else
-      new dpobject_c(sampling.map(p => (f(p._1),p._2)), advance_sampling.map(p => f(p._1)), main.map(p => (f(p._1),p._2)))
+//    if(parameters(2).toInt == 1)// 1 means tune accuracy
+    new dpobject_c(sampling.map(p => (f(p._1),p._2)), advance_sampling.map(p => f(p._1)), main.subtract(sampling).map(p => (f(p._1),p._2)))
+//    else
+//      new dpobject_c(sampling.map(p => (f(p._1),p._2)), advance_sampling.map(p => f(p._1)), main.map(p => (f(p._1),p._2)))
   }
 
 
