@@ -19,7 +19,7 @@ UPA is built in the same way as Apache Spark i.e., by running:
 
 `mkdir $HOME/test; python gen_data.py --wq simple --path $HOME/test/dataset.txt --s 100000`
 
-This will create a sample dataset of 100000 records under `$HOME/test/dataset.txt`
+This will create a sample dataset of 100000 records under `$HOME/test/dataset.txt`.
 
 2.Parition the dataset:
 
