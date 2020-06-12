@@ -3,7 +3,7 @@
 UPA is a big-data system that automatically infers a sensitivity value for enforcing Differential Privacy. 
 Below shows a simple example demonstrating the functionalities of UPA.
 
-##core dependencies
+## core dependencies
 
 `sudo apt-get insall openjdk-8-jdk maven`
 
